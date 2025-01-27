@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Spectre.Console;
 using EasyLib.ViewModels;
+using EasySaveLog.Services;
+using EasySaveLog.Models;
 
 namespace EasyCLI
 {
@@ -11,6 +13,8 @@ namespace EasyCLI
 
         static void Main(string[] args)
         {
+            var dailyLogService = new DailyLogService(@"C:\Logs\Daily");
+            var stateService = new StateService(@"C:\Logs\state.json");
             var viewModel = new BackupViewModel();
             menuStack.Push("Main Menu");
 
@@ -24,16 +28,16 @@ namespace EasyCLI
                         ShowMainMenu(viewModel);
                         break;
                     case "Create Backup":
-                        CreateBackup(viewModel);
+                        CreateBackup(viewModel, dailyLogService);
                         break;
                     case "List Backups":
                         ListBackups(viewModel);
                         break;
                     case "Run Backup":
-                        RunBackupMenu(viewModel);
+                        RunBackupMenu(viewModel, dailyLogService);
                         break;
                     case "Delete Backup":
-                        DeleteBackup(viewModel);
+                        DeleteBackup(viewModel, dailyLogService);
                         break;
                     default:
                         menuStack.Pop();
@@ -63,7 +67,7 @@ namespace EasyCLI
             }
         }
 
-        static void CreateBackup(BackupViewModel viewModel)
+        static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
             AnsiConsole.Clear();
             AnsiConsole.MarkupLine("[bold]Create Backup[/]");
@@ -73,6 +77,15 @@ namespace EasyCLI
             var type = AnsiConsole.Ask<string>("Enter [green]backup type[/] (Full/Differential):");
 
             viewModel.CreateBackup(name, srcPath, destPath, type);
+            dailyLogService.WriteLogEntry(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                BackupName = name,
+                SourcePath = srcPath,
+                DestinationPath = destPath,
+                FileSize = 0,           
+                TransferTime = 0        
+        });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
             AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
@@ -92,7 +105,7 @@ namespace EasyCLI
             menuStack.Pop();
         }
 
-        static void RunBackupMenu(BackupViewModel viewModel)
+        static void RunBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
             AnsiConsole.Clear();
             AnsiConsole.MarkupLine("[bold]Run Backup[/]");
@@ -114,6 +127,15 @@ namespace EasyCLI
                     .AddChoices(backups.ConvertAll(b => b.Name)));
 
             viewModel.RunBackup(selectedBackup);
+            dailyLogService.WriteLogEntry(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                BackupName = selectedBackup,
+                SourcePath = "N/A",
+                DestinationPath = "N/A",
+                FileSize = 0,
+                TransferTime = 0
+            });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
             AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
@@ -121,13 +143,22 @@ namespace EasyCLI
             menuStack.Pop();
         }
 
-        static void DeleteBackup(BackupViewModel viewModel)
+        static void DeleteBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
             AnsiConsole.Clear();
             AnsiConsole.MarkupLine("[bold]Delete Backup[/]");
             var name = AnsiConsole.Ask<string>("Enter [green]backup name[/] to delete:");
 
             viewModel.DeleteBackup(name);
+            dailyLogService.WriteLogEntry(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                BackupName = name,
+                SourcePath = "N/A",
+                DestinationPath = "N/A",
+                FileSize = 0,
+                TransferTime = 0
+            });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
             AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");

@@ -1,32 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-
   <PropertyGroup>
-    <!-- La version de .NET ciblée. Cela peut être net6.0, net7.0, net8.0, etc. -->
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
-
-    <!-- Optionnel : Nom du projet/d’assembly -->
     <AssemblyName>EasyCLI</AssemblyName>
-
-    <!-- Optionnel : Désactive l'avertissement en cas de propriétés nullables -->
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <!-- Les dépendances NuGet éventuelles -->
   <ItemGroup>
-    <!-- Si tu utilises Spectre.Console pour une CLI plus esthétique -->
     <PackageReference Include="Spectre.Console" Version="0.44.0" />
-    
-    <!-- Autres packages éventuels, par exemple si tu fais des requêtes HTTP -->
-    <!-- <PackageReference Include="System.Net.Http" Version="4.3.4" /> -->
   </ItemGroup>
-
-  <!-- Référence au projet EasyLib, si tu le veux dans la solution -->
   <ItemGroup>
-    <!-- Ajuste le chemin vers EasyLib/EasyLib.csproj selon ta structure -->
     <ProjectReference Include="..\EasyLib\EasyLib.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EasySaveLog\EasySaveLog.csproj" />
+
+  </ItemGroup>
+
 
 </Project>
