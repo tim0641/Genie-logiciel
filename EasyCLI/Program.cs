@@ -75,15 +75,24 @@ namespace EasyCLI
             var srcPath = AnsiConsole.Ask<string>("Enter [green]source path[/]:");
             var destPath = AnsiConsole.Ask<string>("Enter [green]destination path[/]:");
             var type = AnsiConsole.Ask<string>("Enter [green]backup type[/] (Full/Differential):");
+    
 
             viewModel.CreateBackup(name, srcPath, destPath, type);
+
+            long fileSize = 0;
+            if (File.Exists(srcPath))
+            {
+                FileInfo fileInfo = new FileInfo(srcPath);
+                fileSize = fileInfo.Length;
+            }
+            
             dailyLogService.WriteLogEntry(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 BackupName = name,
                 SourcePath = srcPath,
                 DestinationPath = destPath,
-                FileSize = 0,           
+                FileSize = fileSize,           
                 TransferTime = 0        
         });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
