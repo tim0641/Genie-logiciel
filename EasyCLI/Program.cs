@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Spectre.Console;
 using EasyLib.ViewModels;
 using EasySaveLog.Services;
@@ -85,20 +86,16 @@ namespace EasyCLI
 
             viewModel.CreateBackup(name, srcPath, destPath, type);
 
-            long fileSize = 0;
-            if (File.Exists(srcPath))
-            {
-                FileInfo fileInfo = new FileInfo(srcPath);
-                fileSize = fileInfo.Length;
-            }
-            
+            long fileSize = dailyLogService.GetFileSize(srcPath);            
+
             dailyLogService.WriteLogEntry(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 BackupName = name,
                 SourcePath = srcPath,
                 DestinationPath = destPath,
-                FileSize = fileSize,           
+                FileSize = fileSize,
+                Type="Create"           
                       
         });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
@@ -122,34 +119,27 @@ namespace EasyCLI
 
         static void RunBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
-            AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Run Backup[/]");
-
-            var backups = viewModel.GetBackupList();
-            if (backups.Count == 0)
+            var selectedBackup = viewModel.ShowBackup("Select a backup to run:");
+            if (selectedBackup == null)
             {
-                AnsiConsole.MarkupLine("[red]No backup jobs available.[/]");
-                AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
-                while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
-                menuStack.Pop();
                 return;
             }
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            viewModel.RunBackup(selectedBackup.Name);
+            stopwatch.Stop();
+            long varTransfertime = stopwatch.ElapsedMilliseconds;
 
-            var selectedBackup = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Select a backup to run:")
-                    .PageSize(10)
-                    .AddChoices(backups.ConvertAll(b => b.Name)));
 
-            viewModel.RunBackup(selectedBackup);
             dailyLogService.WriteLogEntry(new LogEntry
             {
                 Timestamp = DateTime.Now,
-                BackupName = selectedBackup,
-                SourcePath = "N/A",
-                DestinationPath = "N/A",
-                FileSize = 0,
-                TransferTime = 0
+                BackupName = selectedBackup.Name,
+                SourcePath = selectedBackup.SourcePath,
+                DestinationPath = selectedBackup.DestinationPath,
+                FileSize = dailyLogService.GetFileSize(selectedBackup.SourcePath),
+                Time = varTransfertime + "ms", 
+                Type="Run" 
             });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
@@ -160,19 +150,28 @@ namespace EasyCLI
 
         static void DeleteBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
-            AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Delete Backup[/]");
-            var name = AnsiConsole.Ask<string>("Enter [green]backup name[/] to delete:");
 
-            viewModel.DeleteBackup(name);
+            var selectedBackup = viewModel.ShowBackup("Select a backup to run:");
+            if (selectedBackup == null)
+            {
+                return;
+            }
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            viewModel.DeleteBackup(selectedBackup.Name);
+            stopwatch.Stop();
+            long varTransfertime = stopwatch.ElapsedMilliseconds;
+
+
             dailyLogService.WriteLogEntry(new LogEntry
             {
                 Timestamp = DateTime.Now,
-                BackupName = name,
-                SourcePath = "N/A",
-                DestinationPath = "N/A",
-                FileSize = 0,
-                TransferTime = 0
+                BackupName = selectedBackup.Name,
+                SourcePath = selectedBackup.SourcePath,
+                DestinationPath = selectedBackup.DestinationPath,
+                FileSize = dailyLogService.GetFileSize(selectedBackup.SourcePath),
+                Time = varTransfertime + "ms", 
+                Type="Delete" 
             });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 

@@ -7,6 +7,7 @@ namespace EasySaveLog.Models
         public string SourcePath { get; set; }
         public string DestinationPath { get; set; }
         public long FileSize { get; set; }
-        public double? TransferTime { get; set; } // optionnel pour le create
+        public string? Time { get; set; } // optionnel pour le create
+        public string Type { get; set; }
     }
 }
