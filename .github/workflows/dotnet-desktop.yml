@@ -24,6 +24,7 @@ jobs:
           dotnet add EasyCLI/EasyCLI.csproj package Spectre.Console --version 0.49.1
           dotnet add EasyLib/EasyLib.csproj package Spectre.Console --version 0.49.1
           dotnet restore --force
+          working-directory: EasyCLI
 
       - name: Build the project
         run: dotnet build 
