@@ -93,7 +93,7 @@ namespace EasyCLI
                 SourcePath = srcPath,
                 DestinationPath = destPath,
                 FileSize = fileSize,           
-                TransferTime = 0        
+                      
         });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
