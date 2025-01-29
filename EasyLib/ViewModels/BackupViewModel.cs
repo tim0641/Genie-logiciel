@@ -74,19 +74,22 @@ namespace EasyLib.ViewModels
             }
         }
 
-        private void CopyDirectory(string sourceDir, string destDir)
-        {
-            foreach (var dir in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
-            {
-                Directory.CreateDirectory(dir.Replace(sourceDir, destDir));
-            }
+private void CopyDirectory(string sourceDir, string destDir)
+{
+    // Create the destination directory itself, including the source directory name
+    var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
+    Directory.CreateDirectory(destDirWithSource);
 
-            foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
-            {
-                File.Copy(file, file.Replace(sourceDir, destDir), true);
-            }
-        }
+    foreach (var dir in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+    {
+        Directory.CreateDirectory(dir.Replace(sourceDir, destDirWithSource));
+    }
 
+    foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+    {
+        File.Copy(file, file.Replace(sourceDir, destDirWithSource), true);
+    }
+}
         public void DeleteBackup(string name)
         {
             if (!backups.ContainsKey(name))
