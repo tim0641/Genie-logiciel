@@ -64,14 +64,14 @@ namespace EasyLib.ViewModels
             {
                 if (backup.IsDirectory)
                 {
-                    CopyDirectory(backup.SourcePath, backup.DestinationPath);
+                    CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType);
                 }
                 else
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
-                    File.Copy(backup.SourcePath, backup.FullDestinationPath, true);
+                     CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType);
                 }
-                Status = $"Backup {name} completed successfully.";
+                Status = $"Backup {name} ({backup.BackupType}) completed successfully.";
             }
             catch (Exception ex)
             {
@@ -79,9 +79,8 @@ namespace EasyLib.ViewModels
             }
         }
 
-private void CopyDirectory(string sourceDir, string destDir)
+private void CopyDirectory(string sourceDir, string destDir, string backupType)
 {
-    // Create the destination directory itself, including the source directory name
     var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
     Directory.CreateDirectory(destDirWithSource);
 
@@ -92,7 +91,27 @@ private void CopyDirectory(string sourceDir, string destDir)
 
     foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
     {
-        File.Copy(file, file.Replace(sourceDir, destDirWithSource), true);
+        string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
+        CopyFile(file, destinationFilePath, backupType);
+    }
+}
+
+private void CopyFile(string sourceFile, string destFile, string backupType)
+{
+    if (backupType.ToLower() == "full" || !File.Exists(destFile))
+    {
+        File.Copy(sourceFile, destFile, true);
+    }
+    else
+    {
+        var sourceInfo = new FileInfo(sourceFile);
+        var destInfo = new FileInfo(destFile);
+
+        
+        if (sourceInfo.LastWriteTime > destInfo.LastWriteTime || sourceInfo.Length != destInfo.Length)
+        {
+            File.Copy(sourceFile, destFile, true);
+        }
     }
 }
         public void DeleteBackup(string name)
@@ -111,9 +130,9 @@ private void CopyDirectory(string sourceDir, string destDir)
             {
                 if (backup.IsDirectory)
                 {
-                    if (Directory.Exists(backup.DestinationPath))
+                    if (Directory.Exists(backup.FullDestinationPath))
                     {
-                        Directory.Delete(backup.DestinationPath, true);
+                        Directory.Delete(backup.FullDestinationPath, true);
                         Status = "Backup job and associated directory deleted successfully.";
                     }
                     else

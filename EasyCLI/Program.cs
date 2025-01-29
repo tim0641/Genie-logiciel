@@ -18,6 +18,12 @@ namespace EasyCLI
             var stateService = new StateService(@"C:\Logs\state.json");
             var viewModel = new BackupViewModel();
             menuStack.Push("Main Menu");
+            
+            if (Environment.GetEnvironmentVariable("CI") == "true")
+            {
+                Console.WriteLine("Skipping interactive menu in CI environment.");
+                return; 
+            }
 
             while (menuStack.Count > 0)
             {
