@@ -43,6 +43,9 @@ namespace EasyCLI
                     case "Run Backup":
                         RunBackupMenu(viewModel, dailyLogService);
                         break;
+                    case "Run All Backups":
+                        RunAllBackups(viewModel);
+                        break;
                     case "Delete Backup":
                         DeleteBackup(viewModel, dailyLogService);
                         break;
@@ -61,7 +64,7 @@ namespace EasyCLI
                     .Title("[bold green]Main Menu[/]")
                     .PageSize(10)
                     .AddChoices(new[] {
-                        "Create Backup", "List Backups", "Run Backup", "Delete Backup", "Exit"
+                        "Create Backup", "List Backups", "Run Backup","Run All Backups", "Delete Backup", "Exit"
                     }));
 
             if (choice == "Exit")
@@ -146,6 +149,19 @@ namespace EasyCLI
             AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
             menuStack.Pop();
+        }
+        static void RunAllBackups(BackupViewModel viewModel)
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold]Running All Backups[/]");
+
+            viewModel.RunAllBackups();
+            AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
+
+            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
+            menuStack.Pop();
+            
         }
 
         static void DeleteBackup(BackupViewModel viewModel, DailyLogService dailyLogService)

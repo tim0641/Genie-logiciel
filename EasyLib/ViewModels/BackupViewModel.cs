@@ -79,6 +79,24 @@ namespace EasyLib.ViewModels
             }
         }
 
+        public void RunAllBackups()
+        {
+            if (backups.Count == 0)
+            {
+                Status = "No backups available.";
+                return;
+            }
+            List<String> allStatus = new List<String>();
+
+            Status = "Running all backups...\n";
+            foreach (var backup in backups.Values)
+            {
+                RunBackup(backup.Name);
+                allStatus.Add( $"{backup.Name} - {Status}");
+            }
+            Status = string.Join("\n", allStatus);
+        }
+
 private void CopyDirectory(string sourceDir, string destDir, string backupType)
 {
     var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
