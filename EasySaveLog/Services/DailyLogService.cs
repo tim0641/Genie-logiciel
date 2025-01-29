@@ -28,5 +28,17 @@ namespace EasySaveLog.Services
             
             File.AppendAllText(filePath, json + Environment.NewLine);
         }
+        public long GetFileSize(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                FileInfo fileInfo = new FileInfo(filePath);
+                return fileInfo.Length;
+            }
+            return 0;
+        }
     }
+    
 }
+
+

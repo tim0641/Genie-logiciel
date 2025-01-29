@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Spectre.Console;
 using System.Text.Json;
 using EasyLib.Models;
 
@@ -17,6 +18,10 @@ namespace EasyLib.ViewModels
             LoadBackups();
         }
 
+
+
+
+        
         public void CreateBackup(string name, string srcPath, string destPath, string type)
         {
             if (backups.ContainsKey(name))
@@ -150,6 +155,33 @@ private void CopyDirectory(string sourceDir, string destDir)
         public List<BackupModel> GetBackupList()
         {
             return new List<BackupModel>(backups.Values);
+        }
+        public BackupModel ShowBackup(string title)
+        {
+            var backups = GetBackupList();
+            if (backups.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[red]No backup jobs available.[/]");
+                AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+                while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
+                return null;
+            }
+
+            var selectedBackupName = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title(title)
+                    .PageSize(10)
+                    .AddChoices(backups.ConvertAll(b => b.Name)));
+
+            var selectedBackup = backups.FirstOrDefault(b => b.Name == selectedBackupName);
+            if (selectedBackup == null)
+            {
+                AnsiConsole.MarkupLine("[red]Selected backup not found.[/]");
+                return null;
+            }
+
+            return selectedBackup;
+
         }
     }
 }
