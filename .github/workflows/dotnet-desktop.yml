@@ -21,6 +21,8 @@ jobs:
 
       - name: Build the project
         run: dotnet build 
+        working-directory: EasyCLI
 
       - name: Run the project
         run: dotnet run 
+        working-directory: EasyCLI
