@@ -106,9 +106,9 @@ private void CopyDirectory(string sourceDir, string destDir)
             {
                 if (backup.IsDirectory)
                 {
-                    if (Directory.Exists(backup.DestinationPath))
+                    if (Directory.Exists(backup.FullDestinationPath))
                     {
-                        Directory.Delete(backup.DestinationPath, true);
+                        Directory.Delete(backup.FullDestinationPath, true);
                         Status = "Backup job and associated directory deleted successfully.";
                     }
                     else
