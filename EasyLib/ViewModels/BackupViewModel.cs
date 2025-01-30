@@ -27,25 +27,25 @@ namespace EasyLib.ViewModels
         {
             if (backups.ContainsKey(name))
             {
-                Status = "Backup job already exists.";
+                Status = Localization.Get("backup_exits");
                 return;
             }
 
             var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now);
             backups[name] = backup;
             SaveBackups();
-            Status = "Backup job created successfully.";
+            Status = Localization.Get("backup_success");
         }
 
         public void ListBackups()
         {
             if (backups.Count == 0)
             {
-                Status = "No backup jobs available.";
+                Status = Localization.Get("no_backupsjob");
                 return;
             }
 
-            Status = "List of backup jobs:\n";
+            Status =$"{Localization.Get("List_of_backup_job")}\n";
             foreach (var backup in backups)
             {
                 Status += $"{backup.Key} - {backup.Value.SourcePath} -> {backup.Value.FullDestinationPath} ({backup.Value.BackupType})\n";
@@ -56,7 +56,7 @@ namespace EasyLib.ViewModels
         {
             if (!backups.ContainsKey(name))
             {
-                Status = "Backup job not found.";
+                Status = Localization.Get("backup_not_found");
                 return;
             }
 
@@ -72,11 +72,11 @@ namespace EasyLib.ViewModels
                     Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
                      CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType);
                 }
-                Status = $"Backup {name} ({backup.BackupType}) completed successfully.";
+                Status = $" {name} ({backup.BackupType}) {Localization.Get("backup_run_succes")}";
             }
             catch (Exception ex)
             {
-                Status = $"Error during backup: {ex.Message}";
+                Status = $"{Localization.Get("backup_error")} {ex.Message}";
             }
         }
 
@@ -84,12 +84,12 @@ namespace EasyLib.ViewModels
         {
             if (backups.Count == 0)
             {
-                Status = "No backups available.";
+                Status = Localization.Get("no_backups");
                 return;
             }
             List<String> allStatus = new List<String>();
 
-            Status = "Running all backups...\n";
+            Status = $"{Localization.Get("running_all_backups")}\n";
             foreach (var backup in backups.Values)
             {
                 RunBackup(backup.Name);
@@ -137,7 +137,7 @@ private void CopyFile(string sourceFile, string destFile, string backupType)
         {
             if (!backups.ContainsKey(name))
             {
-                Status = "Backup job not found.";
+                Status = Localization.Get("backup_not_found");
                 return;
             }
 
@@ -152,26 +152,26 @@ private void CopyFile(string sourceFile, string destFile, string backupType)
                     if (Directory.Exists(backup.FullDestinationPath))
                     {
                         Directory.Delete(backup.FullDestinationPath, true);
-                        Status = "Backup job and associated directory deleted successfully.";
+                        Status = Localization.Get("Directory_delete");
                     }
                     else
                     {
-                        Status = "Backup job deleted, but the associated directory was not found.";
+                        Status = Localization.Get("Directory_delete_not_found");
                     }
                 }
                 else if (File.Exists(backup.FullDestinationPath))
                 {
                     File.Delete(backup.FullDestinationPath);
-                    Status = "Backup job and associated file deleted successfully.";
+                    Status = Localization.Get("file_delete");
                 }
                 else
                 {
-                    Status = "Backup job deleted, but the associated file was not found.";
+                    Status = Localization.Get("file_delete_not_found");
                 }
             }
             catch (Exception ex)
             {
-                Status = $"Error deleting backup file: {ex.Message}";
+                Status = $" {Localization.Get("error_delete")} {ex.Message}";
             }
         }
 
@@ -200,8 +200,8 @@ private void CopyFile(string sourceFile, string destFile, string backupType)
             var backups = GetBackupList();
             if (backups.Count == 0)
             {
-                AnsiConsole.MarkupLine("[red]No backup jobs available.[/]");
-                AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+                AnsiConsole.MarkupLine(Localization.Get("no_backups")); 
+                AnsiConsole.Markup($"[bold]{ Localization.Get("press_backspace")}[/]");
                 while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
                 return null;
             }
@@ -215,7 +215,7 @@ private void CopyFile(string sourceFile, string destFile, string backupType)
             var selectedBackup = backups.FirstOrDefault(b => b.Name == selectedBackupName);
             if (selectedBackup == null)
             {
-                AnsiConsole.MarkupLine("[red]Selected backup not found.[/]");
+                AnsiConsole.MarkupLine($"[red]{Localization.Get("press_backspace")}[/]");
                 return null;
             }
             
