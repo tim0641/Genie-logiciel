@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Spectre.Console;
+using EasyLib;
 using EasyLib.ViewModels;
 using EasySaveLog.Services;
 using EasySaveLog.Models;
+
 
 namespace EasyCLI
 {
