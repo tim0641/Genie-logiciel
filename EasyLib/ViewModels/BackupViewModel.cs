@@ -5,6 +5,7 @@ using Spectre.Console;
 using System.Text.Json;
 using EasyLib.Models;
 
+
 namespace EasyLib.ViewModels
 {
     public class BackupViewModel
@@ -195,6 +196,7 @@ private void CopyFile(string sourceFile, string destFile, string backupType)
         }
         public BackupModel ShowBackup(string title)
         {
+            AnsiConsole.Clear();
             var backups = GetBackupList();
             if (backups.Count == 0)
             {
@@ -216,8 +218,10 @@ private void CopyFile(string sourceFile, string destFile, string backupType)
                 AnsiConsole.MarkupLine("[red]Selected backup not found.[/]");
                 return null;
             }
-
+            
             return selectedBackup;
+
+
 
         }
     }
