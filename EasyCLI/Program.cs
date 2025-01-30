@@ -18,6 +18,19 @@ namespace EasyCLI
             var stateService = new StateService(@"C:\Logs\state.json");
             var viewModel = new BackupViewModel();
             menuStack.Push("Main Menu");
+
+            AnsiConsole.MarkupLine(Localization.Get("choose_language"));
+            var language = Console.ReadLine();
+            if (!string.IsNullOrEmpty(language))
+            {
+                Localization.SetLanguage(language);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]Language selection cannot be empty.[/]");
+                return;
+            }
+
             
             if (Environment.GetEnvironmentVariable("CI") == "true")
             {
@@ -25,66 +38,62 @@ namespace EasyCLI
                 return; 
             }
 
-            while (menuStack.Count > 0)
-            {
-                string currentMenu = menuStack.Peek();
 
-                switch (currentMenu)
+            while (true)
+            {
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title($"[bold green]{Localization.Get("menu_title")}[/]")
+                        .PageSize(10)
+                        .AddChoices(new[]
+                        {
+                            Localization.Get("create_backup"),
+                            Localization.Get("list_backups"),
+                            Localization.Get("run_backup"),
+                            Localization.Get("run_all_backups"),
+                            Localization.Get("delete_backup"),
+                            Localization.Get("exit")
+                        }));
+
+                if (choice == Localization.Get("exit"))
                 {
-                    case "Main Menu":
-                        ShowMainMenu(viewModel);
-                        break;
-                    case "Create Backup":
+                    break;
+                }
+                switch (choice)
+                {
+
+                    case var _ when choice == Localization.Get("create_backup"):
                         CreateBackup(viewModel, dailyLogService);
                         break;
-                    case "List Backups":
+                     case var _ when choice == Localization.Get("list_backups"):
                         ListBackups(viewModel);
                         break;
-                    case "Run Backup":
+                    case var _ when choice == Localization.Get("run_backup"):
                         RunBackupMenu(viewModel, dailyLogService);
                         break;
-                    case "Run All Backups":
+                    case var _ when choice == Localization.Get("run_all_backups"):
                         RunAllBackups(viewModel);
                         break;
-                    case "Delete Backup":
+                    case var _ when choice == Localization.Get("delete_backup"):
                         DeleteBackup(viewModel, dailyLogService);
                         break;
                     default:
-                        menuStack.Pop();
+                        AnsiConsole.MarkupLine($"[red]{Localization.Get("invalid_option")}[/]");
                         break;
                 }
             }
         }
+        
 
-        static void ShowMainMenu(BackupViewModel viewModel)
-        {
-            AnsiConsole.Clear();
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[bold green]Main Menu[/]")
-                    .PageSize(10)
-                    .AddChoices(new[] {
-                        "Create Backup", "List Backups", "Run Backup","Run All Backups", "Delete Backup", "Exit"
-                    }));
-
-            if (choice == "Exit")
-            {
-                menuStack.Pop();
-            }
-            else
-            {
-                menuStack.Push(choice);
-            }
-        }
 
         static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Create Backup[/]");
-            var name = AnsiConsole.Ask<string>("Enter [green]backup name[/]:");
-            var srcPath = AnsiConsole.Ask<string>("Enter [green]source path[/]:");
-            var destPath = AnsiConsole.Ask<string>("Enter [green]destination path[/]:");
-            var type = AnsiConsole.Ask<string>("Enter [green]backup type[/] (Full/Differential):");
+            AnsiConsole.MarkupLine($"[bold]{Localization.Get("create_backup")}[/]");
+            var name = AnsiConsole.Ask<string>(Localization.Get("enter_backup_name"));
+            var srcPath = AnsiConsole.Ask<string>(Localization.Get("enter_source_path"));
+            var destPath = AnsiConsole.Ask<string>(Localization.Get("enter_destination_path"));
+            var type = AnsiConsole.Ask<string>(Localization.Get("enter_backup_type"));
     
 
             viewModel.CreateBackup(name, srcPath, destPath, type);
@@ -103,7 +112,7 @@ namespace EasyCLI
         });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
-            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            AnsiConsole.Markup($"[bold yellow]{Localization.Get("press_backspace")}[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
             menuStack.Pop();
         }
@@ -111,18 +120,18 @@ namespace EasyCLI
         static void ListBackups(BackupViewModel viewModel)
         {
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]List of Backups[/]");
+            AnsiConsole.MarkupLine($"[bold]{Localization.Get("List_of_backup")}[/]");
             viewModel.ListBackups();
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
-            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            AnsiConsole.Markup($"[bold yellow]{Localization.Get("press_backspace")}[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
             menuStack.Pop();
         }
 
         static void RunBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
-            var selectedBackup = viewModel.ShowBackup("Select a backup to run:");
+            var selectedBackup = viewModel.ShowBackup(Localization.Get("showRunbackup"));
             if (selectedBackup == null)
             {
                 return;
@@ -146,19 +155,19 @@ namespace EasyCLI
             });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
-            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            AnsiConsole.Markup($"[bold yellow]{Localization.Get("press_backspace")}[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
             menuStack.Pop();
         }
         static void RunAllBackups(BackupViewModel viewModel)
         {
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Running All Backups[/]");
+            AnsiConsole.MarkupLine($"[bold]{Localization.Get("Running_all")}[/]");
 
             viewModel.RunAllBackups();
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
-            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            AnsiConsole.Markup($"[bold yellow]{Localization.Get("press_backspace")}[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
             menuStack.Pop();
             
@@ -167,7 +176,7 @@ namespace EasyCLI
         static void DeleteBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
 
-            var selectedBackup = viewModel.ShowBackup("Select a backup to run:");
+            var selectedBackup = viewModel.ShowBackup(Localization.Get("showdeletebackup"));
             if (selectedBackup == null)
             {
                 return;
@@ -191,7 +200,7 @@ namespace EasyCLI
             });
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
 
-            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            AnsiConsole.Markup($"[bold yellow]{Localization.Get("press_backspace")}[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
             menuStack.Pop();
         }
