@@ -169,6 +169,7 @@ static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogServ
                 var selectedBackup = viewModel.GetBackupByName(backupName);
                 if (selectedBackup != null)
                 {
+                    long fileSize=dailyLogService.GetSize(selectedBackup.SourcePath, selectedBackup.DestinationPath, selectedBackup.BackupType);
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
                     viewModel.RunBackup(new List<string> { selectedBackup.Name });
@@ -182,7 +183,7 @@ static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogServ
                         BackupName = selectedBackup.Name,
                         SourcePath = selectedBackup.SourcePath,
                         DestinationPath = selectedBackup.DestinationPath,
-                        FileSize = dailyLogService.GetSize(selectedBackup.SourcePath, selectedBackup.DestinationPath, selectedBackup.BackupType),
+                        FileSize = fileSize,
                         Time = transferTime + "ms",
                         Type = "Run"
                     });
