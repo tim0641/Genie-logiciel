@@ -42,11 +42,11 @@ namespace EasyLib.ViewModels
         {
             if (backups.Count == 0)
             {
-                Status = Localization.Get("no_backupsjob");
+                Status = Localization.Get("no_backups");
                 return;
             }
 
-            Status = $"{Localization.Get("list_of_backup_jobs")}\n";
+            Status = $"{Localization.Get("list_of_backups")}\n";
             foreach (var backup in backups)
             {
                 Status += $"{backup.Key} - {backup.Value.SourcePath} -> {backup.Value.FullDestinationPath} ({backup.Value.BackupType})\n";

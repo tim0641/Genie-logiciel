@@ -39,6 +39,10 @@ namespace EasyCLI
             // Boucle du menu principal
             while (true)
             {
+
+                Console.Clear();
+                AnsiConsole.Clear();
+                Thread.Sleep(100);
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title($"[bold green]{Localization.Get("menu_title")}[/]")
@@ -48,7 +52,6 @@ namespace EasyCLI
                             Localization.Get("create_backup"),
                             Localization.Get("list_backups"),
                             Localization.Get("run_backup"),
-                            Localization.Get("run_all_backups"),
                             Localization.Get("delete_backup"),
                             Localization.Get("exit")
                         }));
@@ -81,7 +84,10 @@ namespace EasyCLI
 
         static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
+
+            Console.Clear();
             AnsiConsole.Clear();
+            Thread.Sleep(100);
             AnsiConsole.MarkupLine($"[bold]{Localization.Get("create_backup")}[/]");
             var name = AnsiConsole.Ask<string>(Localization.Get("enter_backup_name"));
             var srcPath = AnsiConsole.Ask<string>(Localization.Get("enter_source_path"));
@@ -107,8 +113,9 @@ namespace EasyCLI
 
         static void ListBackups(BackupViewModel viewModel)
         {
+            Console.Clear();
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine($"[bold]{Localization.Get("list_of_backups")}[/]");
+            Thread.Sleep(100);
             viewModel.ListBackups();
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
             WaitForBackspace();
@@ -116,27 +123,29 @@ namespace EasyCLI
 
         static void RunBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
+            Console.Clear();
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Run Backup[/]");
+            Thread.Sleep(100);
+            AnsiConsole.MarkupLine($"[bold]{Localization.Get("run_backup")}[/]");
 
             var backups = viewModel.GetBackupList();
             if (backups.Count == 0)
             {
-                AnsiConsole.MarkupLine("[red]No backups available.[/]");
+                AnsiConsole.MarkupLine($"[red]{Localization.Get("no_backups")}[/]");
                 WaitForBackspace();
                 return;
             }
 
             var selectedBackups = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
-                    .Title("Select backups to run:")
+                    .Title(Localization.Get("Select_run"))
                     .PageSize(10)
-                    .InstructionsText("[grey](Use space to select multiple, enter to confirm)[/]")
+                    .InstructionsText($"[grey]{Localization.Get("Use_space")}[/]")
                     .AddChoices(backups.ConvertAll(b => b.Name)));
 
             if (selectedBackups.Count == 0)
             {
-                AnsiConsole.MarkupLine("[yellow]No backups selected.[/]");
+                AnsiConsole.MarkupLine($"[yellow]{Localization.Get("no_backup_select")}[/]");
                 return;
             }
 
@@ -167,7 +176,7 @@ namespace EasyCLI
 
                     lock (allStatuses)
                     {
-                        allStatuses.Add($"{selectedBackup.Name} - Backup completed in {transferTime} ms.");
+                        allStatuses.Add($"{selectedBackup.Name} {Localization.Get("backup_completed")} {transferTime} ms.");
                     }
                 }
             });
@@ -182,27 +191,29 @@ namespace EasyCLI
 
         static void DeleteBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
+            Console.Clear();
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Delete Backups[/]");
+            Thread.Sleep(100);
+            AnsiConsole.MarkupLine($"[bold]{Localization.Get("delete_backup")}[/]");
 
             var backups = viewModel.GetBackupList();
             if (backups.Count == 0)
             {
-                AnsiConsole.MarkupLine("[red]No backups available.[/]");
+                AnsiConsole.MarkupLine($"[red]{Localization.Get("no_backups")}[/]");
                 WaitForBackspace();
                 return;
             }
 
             var selectedBackups = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
-                    .Title("Select backups to delete:")
+                    .Title(Localization.Get("Select_del"))
                     .PageSize(10)
-                    .InstructionsText("[grey](Use space to select multiple, enter to confirm)[/]")
+                    .InstructionsText($"[grey]{Localization.Get("Use_space")}[/]")
                     .AddChoices(backups.ConvertAll(b => b.Name)));
 
             if (selectedBackups.Count == 0)
             {
-                AnsiConsole.MarkupLine("[yellow]No backups selected.[/]");
+                AnsiConsole.MarkupLine($"[yellow]{Localization.Get("no_backup_select")}[/]");
                 return;
             }
 
@@ -233,7 +244,7 @@ namespace EasyCLI
 
                     lock (allStatuses)
                     {
-                        allStatuses.Add($"{selectedBackup.Name} - Backup deleted in {transferTime} ms.");
+                        allStatuses.Add($"{selectedBackup.Name} {Localization.Get("backup_completed_dele")} {transferTime} ms.");
                     }
                 }
             });
@@ -244,7 +255,7 @@ namespace EasyCLI
 
         static void WaitForBackspace()
         {
-            AnsiConsole.Markup("[bold yellow]Press Backspace to return to the main menu...[/]");
+            AnsiConsole.Markup($"[bold yellow]{Localization.Get("press_backspace")}[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
         }
     }
