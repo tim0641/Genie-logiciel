@@ -24,9 +24,9 @@ namespace EasyLib.Models
             CreationTime = creationTime;
             IsDirectory = Directory.Exists(sourcePath); 
 
-            // Initialisation des chemins basés sur le chemin source
-            FileName = Path.GetFileName(sourcePath); // Récupérer le nom du fichier à partir du chemin source
-            FullDestinationPath = Path.Combine(destinationPath, FileName); // Créer le chemin complet pour la destination
+            
+            FileName = Path.GetFileName(sourcePath); 
+            FullDestinationPath = Path.Combine(destinationPath, FileName); 
         }
     }
 }

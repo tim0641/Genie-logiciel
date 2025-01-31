@@ -23,7 +23,7 @@ namespace EasyCLI
             var stateService = new StateService(@"C:\Logs\state.json");
             var viewModel = new BackupViewModel();
 
-            // Sélection de la langue
+            
             AnsiConsole.MarkupLine(Localization.Get("choose_language"));
             var language = Console.ReadLine();
             if (!string.IsNullOrEmpty(language))
@@ -38,7 +38,10 @@ namespace EasyCLI
 
             // Boucle du menu principal
             while (true)
-            {
+            {    
+                Console.Clear();
+                AnsiConsole.Clear();
+                Thread.Sleep(100);
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title($"[bold green]{Localization.Get("menu_title")}[/]")
@@ -48,7 +51,6 @@ namespace EasyCLI
                             Localization.Get("create_backup"),
                             Localization.Get("list_backups"),
                             Localization.Get("run_backup"),
-                            Localization.Get("run_all_backups"),
                             Localization.Get("delete_backup"),
                             Localization.Get("exit")
                         }));
@@ -79,35 +81,53 @@ namespace EasyCLI
             }
         }
 
-        static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
+static void CreateBackup(BackupViewModel viewModel, DailyLogService dailyLogService)
+{
+    Console.Clear(); 
+    AnsiConsole.Clear();
+    Thread.Sleep(100);
+    AnsiConsole.MarkupLine($"[bold]{Localization.Get("create_backup")}[/]");
+    
+    var name = AnsiConsole.Ask<string>(Localization.Get("enter_backup_name"));
+    var srcPath = AnsiConsole.Ask<string>(Localization.Get("enter_source_path"));
+    var destPath = AnsiConsole.Ask<string>(Localization.Get("enter_destination_path"));
+    var type = AnsiConsole.Ask<string>(Localization.Get("enter_backup_type"));
+
+    viewModel.CreateBackup(name, srcPath, destPath, type);
+    
+    // ✅ Vérifie si la sauvegarde a été créée avec succès
+    if (viewModel.Status == Localization.Get("backup_success"))
+    {
+        long fileSize = dailyLogService.GetSize(srcPath, destPath, type);
+        dailyLogService.WriteLogEntry(new LogEntry
         {
-            AnsiConsole.Clear();
-            AnsiConsole.MarkupLine($"[bold]{Localization.Get("create_backup")}[/]");
-            var name = AnsiConsole.Ask<string>(Localization.Get("enter_backup_name"));
-            var srcPath = AnsiConsole.Ask<string>(Localization.Get("enter_source_path"));
-            var destPath = AnsiConsole.Ask<string>(Localization.Get("enter_destination_path"));
-            var type = AnsiConsole.Ask<string>(Localization.Get("enter_backup_type"));
+            Timestamp = DateTime.Now,
+            BackupName = name,
+            SourcePath = srcPath,
+            DestinationPath = destPath,
+            FileSize = fileSize,
+            Type = "Create"
+        });
 
-            viewModel.CreateBackup(name, srcPath, destPath, type);
-            long fileSize = dailyLogService.GetSize(srcPath, destPath, type);
+        // ✅ Force l'écriture du fichier log immédiatement
+        dailyLogService.FlushLogs();
 
-            dailyLogService.WriteLogEntry(new LogEntry
-            {
-                Timestamp = DateTime.Now,
-                BackupName = name,
-                SourcePath = srcPath,
-                DestinationPath = destPath,
-                FileSize = fileSize,
-                Type = "Create"
-            });
+        AnsiConsole.MarkupLine($"[bold blue]{Localization.Get("log_created_successfully")}[/]");
+    }
+    else
+    {
+        AnsiConsole.MarkupLine($"[red]{Localization.Get("backup_creation_failed")}[/]");
+    }
 
-            AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
-            WaitForBackspace();
-        }
+    WaitForBackspace();
+}
+
 
         static void ListBackups(BackupViewModel viewModel)
         {
+            Console.Clear(); 
             AnsiConsole.Clear();
+            Thread.Sleep(100);
             AnsiConsole.MarkupLine($"[bold]{Localization.Get("list_of_backups")}[/]");
             viewModel.ListBackups();
             AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
@@ -116,7 +136,9 @@ namespace EasyCLI
 
         static void RunBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
         {
+            Console.Clear(); 
             AnsiConsole.Clear();
+            Thread.Sleep(100);
             AnsiConsole.MarkupLine("[bold]Run Backup[/]");
 
             var backups = viewModel.GetBackupList();
@@ -160,7 +182,7 @@ namespace EasyCLI
                         BackupName = selectedBackup.Name,
                         SourcePath = selectedBackup.SourcePath,
                         DestinationPath = selectedBackup.DestinationPath,
-                        FileSize = dailyLogService.GetSize(selectedBackup.SourcePath, selectedBackup.DestinationPath, selectedBackup.Name),
+                        FileSize = dailyLogService.GetSize(selectedBackup.SourcePath, selectedBackup.DestinationPath, selectedBackup.BackupType),
                         Time = transferTime + "ms",
                         Type = "Run"
                     });
@@ -180,67 +202,83 @@ namespace EasyCLI
             WaitForBackspace();
         }
 
-        static void DeleteBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
+       static void DeleteBackupMenu(BackupViewModel viewModel, DailyLogService dailyLogService)
+{
+    Console.Clear();
+    AnsiConsole.Clear();
+    Thread.Sleep(100);
+    AnsiConsole.MarkupLine("[bold]Delete Backups[/]");
+
+    var backups = viewModel.GetBackupList();
+    if (backups.Count == 0)
+    {
+        AnsiConsole.MarkupLine("[red]No backups available.[/]");
+        WaitForBackspace();
+        return;
+    }
+
+    var selectedBackups = AnsiConsole.Prompt(
+        new MultiSelectionPrompt<string>()
+            .Title("Select backups to delete:")
+            .PageSize(10)
+            .InstructionsText("[grey](Use space to select multiple, enter to confirm)[/]")
+            .AddChoices(backups.ConvertAll(b => b.Name)));
+
+    if (selectedBackups.Count == 0)
+    {
+        AnsiConsole.MarkupLine("[yellow]No backups selected.[/]");
+        return;
+    }
+
+    List<string> allStatuses = new List<string>();
+
+    Parallel.ForEach(selectedBackups, (backupName) =>
+    {
+        var selectedBackup = viewModel.GetBackupByName(backupName);
+        if (selectedBackup != null)
         {
-            AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold]Delete Backups[/]");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
 
-            var backups = viewModel.GetBackupList();
-            if (backups.Count == 0)
+            long fileSize = dailyLogService.GetSize(selectedBackup.SourcePath, selectedBackup.DestinationPath, selectedBackup.BackupType);
+            Console.WriteLine(selectedBackup.SourcePath, "---->",selectedBackup.DestinationPath);
+
+            viewModel.DeleteBackup(new List<string> { selectedBackup.Name });
+            stopwatch.Stop();
+
+            long transferTime = stopwatch.ElapsedMilliseconds;
+            Console.WriteLine(viewModel.Status);
+
+        
+            if (viewModel.Status.Contains("sucessfully_deleted"))
             {
-                AnsiConsole.MarkupLine("[red]No backups available.[/]");
-                WaitForBackspace();
-                return;
-            }
-
-            var selectedBackups = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title("Select backups to delete:")
-                    .PageSize(10)
-                    .InstructionsText("[grey](Use space to select multiple, enter to confirm)[/]")
-                    .AddChoices(backups.ConvertAll(b => b.Name)));
-
-            if (selectedBackups.Count == 0)
-            {
-                AnsiConsole.MarkupLine("[yellow]No backups selected.[/]");
-                return;
-            }
-
-            List<string> allStatuses = new List<string>();
-
-            Parallel.ForEach(selectedBackups, (backupName) =>
-            {
-                var selectedBackup = viewModel.GetBackupByName(backupName);
-                if (selectedBackup != null)
+                dailyLogService.WriteLogEntry(new LogEntry
                 {
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    viewModel.DeleteBackup(new List<string> { selectedBackup.Name });
-                    stopwatch.Stop();
+                    Timestamp = DateTime.Now,
+                    BackupName = selectedBackup.Name,
+                    SourcePath = selectedBackup.SourcePath,
+                    DestinationPath = selectedBackup.DestinationPath,
+                    FileSize = fileSize, 
+                    Time = transferTime + "ms",
+                    Type = "Delete"
+                });
 
-                    long transferTime = stopwatch.ElapsedMilliseconds;
+             
+                dailyLogService.FlushLogs();
+            }
 
-                    dailyLogService.WriteLogEntry(new LogEntry
-                    {
-                        Timestamp = DateTime.Now,
-                        BackupName = selectedBackup.Name,
-                        SourcePath = selectedBackup.SourcePath,
-                        DestinationPath = selectedBackup.DestinationPath,
-                        FileSize = dailyLogService.GetSize(selectedBackup.SourcePath, selectedBackup.DestinationPath, selectedBackup.Name),
-                        Time = transferTime + "ms",
-                        Type = "Delete"
-                    });
-
-                    lock (allStatuses)
-                    {
-                        allStatuses.Add($"{selectedBackup.Name} - Backup deleted in {transferTime} ms.");
-                    }
-                }
-            });
-
-            AnsiConsole.MarkupLine($"[bold blue]{string.Join("\n", allStatuses)}[/]");
-            WaitForBackspace();
+            lock (allStatuses)
+            {
+                allStatuses.Add($"{selectedBackup.Name} - Backup deleted in {transferTime} ms.");
+            }
         }
+    });
+
+    AnsiConsole.MarkupLine($"[bold blue]{string.Join("\n", allStatuses)}[/]");
+    WaitForBackspace();
+}
+
+
 
         static void WaitForBackspace()
         {

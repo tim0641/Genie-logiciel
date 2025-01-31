@@ -57,6 +57,7 @@ private long GetFileSize(string sourcePath, string destPath, string backupType)
 
 private long GetDirectorySize(DirectoryInfo sourceDir, string destPath, string backupType)
 {
+    Console.WriteLine("On entre dans directory size");
     long totalSize = 0;
     Stack<DirectoryInfo> stack = new Stack<DirectoryInfo>();
     stack.Push(sourceDir);
@@ -80,11 +81,13 @@ private long GetDirectorySize(DirectoryInfo sourceDir, string destPath, string b
 
 private long ProcessFilesInDirectory(DirectoryInfo currentDir, string destDirPath, string sourcePath, string destPath, string backupType)
 {
+    Console.WriteLine("On entre dans processFile");
     long size = 0;
     foreach (var file in currentDir.GetFiles())
     {
         string relativeFilePath = Path.GetRelativePath(sourcePath, file.FullName);
         string correspondingDestFile = Path.Combine(destPath, Path.GetFileName(sourcePath), relativeFilePath);
+        Console.WriteLine(correspondingDestFile);
 
         if (backupType.ToLower() == "full" || !File.Exists(correspondingDestFile))
         {
@@ -94,6 +97,7 @@ private long ProcessFilesInDirectory(DirectoryInfo currentDir, string destDirPat
         {
             if (IsFileModified(file.FullName, correspondingDestFile))
             {
+                Console.WriteLine("Fichier modifié");
                 size += file.Length;
             }
         }
@@ -103,11 +107,21 @@ private long ProcessFilesInDirectory(DirectoryInfo currentDir, string destDirPat
 
 private bool IsFileModified(string sourceFile, string destFile)
 {
+    Console.WriteLine("On entre dans isFileModified");
     FileInfo sourceInfo = new FileInfo(sourceFile);
     FileInfo destInfo = new FileInfo(destFile);
 
-    return !File.Exists(destFile) || sourceInfo.Length != destInfo.Length || sourceInfo.LastWriteTime > destInfo.LastWriteTime;
+    bool a = !File.Exists(destFile) || sourceInfo.Length != destInfo.Length || sourceInfo.LastWriteTime > destInfo.LastWriteTime;
+    Console.WriteLine(sourceInfo.Name+"------------------->"+destInfo.Name);
+    Console.WriteLine(a);
+    return a;
+
 }
+public void FlushLogs()
+{
+    Console.Out.Flush();
+}
+
     }
 }
 

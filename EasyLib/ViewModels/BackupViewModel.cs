@@ -32,6 +32,17 @@ namespace EasyLib.ViewModels
                 return;
             }
 
+            try
+            {
+                ValidatePath(srcPath, true);  
+                ValidatePath(destPath, true); 
+            }
+            catch (Exception ex)
+            {
+                Status = $"[red]{ex.Message}[/]";
+                return;
+            }
+
             var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now);
             backups[name] = backup;
             SaveBackups();
@@ -75,8 +86,11 @@ namespace EasyLib.ViewModels
                 }
 
                 var backup = backups[name];
+
                 try
                 {
+                    ValidatePath(backup.SourcePath, true);
+
                     if (backup.IsDirectory)
                     {
                         CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType);
@@ -96,7 +110,7 @@ namespace EasyLib.ViewModels
                 {
                     lock (allStatuses)
                     {
-                        allStatuses.Add($"{name} - {Localization.Get("backup_error")}: {ex.Message}");
+                        allStatuses.Add($"{name} - [red]{ex.Message}[/]");
                     }
                 }
             });
@@ -139,7 +153,7 @@ namespace EasyLib.ViewModels
             }
         }
 
-        public void DeleteBackup(List<string> backupNames)
+                public void DeleteBackup(List<string> backupNames)
         {
             if (backupNames.Count == 0)
             {
@@ -180,7 +194,7 @@ namespace EasyLib.ViewModels
                                 }
 
                                 Directory.Delete(directoryToDelete, true);
-                                allStatuses.Add($"{name} - {Localization.Get("directory_delete")}");
+                                allStatuses.Add($"{name} - {Localization.Get("directory_sucessfully_deleted")}");
                             }
                             else
                             {
@@ -190,7 +204,7 @@ namespace EasyLib.ViewModels
                         else if (File.Exists(backup.FullDestinationPath))
                         {
                             File.Delete(backup.FullDestinationPath);
-                            allStatuses.Add($"{name} - {Localization.Get("file_delete")}");
+                            allStatuses.Add($"{name} - {Localization.Get("file_sucessfully_deleted")}");
                         }
                         else
                         {
@@ -252,25 +266,22 @@ namespace EasyLib.ViewModels
             return new List<BackupModel>(backups.Values);
         }
 
-        public BackupModel ShowBackup(string title)
+        private void ValidatePath(string path, bool isDirectory = false)
         {
-            AnsiConsole.Clear();
-            var backups = GetBackupList();
-            if (backups.Count == 0)
+            if (string.IsNullOrWhiteSpace(path))
             {
-                AnsiConsole.MarkupLine(Localization.Get("no_backups"));
-                AnsiConsole.Markup($"[bold]{Localization.Get("press_backspace")}[/]");
-                while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
-                return null;
+                throw new ArgumentException(Localization.Get("error_path_empty"));
             }
 
-            var selectedBackupName = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title(title)
-                    .PageSize(10)
-                    .AddChoices(backups.ConvertAll(b => b.Name)));
+            if (isDirectory && !Directory.Exists(path))
+            {
+                throw new DirectoryNotFoundException($"{Localization.Get("error_directory_not_found")}: {path}");
+            }
 
-            return backups.FirstOrDefault(b => b.Name == selectedBackupName);
+            if (!isDirectory && !File.Exists(path))
+            {
+                throw new FileNotFoundException($"{Localization.Get("error_file_not_found")}: {path}");
+            }
         }
     }
 }
