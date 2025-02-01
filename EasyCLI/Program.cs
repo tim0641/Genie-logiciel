@@ -13,6 +13,12 @@ namespace EasyCLI
     {
         static void Main(string[] args)
         {
+            if (args.Length > 0)
+            {
+                ProcessCommandLine(args);
+            }
+            else
+            {
             
             if (Environment.GetEnvironmentVariable("CI") == "true")
             {
@@ -90,6 +96,67 @@ namespace EasyCLI
         {
             AnsiConsole.Markup("[bold yellow]"+Localization.Get("press_backspace")+"[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
+        }
+
+        static void ProcessCommandLine(string[] args)
+        {
+            // create <name> <srcPath> <destPath> <type>
+            // list
+            // run <name1> [<name2> ...]
+            // delete <name1> [<name2> ...]
+            var dailyLogService = new DailyLogService(@"C:\Logs\Daily");
+            var backupService = new BackupService();
+            var viewModel = new BackupViewModel(dailyLogService, backupService);
+
+            string command = args[0].ToLower();
+
+            switch (command)
+            {
+                case "create":
+                    if (args.Length < 5)
+                    {
+                        Console.WriteLine("Usage: create <name> <srcPath> <destPath> <type>");
+                        return;
+                    }
+                    string name = args[1];
+                    string srcPath = args[2];
+                    string destPath = args[3];
+                    string type = args[4];
+                    backupService.CreateBackup(name, srcPath, destPath, type);
+                    Console.WriteLine("Status: " + viewModel.Status);
+                    break;
+
+                case "list":
+                    Console.WriteLine(viewModel.ListBackups());
+                    break;
+
+                case "run":
+                    if (args.Length < 2)
+                    {
+                        Console.WriteLine("Usage: run <name1> [<name2> ...]");
+                        return;
+                    }
+                    var runNames = new List<string>(args[1..]);
+                    backupService.RunBackup(runNames);
+                    Console.WriteLine("Status: " + viewModel.Status);
+                    break;
+
+                case "delete":
+                    if (args.Length < 2)
+                    {
+                        Console.WriteLine("Usage: delete <name1> [<name2> ...]");
+                        return;
+                    }
+                    var deleteNames = new List<string>(args[1..]);
+                    backupService.DeleteBackup(deleteNames);
+                    Console.WriteLine("Status: " + viewModel.Status);
+                    break;
+
+                default:
+                    Console.WriteLine("Unknown command.");
+                    break;
+            }
+        }
         }
     }
 }
