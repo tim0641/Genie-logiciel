@@ -4,8 +4,8 @@ namespace EasyLib
 {
     public static class Localization
     {
-        private static string currentLanguage = "fr"; // Langue par défaut
-        private static readonly string defaultLanguage = "en"; // Langue de secours
+        private static string currentLanguage = "en"; 
+        private static readonly string defaultLanguage = "fr"; 
 
         private static readonly Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>
         {
@@ -25,9 +25,19 @@ namespace EasyLib
                     { "enter_destination_path", "Enter destination path:" },
                     { "enter_backup_type", "Enter backup type (Full/Differential):" },
                     { "backup_success", "Backup job created successfully." },
+                    { "backup_run_success", "Backup job execution successfull." },
                     { "backup_exists", "Backup job already exists." },
                     { "no_backups", "No backups available." },
-                    { "backup_deleted", "Backup job deleted successfully." }
+                    { "backup_deleted", "Backup job deleted successfully." },
+                    { "wrong_path", "Path does not exist" },
+                    { "use_space", "Use space to select multiple, enter to confirm" },
+                    { "select_backup", "Select one or severals backups" },
+                    { "directory_sucessfully_deleted", "Directory successfully Deleted" },
+                    { "directory_delete_not_found", "Directory not found and job deleted succesfully" },
+                    { "file_sucessfully_deleted", "File Sucessfully deleted" },
+                    { "file_delete_not_found", "Cannot Delete file because not found" },
+                    { "error_delete", "Delete Failing" },
+
                 }
             },
             { "fr", new Dictionary<string, string>
@@ -40,15 +50,25 @@ namespace EasyLib
                     { "exit", "Quitter" },
                     { "choose_language", "Choisissez une langue : (EN/FR)" },
                     { "invalid_option", "Option invalide. Veuillez réessayer." },
-                    { "press_backspace", "Appuyez sur Retour arrière pour revenir au menu principal..." },
+                    { "press_backspace", "Appuyez sur Retour pour revenir au menu principal..." },
                     { "enter_backup_name", "Entrez le nom de la sauvegarde :" },
                     { "enter_source_path", "Entrez le chemin source :" },
                     { "enter_destination_path", "Entrez le chemin de destination :" },
                     { "enter_backup_type", "Entrez le type de sauvegarde (Complète/Différentielle) :" },
                     { "backup_success", "Tâche de sauvegarde créée avec succès." },
+                    { "backup_run_success", "Sauvegarde exécutée avec succès" },
                     { "backup_exists", "La tâche de sauvegarde existe déjà." },
                     { "no_backups", "Aucune sauvegarde disponible." },
-                    { "backup_deleted", "Tâche de sauvegarde supprimée avec succès." }
+                    { "backup_deleted", "Tâche de sauvegarde supprimée avec succès." },
+                    { "wrong_path", "Le chemin n'est pas le bon" },
+                    { "use_space", "Utilisez espace pour en selectioner plusieurs" },
+                    { "select_backup", "Selectionnez une ou plusieurs sauvegardes" },
+                    { "directory_sucessfully_deleted", "Repertoire Supprimé avec succès" },
+                    { "directory_delete_not_found", "Repertoire introuvable tache supprimée avec succès" },
+                    { "file_sucessfully_deleted", "Fichier supprimé avec succès" },
+                    { "file_delete_not_found", "Fichier introuvable échec de supression" },
+                    { "error_delete", "Erreur de supression" },
+
                 }
             }
         };

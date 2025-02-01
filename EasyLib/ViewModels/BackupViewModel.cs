@@ -1,287 +1,107 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Threading;
 using Spectre.Console;
 using EasyLib.Models;
+using EasyLib.Services;       // Pour accéder à BackupService
+using EasySaveLog.Services;   // Pour DailyLogService
+// Assurez-vous que Localization est défini dans votre projet
 
 namespace EasyLib.ViewModels
 {
     public class BackupViewModel
     {
-        private Dictionary<string, BackupModel> backups = new Dictionary<string, BackupModel>();
-        private const string BackupFilePath = "backups.json";
-        private static readonly object _lock = new object();
+        private readonly BackupService _backupService;
+        private readonly DailyLogService _dailyLogService;
+
         public string Status { get; private set; }
 
-        public BackupViewModel()
+        public BackupViewModel(DailyLogService dailyLogService, BackupService backupService)
         {
-            LoadBackups();
+            _dailyLogService = dailyLogService;
+            _backupService = backupService;
         }
 
-        public BackupModel GetBackupByName(string name)
+        
+        public void CreateBackupFromUserInput()
         {
-            return backups.ContainsKey(name) ? backups[name] : null;
+            Console.Clear();
+            AnsiConsole.Clear();
+            Thread.Sleep(100);
+            AnsiConsole.MarkupLine($"[bold]{Localization.Get("create_backup")}[/]");
+
+            var name = AnsiConsole.Ask<string>(Localization.Get("enter_backup_name"));
+            var srcPath = AnsiConsole.Ask<string>(Localization.Get("enter_source_path"));
+            var destPath = AnsiConsole.Ask<string>(Localization.Get("enter_destination_path"));
+            var type = AnsiConsole.Ask<string>(Localization.Get("enter_backup_type"));
+
+            
+            Status = _backupService.CreateBackup(name, srcPath, destPath, type);
         }
 
-        public void CreateBackup(string name, string srcPath, string destPath, string type)
+        
+        public string ListBackups()
         {
-            if (backups.ContainsKey(name))
-            {
-                Status = Localization.Get("backup_exists");
-                return;
-            }
-
-            try
-            {
-                ValidatePath(srcPath, true);  
-                ValidatePath(destPath, true); 
-            }
-            catch (Exception ex)
-            {
-                Status = $"[red]{ex.Message}[/]";
-                return;
-            }
-
-            var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now);
-            backups[name] = backup;
-            SaveBackups();
-            Status = Localization.Get("backup_success");
-        }
-
-        public void ListBackups()
-        {
+            var backups = _backupService.GetAllBackups();
             if (backups.Count == 0)
             {
-                Status = Localization.Get("no_backupsjob");
-                return;
+                Status = Localization.Get("no_backups");
+                return Status;
             }
 
-            Status = $"{Localization.Get("list_of_backup_jobs")}\n";
+            string listing = $"{Localization.Get("list_of_backup_jobs")}\n";
             foreach (var backup in backups)
             {
-                Status += $"{backup.Key} - {backup.Value.SourcePath} -> {backup.Value.FullDestinationPath} ({backup.Value.BackupType})\n";
+                listing += $"{backup.Name} - {backup.SourcePath} -> {backup.FullDestinationPath} ({backup.BackupType})\n";
             }
+            Status = listing;
+            return Status;
         }
 
-        public void RunBackup(List<string> backupNames)
+        
+        public void RunBackupFromUserSelection()
         {
-            if (backupNames.Count == 0)
+            var backupsList = _backupService.GetAllBackups();
+            if (backupsList.Count == 0)
             {
-                Status = Localization.Get("no_backups_selected");
+                AnsiConsole.MarkupLine($"[red]{Localization.Get("no_backups")}[/]");
                 return;
             }
 
-            List<string> allStatuses = new List<string>();
+            var selected = AnsiConsole.Prompt(
+                new MultiSelectionPrompt<string>()
+                    .Title(Localization.Get("select_backup"))
+                    .PageSize(10)
+                    .InstructionsText($"[grey]{Localization.Get("use_space")}[/]")
+                    .AddChoices(backupsList.ConvertAll(b => b.Name))
+            );
 
-            Parallel.ForEach(backupNames, (name) =>
-            {
-                if (!backups.ContainsKey(name))
-                {
-                    lock (allStatuses)
-                    {
-                        allStatuses.Add($"{name} - {Localization.Get("backup_not_found")}");
-                    }
-                    return;
-                }
-
-                var backup = backups[name];
-
-                try
-                {
-                    ValidatePath(backup.SourcePath, true);
-
-                    if (backup.IsDirectory)
-                    {
-                        CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType);
-                    }
-                    else
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
-                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType);
-                    }
-
-                    lock (allStatuses)
-                    {
-                        allStatuses.Add($"{name} ({backup.BackupType}) - {Localization.Get("backup_run_success")}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    lock (allStatuses)
-                    {
-                        allStatuses.Add($"{name} - [red]{ex.Message}[/]");
-                    }
-                }
-            });
-
-            Status = string.Join("\n", allStatuses);
+            
+            Status = _backupService.RunBackup(selected);
+            AnsiConsole.MarkupLine($"[bold blue]Status: {Status}[/]");
         }
 
-        private void CopyDirectory(string sourceDir, string destDir, string backupType)
+        
+        public void DeleteBackupFromUserSelection()
         {
-            var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
-            Directory.CreateDirectory(destDirWithSource);
-
-            foreach (var dir in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+            var backupsList = _backupService.GetAllBackups();
+            if (backupsList.Count == 0)
             {
-                Directory.CreateDirectory(dir.Replace(sourceDir, destDirWithSource));
-            }
-
-            foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
-            {
-                string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
-                CopyFile(file, destinationFilePath, backupType);
-            }
-        }
-
-        private void CopyFile(string sourceFile, string destFile, string backupType)
-        {
-            if (backupType.ToLower() == "full" || !File.Exists(destFile))
-            {
-                File.Copy(sourceFile, destFile, true);
-            }
-            else
-            {
-                var sourceInfo = new FileInfo(sourceFile);
-                var destInfo = new FileInfo(destFile);
-
-                if (sourceInfo.LastWriteTime > destInfo.LastWriteTime || sourceInfo.Length != destInfo.Length)
-                {
-                    File.Copy(sourceFile, destFile, true);
-                }
-            }
-        }
-
-                public void DeleteBackup(List<string> backupNames)
-        {
-            if (backupNames.Count == 0)
-            {
-                Status = Localization.Get("no_backups_selected_for_deletion");
+                AnsiConsole.MarkupLine($"[red]{Localization.Get("no_backups")}[/]");
                 return;
             }
 
-            List<string> allStatuses = new List<string>();
+            var selected = AnsiConsole.Prompt(
+                new MultiSelectionPrompt<string>()
+                    .Title(Localization.Get("select_backup"))
+                    .PageSize(10)
+                    .InstructionsText($"[grey]{Localization.Get("use_space")}[/]")
+                    .AddChoices(backupsList.ConvertAll(b => b.Name))
+            );
 
-            Parallel.ForEach(backupNames, (name) =>
-            {
-                lock (_lock)
-                {
-                    if (!backups.ContainsKey(name))
-                    {
-                        allStatuses.Add($"{name} - {Localization.Get("backup_not_found")}");
-                        return;
-                    }
-
-                    var backup = backups[name];
-
-                    try
-                    {
-                        if (backup.IsDirectory)
-                        {
-                            string directoryToDelete = Path.Combine(backup.DestinationPath, Path.GetFileName(backup.SourcePath));
-
-                            if (Directory.Exists(directoryToDelete))
-                            {
-                                foreach (var file in Directory.GetFiles(directoryToDelete, "*", SearchOption.AllDirectories))
-                                {
-                                    File.Delete(file);
-                                }
-
-                                foreach (var dir in Directory.GetDirectories(directoryToDelete, "*", SearchOption.AllDirectories))
-                                {
-                                    Directory.Delete(dir, true);
-                                }
-
-                                Directory.Delete(directoryToDelete, true);
-                                allStatuses.Add($"{name} - {Localization.Get("directory_sucessfully_deleted")}");
-                            }
-                            else
-                            {
-                                allStatuses.Add($"{name} - {Localization.Get("directory_delete_not_found")}");
-                            }
-                        }
-                        else if (File.Exists(backup.FullDestinationPath))
-                        {
-                            File.Delete(backup.FullDestinationPath);
-                            allStatuses.Add($"{name} - {Localization.Get("file_sucessfully_deleted")}");
-                        }
-                        else
-                        {
-                            allStatuses.Add($"{name} - {Localization.Get("file_delete_not_found")}");
-                        }
-
-                        backups.Remove(name);
-                        SaveBackups();
-                    }
-                    catch (Exception ex)
-                    {
-                        allStatuses.Add($"{name} - {Localization.Get("error_delete")}: {ex.Message}");
-                    }
-                }
-            });
-
-            Status = string.Join("\n", allStatuses);
-        }
-
-        private void SaveBackups()
-        {
-            lock (_lock)
-            {
-                var json = JsonSerializer.Serialize(backups, new JsonSerializerOptions { WriteIndented = true });
-
-                try
-                {
-                    File.WriteAllText(BackupFilePath, json);
-                }
-                catch (IOException ex)
-                {
-                    Status = $"{Localization.Get("error_saving_backups")}: {ex.Message}";
-                }
-            }
-        }
-
-        private void LoadBackups()
-        {
-            if (File.Exists(BackupFilePath))
-            {
-                try
-                {
-                    using (FileStream fs = new FileStream(BackupFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    using (StreamReader reader = new StreamReader(fs))
-                    {
-                        string json = reader.ReadToEnd();
-                        backups = JsonSerializer.Deserialize<Dictionary<string, BackupModel>>(json) ?? new Dictionary<string, BackupModel>();
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Status = $"{Localization.Get("error_loading_backups")}: {ex.Message}";
-                }
-            }
-        }
-
-        public List<BackupModel> GetBackupList()
-        {
-            return new List<BackupModel>(backups.Values);
-        }
-
-        private void ValidatePath(string path, bool isDirectory = false)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentException(Localization.Get("error_path_empty"));
-            }
-
-            if (isDirectory && !Directory.Exists(path))
-            {
-                throw new DirectoryNotFoundException($"{Localization.Get("error_directory_not_found")}: {path}");
-            }
-
-            if (!isDirectory && !File.Exists(path))
-            {
-                throw new FileNotFoundException($"{Localization.Get("error_file_not_found")}: {path}");
-            }
+            
+            Status = _backupService.DeleteBackup(selected);
+            AnsiConsole.MarkupLine($"[bold blue]Status: {Status}[/]");
         }
     }
 }
