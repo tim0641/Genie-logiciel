@@ -31,7 +31,15 @@ namespace EasyLib.Services
 
             try
             {
-                ValidatePath(srcPath, true);
+                if(File.Exists(srcPath))
+                {
+                    ValidatePath(srcPath, false);
+                }
+                else
+                {
+                    ValidatePath(srcPath, true);;
+                }
+                
                 ValidatePath(destPath, true);
             }
             catch (Exception)
@@ -85,7 +93,14 @@ namespace EasyLib.Services
 
                 try
                 {
+                if(File.Exists(backup.SourcePath))
+                {
+                    ValidatePath(backup.SourcePath, false);
+                }
+                else
+                {
                     ValidatePath(backup.SourcePath, true);
+                }
 
                     if (backup.IsDirectory)
                     {
@@ -351,16 +366,19 @@ namespace EasyLib.Services
         {
             if (string.IsNullOrWhiteSpace(path))
             {
+                Console.WriteLine("Path is empty");
                 throw new ArgumentException(Localization.Get("error_path_empty"));
             }
 
             if (isDirectory && !Directory.Exists(path))
             {
+                Console.WriteLine("Directory does not exist");
                 throw new DirectoryNotFoundException($"{Localization.Get("error_directory_not_found")}: {path}");
             }
 
             if (!isDirectory && !File.Exists(path))
             {
+                Console.WriteLine("File does not exist");
                 throw new FileNotFoundException($"{Localization.Get("error_file_not_found")}: {path}");
             }
         }
