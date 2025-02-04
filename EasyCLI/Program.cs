@@ -5,12 +5,21 @@ using EasyLib;
 using EasyLib.ViewModels;
 using EasyLib.Services;
 using EasySaveLog.Services;
+using EasySaveLog.Models;
+using System.Diagnostics.Metrics;
+
 
 
 namespace EasyCLI
 {
+
+    
     class Program
     {
+        static Timer timer;
+        static string dernierChoix = "Aucun choix";
+            int counter = 1;
+
         static void Main(string[] args)
         {
             if (args.Length > 0)
@@ -26,17 +35,28 @@ namespace EasyCLI
                 return;
             }
 
-            
+
             var dailyLogService = new DailyLogService(@"C:\Logs\Daily");
             var backupService = new BackupService();
-            var viewModel = new BackupViewModel(dailyLogService, backupService);
+            var stateService = new StateService(@"C:\Logs\States\Daily");
+            var viewModel = new BackupViewModel(dailyLogService, backupService,stateService);
+        
 
-            
+            var categories = new Dictionary<int, string>
+            {
+                { 1, "Menu" },
+                { 2, "Create Backup" },
+                { 3, "List Backups" },
+                { 4, "Run Backup" },
+                { 5, "Delete Backup" }
+            };
+
             AnsiConsole.MarkupLine(Localization.Get("choose_language"));
             var language = Console.ReadLine();
             if (!string.IsNullOrEmpty(language))
             {
                 Localization.SetLanguage(language);
+
             }
             else
             {
@@ -44,12 +64,15 @@ namespace EasyCLI
                 return;
             }
 
-            
+            stateService.StartTimer("", "", "", categories[1], "", 0, 0, 0, 0);
+
+
             while (true)
             {
                 Console.Clear();
                 AnsiConsole.Clear();
                 Thread.Sleep(100);
+
 
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
@@ -68,19 +91,24 @@ namespace EasyCLI
                     break;
                 switch (choice)
                 {
+
                     case var _ when choice == Localization.Get("create_backup"):
+                        stateService.StopTimer();
                         viewModel.CreateBackupFromUserInput();
                         AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
                         break;
                     case var _ when choice == Localization.Get("list_backups"):
-                        
+                        stateService.StopTimer();
                         string listResult = viewModel.ListBackups();
                         AnsiConsole.MarkupLine($"[bold blue]{listResult}[/]");
                         break;
                     case var _ when choice == Localization.Get("run_backup"):
+                        stateService.StopTimer();
                         viewModel.RunBackupFromUserSelection();
                         break;
+            
                     case var _ when choice == Localization.Get("delete_backup"):
+                        stateService.StopTimer();
                         viewModel.DeleteBackupFromUserSelection();
                         break;
                     default:
@@ -88,14 +116,21 @@ namespace EasyCLI
                         break;
                 }
 
-                WaitForBackspace();
+
+                WaitForBackspace(stateService);
+                stateService.TakeAndUpdateStates("", "", "", "Menu", "", 0, 0, 0, 0);
+
+
+
             }
         }
 
-        static void WaitForBackspace()
-        {
+        static void WaitForBackspace(StateService stateService)
+        {                  
+            stateService.StopTimer();
             AnsiConsole.Markup("[bold yellow]"+Localization.Get("press_backspace")+"[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
+
         }
 
         static void ProcessCommandLine(string[] args)
@@ -106,7 +141,8 @@ namespace EasyCLI
             // delete <name1> [<name2> ...]
             var dailyLogService = new DailyLogService(@"C:\Logs\Daily");
             var backupService = new BackupService();
-            var viewModel = new BackupViewModel(dailyLogService, backupService);
+            var stateService = new StateService(@"C:\Logs\States\Daily");
+            var viewModel = new BackupViewModel(dailyLogService, backupService,stateService);
 
             string command = args[0].ToLower();
 

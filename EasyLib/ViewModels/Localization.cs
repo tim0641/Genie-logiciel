@@ -54,7 +54,7 @@ namespace EasyLib
                     { "enter_backup_name", "Entrez le nom de la sauvegarde :" },
                     { "enter_source_path", "Entrez le chemin source :" },
                     { "enter_destination_path", "Entrez le chemin de destination :" },
-                    { "enter_backup_type", "Entrez le type de sauvegarde (Complète/Différentielle) :" },
+                    { "enter_backup_type", "Entrez le type de sauvegarde (Complete/Différentielle) :" },
                     { "backup_success", "Tâche de sauvegarde créée avec succès." },
                     { "backup_run_success", "Sauvegarde exécutée avec succès" },
                     { "backup_exists", "La tâche de sauvegarde existe déjà." },
