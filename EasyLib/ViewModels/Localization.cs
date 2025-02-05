@@ -36,6 +36,8 @@ namespace EasyLib
                     { "directory_delete_not_found", "Directory not found and job deleted succesfully" },
                     { "file_sucessfully_deleted", "File Sucessfully deleted" },
                     { "file_delete_not_found", "Cannot Delete file because not found" },
+                    { "delete_progress", "Delete in progress" },
+                    { "run_progress", "Run in progress" },
                     { "error_delete", "Delete Failing" },
 
                 }
@@ -54,7 +56,7 @@ namespace EasyLib
                     { "enter_backup_name", "Entrez le nom de la sauvegarde :" },
                     { "enter_source_path", "Entrez le chemin source :" },
                     { "enter_destination_path", "Entrez le chemin de destination :" },
-                    { "enter_backup_type", "Entrez le type de sauvegarde (Complète/Différentielle) :" },
+                    { "enter_backup_type", "Entrez le type de sauvegarde (Complete/Différentielle) :" },
                     { "backup_success", "Tâche de sauvegarde créée avec succès." },
                     { "backup_run_success", "Sauvegarde exécutée avec succès" },
                     { "backup_exists", "La tâche de sauvegarde existe déjà." },
@@ -67,6 +69,8 @@ namespace EasyLib
                     { "directory_delete_not_found", "Repertoire introuvable tache supprimée avec succès" },
                     { "file_sucessfully_deleted", "Fichier supprimé avec succès" },
                     { "file_delete_not_found", "Fichier introuvable échec de supression" },
+                    { "run_progress", "Execution en cours" },
+                    { "delete_progress", "Suppresion en cours" },
                     { "error_delete", "Erreur de supression" },
 
                 }

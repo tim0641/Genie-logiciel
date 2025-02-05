@@ -2,15 +2,17 @@ namespace EasySaveLog.Models
 {
     public class StateEntry
     {
-        public string BackupName { get; set; }
+        public string? Name { get; set; }
         public DateTime LastActionTimestamp { get; set; }
-        public string Status { get; set; } 
-        public int TotalFiles { get; set; }
-        public long TotalSize { get; set; }
-        public int Progress { get; set; } 
-        public int RemainingFiles { get; set; }
-        public long RemainingSize { get; set; }
-        public string CurrentSource { get; set; }
-        public string CurrentDestination { get; set; }
+        public string? SourceFilePath { get; set; } 
+        public string? TargetFilePath { get; set; } 
+        public string? State { get; set; } 
+        public string? Type { get; set; } 
+        public long? TotalFilesToCopy { get; set; }
+        public long? TotalFilesSize { get; set; } 
+        public long? NbFilesLeftToDo { get; set; }
+        public long? Progression { get; set; }
+
+
     }
 }

@@ -5,12 +5,22 @@ using EasyLib;
 using EasyLib.ViewModels;
 using EasyLib.Services;
 using EasySaveLog.Services;
+using EasySaveLog.Models;
+using System.Diagnostics.Metrics;
+using System.Diagnostics;
+
 
 
 namespace EasyCLI
 {
+
+    
     class Program
     {
+        static Timer timer;
+        static string dernierChoix = "Aucun choix";
+            int counter = 1;
+
         static void Main(string[] args)
         {
             if (args.Length > 0)
@@ -26,30 +36,38 @@ namespace EasyCLI
                 return;
             }
 
-            
+
             var dailyLogService = new DailyLogService(@"C:\Logs\Daily");
             var backupService = new BackupService();
-            var viewModel = new BackupViewModel(dailyLogService, backupService);
-
-            
+            var stateService = new StateService(@"C:\Logs\States\Daily");
+            var viewModel = new BackupViewModel(dailyLogService, backupService,stateService);
+        
+ 
             AnsiConsole.MarkupLine(Localization.Get("choose_language"));
             var language = Console.ReadLine();
             if (!string.IsNullOrEmpty(language))
             {
+                Console.Clear();
+                AnsiConsole.Clear();
                 Localization.SetLanguage(language);
+
             }
             else
-            {
+            {   
+
                 AnsiConsole.MarkupLine("[red]Language selection cannot be empty.[/]");
                 return;
             }
 
-            
+            stateService.StartTimer("", "", "", Localization.Get("menu_title"), "", 0, 0, 0, 0);
+
+
             while (true)
             {
                 Console.Clear();
                 AnsiConsole.Clear();
                 Thread.Sleep(100);
+
 
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
@@ -68,19 +86,28 @@ namespace EasyCLI
                     break;
                 switch (choice)
                 {
+
                     case var _ when choice == Localization.Get("create_backup"):
+                        stateService.StopTimer();
+                        stateService.StartTimer("", "", "", Localization.Get("create_backup"), "", 0, 0, 0, 0);
                         viewModel.CreateBackupFromUserInput();
                         AnsiConsole.MarkupLine($"[bold blue]{viewModel.Status}[/]");
                         break;
                     case var _ when choice == Localization.Get("list_backups"):
-                        
+                        stateService.StopTimer();
+                        stateService.StartTimer("", "", "", Localization.Get("list_backups"), "", 0, 0, 0, 0);
                         string listResult = viewModel.ListBackups();
                         AnsiConsole.MarkupLine($"[bold blue]{listResult}[/]");
                         break;
                     case var _ when choice == Localization.Get("run_backup"):
+                        stateService.StopTimer();
+                        stateService.StartTimer("", "", "", Localization.Get("run_backup"), "", 0, 0, 0, 0);
                         viewModel.RunBackupFromUserSelection();
                         break;
+            
                     case var _ when choice == Localization.Get("delete_backup"):
+                        stateService.StopTimer();
+                        stateService.StartTimer("", "", "", Localization.Get("delete_backup"), "", 0, 0, 0, 0);
                         viewModel.DeleteBackupFromUserSelection();
                         break;
                     default:
@@ -88,14 +115,22 @@ namespace EasyCLI
                         break;
                 }
 
-                WaitForBackspace();
+
+            WaitForBackspace(stateService);
+            
+            stateService.StartTimer("", "", "", Localization.Get("menu_title"), "", 0, 0, 0, 0);
+
+
+
             }
         }
 
-        static void WaitForBackspace()
-        {
+        static void WaitForBackspace(StateService stateService)
+        {                  
+            stateService.StopTimer();
             AnsiConsole.Markup("[bold yellow]"+Localization.Get("press_backspace")+"[/]");
             while (Console.ReadKey(true).Key != ConsoleKey.Backspace) { }
+
         }
 
         static void ProcessCommandLine(string[] args)
@@ -106,7 +141,8 @@ namespace EasyCLI
             // delete <name1> [<name2> ...]
             var dailyLogService = new DailyLogService(@"C:\Logs\Daily");
             var backupService = new BackupService();
-            var viewModel = new BackupViewModel(dailyLogService, backupService);
+            var stateService = new StateService(@"C:\Logs\States\Daily");
+            var viewModel = new BackupViewModel(dailyLogService, backupService,stateService);
 
             string command = args[0].ToLower();
 
