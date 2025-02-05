@@ -10,7 +10,7 @@ using EasyLib.Models;
 using EasySaveLog.Models;
 using EasySaveLog.Services;
 using System.Reflection.Metadata.Ecma335;
-
+ 
 namespace EasyLib.Services
 {
     public class BackupService
@@ -19,7 +19,6 @@ namespace EasyLib.Services
         private Dictionary<string, BackupModel> backups;
         private readonly DailyLogService _dailyLogService;
         public string Status { get; private set; }
-        // private readonly StateService stateService;
         private static readonly object _lock = new object();
         private readonly StateService _stateService;
         public BackupService()
@@ -31,7 +30,6 @@ namespace EasyLib.Services
 
         public string CreateBackup(string name, string srcPath, string destPath, string type)
         {
-            // _stateService.StartTimer(name, srcPath, destPath, "Create", "", 0, 0, 0, 0);
 
             if (backups.ContainsKey(name))
         
@@ -52,7 +50,10 @@ namespace EasyLib.Services
             }
             catch (Exception)
             {
+                _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("create failed"), type, 0 , 0, 0, 0);
+                _stateService.StopTimer();
                 return Localization.Get("wrong_path");
+
             }
 
             var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now);
@@ -76,16 +77,18 @@ namespace EasyLib.Services
   
 
             _dailyLogService.FlushLogs();
-
+            long totalfiles = 0;
             if (backup.IsDirectory)
             {
-                long totalfiles = CountFilesInDirectory(backup.SourcePath);
-                _stateService.StartTimer(name, srcPath, destPath, Localization.Get("create_backup"), type,totalfiles , fileSize, 0, 0);
+                  totalfiles = CountFilesInDirectory(backup.SourcePath);
             }
             else
             {
-                _stateService.StartTimer(name, srcPath, destPath, Localization.Get("create_backup"), type, 0, fileSize, 0, 0);
+
+                  totalfiles =1;
             }
+            _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("backup_success"), type, totalfiles , fileSize, 0, 100);
+                _stateService.StopTimer();
 
 
             return Localization.Get("backup_success");
@@ -112,8 +115,8 @@ namespace EasyLib.Services
 
                 var backup = backups[name];
                 long fileSize = GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
-                long totalfiles = CountFilesInDirectory(backup.SourcePath);
-                
+
+
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 try
@@ -128,19 +131,24 @@ namespace EasyLib.Services
                 }
                     if (backup.IsDirectory)
                     {
+                        long totalfiles = CountFilesInDirectory(backup.SourcePath);
                         CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType, name, backup.BackupType, fileSize);
-                        _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, "Run en cours", backup.BackupType, totalfiles, fileSize, 0, 0);
+                        _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
+
 
                     }
                     else
-                    {                                                                    
+                    {                
+                        long totalfiles = 1;    
                         Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
                         CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType);
+                        _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
+
+
                     }
                     stopwatch.Stop();
-
                     _dailyLogService.WriteLogEntry(new LogEntry
-                    {
+                    {   
                         Timestamp = DateTime.Now,
                         BackupName = backup.Name,
                         SourcePath = backup.SourcePath,
@@ -150,7 +158,10 @@ namespace EasyLib.Services
                         Type = "Run"
                     });
                     _dailyLogService.FlushLogs();
-                    // _stateService.TakeAndUpdateStates(backup.Name, backup.SourcePath, backup.DestinationPath, "Backup run successful", backup.BackupType, 0, fileSize, 0 - 0, 0);
+
+
+                    _stateService.StopTimer();
+
 
                     lock (statuses)
                     {
@@ -187,7 +198,6 @@ namespace EasyLib.Services
 
                     var backup = backups[name];
                     long fileSize = GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
-                    long totalfiles = CountFilesInDirectory(backup.SourcePath);
 
                     try
                     {
@@ -197,35 +207,31 @@ namespace EasyLib.Services
 
                             if (Directory.Exists(directoryToDelete))
                             {
+                                long totalfiles = CountFilesInDirectory(backup.SourcePath);
+
                                 long deleteFiles = 0;
-
-                                foreach (var file in Directory.GetFiles(directoryToDelete, "*", SearchOption.AllDirectories))
-                                {
-
-                                 
-                                 Thread.Sleep(100);
-
-                                File.Delete(file);
                                 long? filesLeftToDo = totalfiles; 
                                 deleteFiles++;
                                 filesLeftToDo = totalfiles-deleteFiles;
 
+                                long progression = (long)((double)deleteFiles / totalfiles * 100);
 
+                                foreach (var file in Directory.GetFiles(directoryToDelete, "*", SearchOption.AllDirectories))
+                                {
+                                    File.Delete(file);
+                                    _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("delete_progress"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
 
-                                long progression = (long)((double)deleteFiles / totalfiles * 100); 
-
-                                _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, "Delete en cours", backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
-
-
-
+                                // Thread.Sleep(100);
                                 }
 
                                 foreach (var dir in Directory.GetDirectories(directoryToDelete, "*", SearchOption.AllDirectories))
                                 {
                                     Directory.Delete(dir, true);
-                                }
 
+                                }
+                                progression = 100;
                                 Directory.Delete(directoryToDelete, true);
+                                _stateService.TakeAndUpdateStates(name, backup.SourcePath, backup.DestinationPath, Localization.Get("directory_sucessfully_deleted"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
                                 statuses.Add($"{name} - {Localization.Get("directory_sucessfully_deleted")}");
                             }
                             else
@@ -236,7 +242,11 @@ namespace EasyLib.Services
                         else if (File.Exists(backup.FullDestinationPath))
                         {
                             File.Delete(backup.FullDestinationPath);
+                            _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("file_sucessfully_deleted"), backup.BackupType, 1, fileSize, 0, 100);
+
+
                             statuses.Add($"{name} - {Localization.Get("file_sucessfully_deleted")}");
+
                         }
                         else
                         {
@@ -258,8 +268,7 @@ namespace EasyLib.Services
                         });
                         _dailyLogService.FlushLogs();
 
-                        _stateService.StartTimer(backup.Name, backup.SourcePath, backup.DestinationPath, "Delete successful", backup.BackupType, totalfiles, fileSize, 0, 100);
-                        _stateService.StopTimer();
+                         _stateService.StopTimer();
 
                     }
                     catch (Exception ex)
@@ -303,9 +312,7 @@ namespace EasyLib.Services
                 long progression = (long)((double)copiedFiles / totalFiles * 100); 
 
                 _stateService.StartTimer(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
-                _stateService.StopTimer();
             }
-             _stateService.StartTimer(name, sourceDir, destDirWithSource, "Run finis", type, totalFiles, filesize, 0, 100);
             _stateService.StopTimer();
 
 

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace EasySaveLog.Services
 {
-
+ 
     
     public class StateService
     {
@@ -49,7 +49,7 @@ namespace EasySaveLog.Services
                     TotalFilesToCopy = {stateEntry.TotalFilesToCopy},
                     TotalFilesSize = {stateEntry.TotalFilesSize},
                     NbFilesLeftToDo = {stateEntry.NbFilesLeftToDo},
-                    Progression = {stateEntry.Progression} ;
+                    Progression = {stateEntry.Progression} %;
                 }}";
 
                     AppendStates(formattedEntry);

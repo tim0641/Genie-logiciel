@@ -28,7 +28,7 @@ namespace EasyLib.ViewModels
         
         public void CreateBackupFromUserInput()
         {
-            _stateService.StartTimer("", "", "", "Create backup", "", 0, 0, 0, 0);
+            _stateService.StartTimer("", "", "", Localization.Get("create_backup"), "", 0, 0, 0, 0);
 
             Console.Clear();
             AnsiConsole.Clear();
@@ -41,15 +41,10 @@ namespace EasyLib.ViewModels
             var type = AnsiConsole.Ask<string>(Localization.Get("enter_backup_type"));
 
             long fileSize = _backupService.GetSize(srcPath, destPath, type);
-            _stateService.StartTimer(name, srcPath, destPath,"Backup Created", type, 0, fileSize, 0, 0);
-            //_stateService.StartTimer(name, srcPath, destPath,"Backup Created", type, 0, 0, 0, 0);
 
-
-            _stateService.StopTimer();
 
             Status = _backupService.CreateBackup(name, srcPath, destPath, type);
             
-    
 
 
         }
@@ -57,7 +52,7 @@ namespace EasyLib.ViewModels
         
         public string ListBackups()
         {
-            _stateService.StartTimer("", "", "", "Liste backup", "", 0, 0, 0, 0);
+            _stateService.StartTimer("", "", "",Localization.Get("list_backups"), "", 0, 0, 0, 0);
 
             var backups = _backupService.GetAllBackups();
             if (backups.Count == 0)
@@ -71,15 +66,18 @@ namespace EasyLib.ViewModels
             {
                 listing += $"{backup.Name} - {backup.SourcePath} -> {backup.FullDestinationPath} ({backup.BackupType})\n";
             }
+
+
             Status = listing;
+
+
             return Status;
         }
 
         
         public void RunBackupFromUserSelection()
         {
-            _stateService.StartTimer("", "", "", "Run Backup", "", 0, 0, 0, 0);
-            _stateService.StopTimer();
+            _stateService.StartTimer("", "", "", Localization.Get("run_backup"), "", 0, 0, 0, 0);
             var backupsList = _backupService.GetAllBackups();
             if (backupsList.Count == 0)
             {
@@ -98,6 +96,8 @@ namespace EasyLib.ViewModels
 
 
             Status = _backupService.RunBackup(selected);
+
+
             AnsiConsole.MarkupLine($"[bold blue]Status: {Status}[/]");
             
         }
@@ -105,7 +105,7 @@ namespace EasyLib.ViewModels
         
         public void DeleteBackupFromUserSelection()
         {
-            _stateService.StartTimer("", "", "", "Delete backup", "", 0, 0, 0, 0);
+            _stateService.StartTimer("", "", "", Localization.Get("delete_backup"), "", 0, 0, 0, 0);
 
             var backupsList = _backupService.GetAllBackups();
             if (backupsList.Count == 0)

@@ -36,6 +36,8 @@ namespace EasyLib
                     { "directory_delete_not_found", "Directory not found and job deleted succesfully" },
                     { "file_sucessfully_deleted", "File Sucessfully deleted" },
                     { "file_delete_not_found", "Cannot Delete file because not found" },
+                    { "delete_progress", "Delete in progress" },
+                    { "run_progress", "Run in progress" },
                     { "error_delete", "Delete Failing" },
 
                 }
@@ -67,6 +69,8 @@ namespace EasyLib
                     { "directory_delete_not_found", "Repertoire introuvable tache supprimée avec succès" },
                     { "file_sucessfully_deleted", "Fichier supprimé avec succès" },
                     { "file_delete_not_found", "Fichier introuvable échec de supression" },
+                    { "run_progress", "Execution en cours" },
+                    { "delete_progress", "Suppresion en cours" },
                     { "error_delete", "Erreur de supression" },
 
                 }
