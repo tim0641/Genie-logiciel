@@ -5,8 +5,6 @@ using Spectre.Console;
 using EasyLib.Models;
 using EasyLib.Services;       // Pour accéder à BackupService
 using EasySaveLog.Services;   // Pour DailyLogService
-// Assurez-vous que Localization est défini dans votre projet
-
 namespace EasyLib.ViewModels
 {
     public class BackupViewModel
