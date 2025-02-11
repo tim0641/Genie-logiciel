@@ -1,129 +1,191 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using Spectre.Console;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Input;
 using EasyLib.Models;
-using EasyLib.Services;       // Pour accéder à BackupService
-using EasySaveLog.Services;   // Pour DailyLogService
+using EasyLib.Services;
+using EasySaveLog.Services;
+
+
 namespace EasyLib.ViewModels
 {
-    public class BackupViewModel
-    {        
+    public class BackupViewModel : INotifyPropertyChanged
+    {
         private readonly BackupService _backupService;
         private readonly DailyLogService _dailyLogService;
-
         private readonly StateService _stateService;
 
-        public string Status { get; private set; }
+        public ObservableCollection<BackupModel> Backups { get; private set; }
+
+        private string _status;
+        public string Status
+        {
+            get => _status;
+            private set
+            {
+                _status = value;
+                OnPropertyChanged();
+            }
+        }
+        
+
+        private string _backupName;
+        public string BackupName
+        {
+            get => _backupName;
+            set
+            {
+                _backupName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _sourcePath;
+        public string SourcePath
+        {
+            get => _sourcePath;
+            set
+            {
+                _sourcePath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _destinationPath;
+        public string DestinationPath
+        {
+            get => _destinationPath;
+            set
+            {
+                _destinationPath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _backupType;
+        public string BackupType
+        {
+            get => _backupType;
+            set
+            {
+                _backupType = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand CreateBackupCommand { get; }
+        public ICommand ListBackupsCommand { get; }
+        public ICommand RunSelectedBackupCommand { get; }
+        public ICommand DeleteSelectedBackupCommand { get; }
 
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
             _backupService = backupService;
-            _stateService= stateService;
+            _stateService = stateService;
 
-        }
-        
-        public void CreateBackupFromUserInput()
-        {
-            _stateService.StartTimer("", "", "", Localization.Get("create_backup"), "", 0, 0, 0, 0);
+            Backups = new ObservableCollection<BackupModel>();
 
-            Console.Clear();
-            AnsiConsole.Clear();
-            Thread.Sleep(100);
-            AnsiConsole.MarkupLine($"[bold]{Localization.Get("create_backup")}[/]");
-
-            var name = AnsiConsole.Ask<string>(Localization.Get("enter_backup_name"));
-            var srcPath = AnsiConsole.Ask<string>(Localization.Get("enter_source_path"));
-            var destPath = AnsiConsole.Ask<string>(Localization.Get("enter_destination_path"));
-            var type = AnsiConsole.Ask<string>(Localization.Get("enter_backup_type"));
-
-            long fileSize = _backupService.GetSize(srcPath, destPath, type);
-
-
-            Status = _backupService.CreateBackup(name, srcPath, destPath, type);
-            
-
-
+            CreateBackupCommand = new RelayCommand(CreateBackupFromUserInput);
+            ListBackupsCommand = new RelayCommand(ListBackups);
+            RunSelectedBackupCommand = new RelayCommand(RunSelectedBackups);
+            DeleteSelectedBackupCommand = new RelayCommand(DeleteSelectedBackups);
         }
 
-        
-        public string ListBackups()
+
+
+        private void CreateBackupFromUserInput()
         {
-            _stateService.StartTimer("", "", "",Localization.Get("list_backups"), "", 0, 0, 0, 0);
-
-            var backups = _backupService.GetAllBackups();
-            if (backups.Count == 0)
+            if (string.IsNullOrWhiteSpace(BackupName) || string.IsNullOrWhiteSpace(SourcePath) ||
+                string.IsNullOrWhiteSpace(DestinationPath) || string.IsNullOrWhiteSpace(BackupType))
             {
-                Status = Localization.Get("no_backups");
-                return Status;
-            }
-
-            string listing = $"{Localization.Get("list_of_backup_jobs")}\n";
-            foreach (var backup in backups)
-            {
-                listing += $"{backup.Name} - {backup.SourcePath} -> {backup.FullDestinationPath} ({backup.BackupType})\n";
-            }
-
-
-            Status = listing;
-
-
-            return Status;
-        }
-
-        
-        public void RunBackupFromUserSelection()
-        {
-            _stateService.StartTimer("", "", "", Localization.Get("run_backup"), "", 0, 0, 0, 0);
-            var backupsList = _backupService.GetAllBackups();
-            if (backupsList.Count == 0)
-            {
-                AnsiConsole.MarkupLine($"[red]{Localization.Get("no_backups")}[/]");
+                Status = "Veuillez remplir tous les champs.";
                 return;
             }
 
-            var selected = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title(Localization.Get("select_backup"))
-                    .PageSize(10)
-                    .InstructionsText($"[grey]{Localization.Get("use_space")}[/]")
-                    .AddChoices(backupsList.ConvertAll(b => b.Name))
-            );
-
-
-
-            Status = _backupService.RunBackup(selected);
-
-
-            AnsiConsole.MarkupLine($"[bold blue]Status: {Status}[/]");
-            
+            Status = _backupService.CreateBackup(BackupName, SourcePath, DestinationPath, BackupType);
         }
 
-        
-        public void DeleteBackupFromUserSelection()
+        private void ListBackups()
         {
-            _stateService.StartTimer("", "", "", Localization.Get("delete_backup"), "", 0, 0, 0, 0);
-
-            var backupsList = _backupService.GetAllBackups();
-            if (backupsList.Count == 0)
+            Backups.Clear();
+            foreach (var backup in _backupService.GetAllBackups())
             {
-                AnsiConsole.MarkupLine($"[red]{Localization.Get("no_backups")}[/]");
-                return;
+                Backups.Add(backup);
             }
+            Status = Backups.Count == 0 ? "Aucune sauvegarde trouvée." : "Sauvegardes chargées.";
+        }
 
-            var selected = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title(Localization.Get("select_backup"))
-                    .PageSize(10)
-                    .InstructionsText($"[grey]{Localization.Get("use_space")}[/]")
-                    .AddChoices(backupsList.ConvertAll(b => b.Name))
-            );
+private void RunSelectedBackups()
+{
+    try
+    {
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
+
+        if (selectedBackups.Count == 0)
+        {
+            Status = "Aucune sauvegarde sélectionnée pour l'exécution.";
+            return;
+        }
+
+        Status = "Exécution des sauvegardes en cours...";
+        Status = _backupService.RunBackup(selectedBackups);
+        Status += "\nExécution terminée.";
+    }
+    catch (Exception ex)
+    {
+        Status = $"Erreur lors de l'exécution : {ex.Message}";
+    }
+}
+
+private void DeleteSelectedBackups()
+{
+    try
+    {
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
+
+        if (selectedBackups.Count == 0)
+        {
+            Status = "Aucune sauvegarde sélectionnée pour la suppression.";
+            return;
+        }
+
+        Status = "Suppression des sauvegardes en cours...";
+        Status = _backupService.DeleteBackup(selectedBackups);
+    }
+    catch (Exception ex)
+    {
+        Status = $"Erreur lors de la suppression : {ex.Message}";
+    }
+}
 
 
-            Status = _backupService.DeleteBackup(selected);
-            AnsiConsole.MarkupLine($"[bold blue]Status: {Status}[/]");
+
+
+
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    
+
+    public class RelayCommand : ICommand
+    {
+        private readonly Action _execute;
+        private readonly Func<bool> _canExecute;
+        public event EventHandler? CanExecuteChanged;
+
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
+        public void Execute(object parameter) => _execute();
+    }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.ComponentModel;
 
 namespace EasyLib.Models
 {
@@ -14,6 +15,24 @@ namespace EasyLib.Models
         public string FullDestinationPath { get; }
 
         public bool IsDirectory { get; } 
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    
 
         public BackupModel(string name, string sourcePath, string destinationPath, string backupType, DateTime creationTime)
         {
