@@ -1,0 +1,12 @@
+<Application x:Class="EasyWPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:EasyWPF.Converters"
+             StartupUri="MainWindow.xaml">
+
+             
+<Application.Resources>
+    <local:PlaceholderConverter x:Key="PlaceholderConverter"/>
+</Application.Resources>
+
+</Application>

@@ -1,0 +1,27 @@
+<Window x:Class="EasyWPF.CreateBackupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Créer une sauvegarde" Height="300" Width="400">
+
+    <Grid>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <TextBlock Text="Créer une Sauvegarde" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Nom de la sauvegarde:"/>
+            <TextBox Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <TextBlock Text="Chemin source:"/>
+            <TextBox Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <TextBlock Text="Chemin de destination:"/>
+            <TextBox Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <TextBlock Text="Type de sauvegarde (Full/Differential):"/>
+            <TextBox Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/>
+            <Button Content="Annuler" Click="CloseWindow" Width="100"/>
+        </StackPanel>
+    </Grid>
+</Window>
