@@ -38,42 +38,31 @@
         <Button Content="Créer" Style="{StaticResource ButtonWithOutHover}" Click="OpenCreateBackupWindow" Background="#FF6A1E55" Margin="0,0,550,175" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MinHeight="45" MaxHeight="45" MaxWidth="140" />
         <Button x:Name="buttonlist" Content="Afficher" Style="{StaticResource ButtonWithOutHover}"  Command="{Binding ListBackupsCommand}" Click="Buttonlistclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>   
        
-        <Button x:Name="buttonrun" Content="Exécuter" Style="{StaticResource ButtonWithOutHover}" Command="{Binding RunSelectedBackupCommand}" Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="White" Width="140" Height="45"/>
+        <Button x:Name="buttonrun" Content="Exécuter" Style="{StaticResource ButtonWithOutHover}"  Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="White" Width="140" Height="45"/>
         <Button x:Name="buttondel" Content="Supprimer" Style="{StaticResource ButtonWithOutHover}" Command="{Binding DeleteSelectedBackupCommand}" Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="White" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
 
 
 
+            
+        <DataGrid ItemsSource="{Binding Backups}" Margin="455,197,288,144" AutoGenerateColumns="False" Panel.ZIndex="5">
+        <DataGrid.Columns>
+            
+            <DataGridTemplateColumn Header="Sélectionner">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" />
+        <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" />
+            <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}" />
+            <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" />
+        </DataGrid.Columns>
+    </DataGrid>
 
-
-  <ListBox ItemsSource="{Binding Backups}" Height="150" Width="250" Panel.ZIndex="5" >
-    <ListBox.ItemTemplate>
-        <DataTemplate>
-            <StackPanel Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
-                <TextBlock Text="{Binding Name}" Margin="5,0,0,0" />
-            </StackPanel>
-        </DataTemplate>
-    </ListBox.ItemTemplate>
-</ListBox>  
-        
-    <DataGrid ItemsSource="{Binding Backups}" Margin="455,197,288,144" AutoGenerateColumns="False" Panel.ZIndex="5">
-    <DataGrid.Columns>
-        
-        <DataGridTemplateColumn Header="Sélectionner">
-            <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate>
-                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
-                </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-        <DataGridTextColumn Header="Nom" Binding="{Binding Name}" />
-       <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" />
-        <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}" />
-        <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" />
-    </DataGrid.Columns>
-</DataGrid>
-
-<TextBlock Text="{Binding Status}" Margin="560,449,376,125"  Foreground="Red"/>    
+        <TextBlock HorizontalAlignment="Left" Margin="455,425,0,0" Text="{Binding Status}"  VerticalAlignment="Top" Width="367" Background="#ffffffff" Panel.ZIndex="10" />
+        <Button Content="Button" Style="{StaticResource ButtonWithOutHover}" Command="{Binding RunSelectedBackupCommand}" HorizontalAlignment="Left" Margin="843,449,0,0" Background="#ffffffff" VerticalAlignment="Top" Height="30" Width="99"/>
 
     </Grid>
 
