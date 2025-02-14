@@ -75,6 +75,17 @@ namespace EasyLib.ViewModels
             }
         }
 
+        private bool _isSelectionMode;
+        public bool IsSelectionMode
+        {
+            get => _isSelectionMode;
+            set
+            {
+                _isSelectionMode = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
         public ICommand RunSelectedBackupCommand { get; }
@@ -118,48 +129,51 @@ namespace EasyLib.ViewModels
             Status = Backups.Count == 0 ? "Aucune sauvegarde trouvée." : "Sauvegardes chargées.";
         }
 
-private void RunSelectedBackups()
-{
-    try
-    {
-        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
 
-        if (selectedBackups.Count == 0)
+
+
+        private void RunSelectedBackups()
         {
-            Status = "Aucune sauvegarde sélectionnée pour l'exécution.";
-            return;
+            try
+            {
+                var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
+
+                if (selectedBackups.Count == 0)
+                {
+                    Status = "Aucune sauvegarde sélectionnée pour l'exécution.";
+                    return;
+                }
+
+                Status = "Exécution des sauvegardes en cours...";
+                Status = _backupService.RunBackup(selectedBackups);
+                Status += "\nExécution terminée.";
+            }
+            catch (Exception ex)
+            {
+                Status = $"Erreur lors de l'exécution : {ex.Message}";
+            }
         }
 
-        Status = "Exécution des sauvegardes en cours...";
-        Status = _backupService.RunBackup(selectedBackups);
-        Status += "\nExécution terminée.";
-    }
-    catch (Exception ex)
-    {
-        Status = $"Erreur lors de l'exécution : {ex.Message}";
-    }
-}
-
-private void DeleteSelectedBackups()
-{
-    try
-    {
-        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
-
-        if (selectedBackups.Count == 0)
+        private void DeleteSelectedBackups()
         {
-            Status = "Aucune sauvegarde sélectionnée pour la suppression.";
-            return;
-        }
+            try
+            {
+                var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
 
-        Status = "Suppression des sauvegardes en cours...";
-        Status = _backupService.DeleteBackup(selectedBackups);
-    }
-    catch (Exception ex)
-    {
-        Status = $"Erreur lors de la suppression : {ex.Message}";
-    }
-}
+                if (selectedBackups.Count == 0)
+                {
+                    Status = "Aucune sauvegarde sélectionnée pour la suppression.";
+                    return;
+                }
+
+                Status = "Suppression des sauvegardes en cours...";
+                Status = _backupService.DeleteBackup(selectedBackups);
+            }
+            catch (Exception ex)
+            {
+                Status = $"Erreur lors de la suppression : {ex.Message}";
+            }
+        }
 
 
 
