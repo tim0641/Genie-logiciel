@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="608" Width="1240" Background="#FF1A1A1D">
-        <Window.Resources>
+            <Window.Resources>
         
         <Style x:Key="ButtonWithOutHover" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -24,6 +24,27 @@
                 </Setter.Value>
             </Setter>
         </Style>
+                <Style x:Key="ButtonWithOutHover2" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" BorderThickness="0.5" Padding="4,2"
+                         CornerRadius="25" BorderBrush="Black" 
+                        Background="#A64D79" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100" MaxWidth="100" MinHeight="30" MaxHeight="30">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFE89FC3" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
     </Window.Resources>
     <Grid x:Name="MainGrid" Background="#FF1A1A1D" Margin="10,10,0,-6">
         <Rectangle x:Name="ZoneAffichage" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Fill="#FF3B1C32" RadiusY="50" RadiusX="50" Margin="0,40,0,0"/>
@@ -35,105 +56,66 @@
             </TextBlock>
         <Canvas x:Name="Canvas" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Margin="0,40,0,0"/>
 
-        <Button Content="Créer" Style="{StaticResource ButtonWithOutHover}" Click="OpenCreateBackupWindow" Background="#FF6A1E55" Margin="0,0,550,175" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MinHeight="45" MaxHeight="45" MaxWidth="140" />
+        <Button x:Name="buttoncreate" Content="Créer" Style="{StaticResource ButtonWithOutHover}" Click="Buttoncreateclick" Background="#FF6A1E55" Margin="0,0,550,175" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MinHeight="45" MaxHeight="45" MaxWidth="140" />
         <Button x:Name="buttonlist" Content="Afficher" Style="{StaticResource ButtonWithOutHover}"  Command="{Binding ListBackupsCommand}" Click="Buttonlistclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>   
        
         <Button x:Name="buttonrun" Content="Exécuter" Style="{StaticResource ButtonWithOutHover}"  Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="White" Width="140" Height="45"/>
-        <Button x:Name="buttondel" Content="Supprimer" Style="{StaticResource ButtonWithOutHover}" Command="{Binding DeleteSelectedBackupCommand}" Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="White" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
+        <Button x:Name="buttondel" Content="Supprimer" Style="{StaticResource ButtonWithOutHover}"  Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="White" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
 
 
-
-            
-        <DataGrid ItemsSource="{Binding Backups}" Margin="455,197,288,144" AutoGenerateColumns="False" Panel.ZIndex="5">
+    <DataGrid Opacity="0" x:Name="DatagridList" ItemsSource="{Binding Backups}" Width="480" Height="250" Margin="150,20,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" Panel.ZIndex="5">
         <DataGrid.Columns>
-            
-            <DataGridTemplateColumn Header="Sélectionner">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" />
-        <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" />
-            <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}" />
-            <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" />
+            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="75" />
+            <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}"  Width="150"/>
+            <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}"  Width="150"/>
+            <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" Width="75" />
         </DataGrid.Columns>
     </DataGrid>
+            
+        <DataGrid Opacity="0" x:Name="Datagrid" ItemsSource="{Binding Backups}" Width = "500" Height = "250" Margin="150,20,0,0" HorizontalAlignment = "Center" VerticalAlignment = "Center" AutoGenerateColumns="False" Panel.ZIndex="5">
+            <DataGrid.Columns>
+                
+                <DataGridTemplateColumn Header="Sélectionner">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="25"  />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="75" />
+            <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" Width="150"  />
+                <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}" Width="150"  />
+                <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" Width="80" />
+            </DataGrid.Columns>
+        </DataGrid>
 
-        <TextBlock HorizontalAlignment="Left" Margin="455,425,0,0" Text="{Binding Status}"  VerticalAlignment="Top" Width="367" Background="#ffffffff" Panel.ZIndex="10" />
-        <Button Content="Button" Style="{StaticResource ButtonWithOutHover}" Command="{Binding RunSelectedBackupCommand}" HorizontalAlignment="Left" Margin="843,449,0,0" Background="#ffffffff" VerticalAlignment="Top" Height="30" Width="99"/>
+        <StackPanel Opacity="1" x:Name="Formulairecreate" Panel.ZIndex="15" Background="#A64D79" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width = "500" Height = "250" Margin="150,20,0,0">
 
+            <TextBlock Text="Créer une Sauvegarde" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Nom de la sauvegarde:"/>
+            <TextBox Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <TextBlock Text="Chemin source:"/>
+            <TextBox Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <TextBlock Text="Chemin de destination:"/>
+            <TextBox Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <TextBlock Text="Type de sauvegarde (Full/Differential):"/>
+            <TextBox Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+
+            <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/>
+        </StackPanel>
+
+
+        <TextBlock x:Name="Texte" Opacity="0"  Width = "367" Height = "16"  HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="40,300,0,0" Text="{Binding Status}"  Background="#ffffffff" Panel.ZIndex="10" />
+        <Button Opacity="0" x:Name="buttonrunaction" Foreground="White" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="540,302,0,0" Content="Buttonrun" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}"  />
+        <Button Opacity="0" x:Name="buttondelaction" Foreground="White" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="540,302,0,0" Content="Buttondel" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding DeleteSelectedBackupCommand}"  />
+
+
+        
     </Grid>
 
 </Window> 
 
-
-<!-- 
-
-<Window x:Class="EasyWPF.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="608" Width="1240" Background="#FF1A1A1D">
-
-    <Window.Resources>
-         This style is used for buttons, removing the default 'animated' mouse-over effect 
-        <Style x:Key="ButtonWithOutHover" TargetType="Button">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="border" BorderThickness="1" Padding="4,2"
-                         CornerRadius="25"
-                        Background="{TemplateBinding Background}" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#A64D79" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
-    <Grid x:Name="MainGrid" Background="#FF1A1A1D" Margin="10,10,0,-6">
-        <Rectangle x:Name="ZoneAffichage" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Fill="#FF3B1C32" RadiusY="50" RadiusX="50" Margin="0,40,0,0"/>
-
-        <Rectangle HorizontalAlignment="Center" Height="60" Margin="0,0,0,325" VerticalAlignment="Center" Width="376" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Height="38" Width="111" FontSize="30" FontFamily="Calibri" Foreground="#FFFFFFFF" Margin="0,0,0,325">
-            <Run Language="fr-fr" Text="EasySave"/>
-        </TextBlock>
-        <Canvas x:Name="Canvas" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Margin="0,40,0,0"/>
-
-        <Button x:Name="buttoncreate" Style="{StaticResource ButtonWithOutHover}" Click="Buttoncreateclick" Panel.ZIndex="2" Content="Créer" Background="#FF6A1E55" Margin="0,0,550,175" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MinHeight="45" MaxHeight="45" MaxWidth="140"/>
-        <Button  Style="{StaticResource ButtonWithOutHover}" Click="Buttonlistclick" Command="{Binding ListBackupsCommand}" Panel.ZIndex="2" Content="Afficher" Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>
-        <Button x:Name="buttonrun" Style="{StaticResource ButtonWithOutHover}" Click="Buttonrunclick" Command="{Binding RunSelectedBackupCommand}" Panel.ZIndex="2" Content="Exécuter" Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="White" Width="140" Height="45"/>
-        <Button x:Name="buttondel" Style="{StaticResource ButtonWithOutHover}" Click="Buttondeleteclick" Command="{Binding DeleteSelectedBackupCommand}" Panel.ZIndex="2"  Content="Supprimer" Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="White" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-<DataGrid x:Name="BackupDataGrid"
-          ItemsSource="{Binding Backups}"
-          AutoGenerateColumns="False"
-          HorizontalAlignment="Center"
-          VerticalAlignment="Center"
-          Width="700"
-          Height="300"
-          Margin="0,40,0,0"
-          Background="#FF3B1C32"
-          Foreground="White"
-          BorderBrush="#FF6A1E55"
-          Visibility="Collapsed">
-    <DataGrid.Columns>
-        <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="*" />
-        <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="*" />
-        <DataGridTextColumn Header="Destination" Binding="{Binding Destination}" Width="*" />
-        <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="*" />
-    </DataGrid.Columns>
-</DataGrid>
-    </Grid>
-</Window> -->

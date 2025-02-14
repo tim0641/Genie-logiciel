@@ -86,11 +86,16 @@ namespace EasyLib.ViewModels
             }
         }
 
+
+
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
         public ICommand RunSelectedBackupCommand { get; }
         public ICommand DeleteSelectedBackupCommand { get; }
 
+
+
+        
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
@@ -121,6 +126,7 @@ namespace EasyLib.ViewModels
 
         private void ListBackups()
         {
+
             Backups.Clear();
             foreach (var backup in _backupService.GetAllBackups())
             {

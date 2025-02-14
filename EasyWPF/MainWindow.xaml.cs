@@ -38,58 +38,80 @@ namespace EasyWPF
             createWindow.ShowDialog();
         }
 
+        public void CreateBackupWindow(BackupViewModel viewModel)
+        {
+            InitializeComponent();
+            DataContext = viewModel;
+        }
 
-        //         private void Buttoncreateclick(object sender, RoutedEventArgs e)
-        // {
-        //     foreach (var child in MainGrid.Children)
-        //     {
-        //         if (child is Button button)
-        //         {
-        //             button.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 106, 30, 85));
-        //         }
-        //     }
-        //     buttoncreate.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
+     
+        private void Buttoncreateclick(object sender, RoutedEventArgs e)
+        {
 
-        //     var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
-        //     foreach (var rectangle in rectanglesToRemove)
-        //     {
-        //         if (rectangle != null)
-        //         {
-        //             MainGrid.Children.Remove(rectangle);
-        //         }
-            //     }
+            foreach (var child in MainGrid.Children)
+            {
+                if (child is Button button)
+                {
+                    button.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 106, 30, 85));
+                }
+            }
+
+            buttoncreate.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
+            buttonrunaction.Opacity = 0;
+            Panel.SetZIndex(buttonrunaction, 0);
+            buttondelaction.Opacity = 0;
+            Panel.SetZIndex(buttondelaction, 0);
+            Datagrid.Opacity = 0;
+            Panel.SetZIndex(Datagrid, 0);
+            DatagridList.Opacity = 0;
+            Panel.SetZIndex(DatagridList, 0);
+            Texte.Opacity = 1;
+            Panel.SetZIndex(Texte, 10);
+            Formulairecreate.Opacity = 1;
+            Panel.SetZIndex(Formulairecreate, 10);
+
+
+
+            var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
+            foreach (var rectangle in rectanglesToRemove)
+            {
+                if (rectangle != null)
+                {
+                    MainGrid.Children.Remove(rectangle);
+                }
+                }
                 
 
-        //     MainRectangle = new System.Windows.Shapes.Rectangle
-        //     {
-        //         Width = 523,
-        //         Height = 285,
-        //         Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF6A1E55")),
-        //         HorizontalAlignment = HorizontalAlignment.Center,
-        //         VerticalAlignment = VerticalAlignment.Center
-        //     };
-        //     MainGrid.Children.Add(MainRectangle);
-        //     MainGrid.UpdateLayout();
+            MainRectangle = new System.Windows.Shapes.Rectangle
+            {
+                Width = 523,
+                Height = 285,
+                Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF6A1E55")),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            MainGrid.Children.Add(MainRectangle);
+            MainGrid.UpdateLayout();
 
-        //     SecondRectangle = new System.Windows.Shapes.Rectangle
-        //     {
-        //         Width = 180,
-        //         Height = 60,
-        //         Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF6A1E55")),
-        //         HorizontalAlignment = HorizontalAlignment.Center,
-        //         VerticalAlignment = VerticalAlignment.Center,
-        //         Margin = new Thickness(0, 0, 530, 175) 
-        //     };
-        //     MainGrid.Children.Add(SecondRectangle);
-        //     MainGrid.UpdateLayout();
-        //     Panel.SetZIndex(SecondRectangle,1);
+            SecondRectangle = new System.Windows.Shapes.Rectangle
+            {
+                Width = 180,
+                Height = 60,
+                Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF6A1E55")),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 530, 175) 
+            };
+            MainGrid.Children.Add(SecondRectangle);
+            MainGrid.UpdateLayout();
+            Panel.SetZIndex(SecondRectangle,1);
 
-        //     this.SizeChanged += (s, ev) =>
-        //     {
-        //         CenterRectangle();
-        //     };
-        //     CenterRectangle();
-        // }
+            this.SizeChanged += (s, ev) =>
+            {
+                CenterRectangle();
+            };
+            CenterRectangle();
+        }
         private void Buttonlistclick(object sender, RoutedEventArgs e)
         {
             
@@ -101,6 +123,18 @@ namespace EasyWPF
                 }
             }
             buttonlist.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
+            buttonrunaction.Opacity = 0;
+            Panel.SetZIndex(buttonrunaction, 0);
+            buttondelaction.Opacity = 0;
+            Panel.SetZIndex(buttondelaction, 0);
+            Datagrid.Opacity = 0;
+            Panel.SetZIndex(Datagrid, 0);
+            DatagridList.Opacity = 1;
+            Panel.SetZIndex(DatagridList, 10);
+            Texte.Opacity = 1;
+            Panel.SetZIndex(Texte, 10);
+            Formulairecreate.Opacity = 0;
+            Panel.SetZIndex(Formulairecreate, 0);
 
             var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
             foreach (var rectangle in rectanglesToRemove)
@@ -154,7 +188,20 @@ namespace EasyWPF
                     button.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 106, 30, 85));
                 }
             }
+
             buttonrun.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
+            Panel.SetZIndex(buttonrunaction, 10);
+            Panel.SetZIndex(buttondelaction, 0);
+            buttonrunaction.Opacity = 1;
+            buttondelaction.Opacity = 0;
+            Datagrid.Opacity = 1;
+            Panel.SetZIndex(Datagrid, 10);
+            DatagridList.Opacity = 0;
+            Panel.SetZIndex(DatagridList, 0);
+            Texte.Opacity = 1;
+            Panel.SetZIndex(Texte, 10);
+            Formulairecreate.Opacity = 0;
+            Panel.SetZIndex(Formulairecreate, 0);
 
             var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
             foreach (var rectangle in rectanglesToRemove)
@@ -205,7 +252,16 @@ namespace EasyWPF
                 }
             }
             buttondel.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
-
+            Panel.SetZIndex(buttonrunaction, 0);
+            Panel.SetZIndex(buttondelaction, 10);
+            buttonrunaction.Opacity = 0;
+            buttondelaction.Opacity = 1;
+            Datagrid.Opacity = 1;
+            Panel.SetZIndex(Datagrid, 10);
+            Texte.Opacity = 1;
+            Panel.SetZIndex(Texte, 10);
+            Formulairecreate.Opacity = 0;
+            Panel.SetZIndex(Formulairecreate, 0);
             var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
             foreach (var rectangle in rectanglesToRemove)
             {
@@ -251,5 +307,6 @@ namespace EasyWPF
                 MainRectangle.Margin = new Thickness(160, 50, 0, 0);
             }
         }
+
     }
 }
