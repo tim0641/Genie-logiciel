@@ -30,88 +30,275 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Name="border" BorderThickness="0.5" Padding="4,2"
+                        <Border Name="border" BorderThickness="1" Padding="4,2"
                          CornerRadius="25" BorderBrush="Black" 
-                        Background="#A64D79" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100" MaxWidth="100" MinHeight="30" MaxHeight="30">
+                        Background="#FF6A1E55" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100" MaxWidth="100" MinHeight="30" MaxHeight="30">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFE89FC3" />
+                                <Setter TargetName="border" Property="Background" Value="#A64D79" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        
+        <Style TargetType="TextBox" x:Key="RoundedTextBox">
+    <Setter Property="Template">
+        <Setter.Value>
+            <ControlTemplate TargetType="TextBox">
+                <Border CornerRadius="15" 
+                        Background="White" 
+                        BorderBrush="#FF6A1E55" 
+                        BorderThickness="2" 
+>
+                    <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                </Border>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#FFD1A1C7"/>
+            <Setter Property="Foreground" Value="#FF210F22"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+ 
     </Window.Resources>
     <Grid x:Name="MainGrid" Background="#FF1A1A1D" Margin="10,10,0,-6">
         <Rectangle x:Name="ZoneAffichage" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Fill="#FF3B1C32" RadiusY="50" RadiusX="50" Margin="0,40,0,0"/>
 
         <Rectangle HorizontalAlignment="Center" Height="60" Margin="0,0,0,325" VerticalAlignment="Center" Width="376" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
+     <ComboBox x:Name="LanguageComboBox" 
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Center" 
+                  Width="100" 
+                  Panel.ZIndex="50"
+                  Margin="580,0,0,280" 
+                  SelectionChanged="LanguageComboBox_SelectionChanged" 
+                  Background="#FFD1A1C7" Foreground="#FF210F22"
+                  >
+            <ComboBox.Style>
+                <Style TargetType="ComboBox">
+                    <Setter Property="BorderThickness" Value="2" />
+                    <Setter Property="FontFamily" Value="Yu Gothic UI Semilight" />
+                    <Setter Property="FontSize" Value="14" />
+                    <Setter Property="Foreground" Value="#FF210F22" />
+                </Style>
+                
+            </ComboBox.Style> 
+            <ComboBoxItem Content="English"  Tag="en"                   Panel.ZIndex="50"/>
+            <ComboBoxItem Content="Français" Tag="fr"                   Panel.ZIndex="50"/>
+        </ComboBox>
 
             <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Height="38" Width="111" FontSize="30" FontFamily="Calibri" Foreground="#FFFFFFFF" Margin="0,0,0,325">
                 <Run Language="fr-fr" Text="EasySave"/>
             </TextBlock>
         <Canvas x:Name="Canvas" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Margin="0,40,0,0"/>
 
-        <Button x:Name="buttoncreate" Content="Créer" Style="{StaticResource ButtonWithOutHover}" Click="Buttoncreateclick" Background="#FF6A1E55" Margin="0,0,550,175" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MinHeight="45" MaxHeight="45" MaxWidth="140" />
-        <Button x:Name="buttonlist" Content="Afficher" Style="{StaticResource ButtonWithOutHover}"  Command="{Binding ListBackupsCommand}" Click="Buttonlistclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="White" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>   
-       
-        <Button x:Name="buttonrun" Content="Exécuter" Style="{StaticResource ButtonWithOutHover}"  Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="White" Width="140" Height="45"/>
-        <Button x:Name="buttondel" Content="Supprimer" Style="{StaticResource ButtonWithOutHover}"  Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="White" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
+        <Button x:Name="buttoncreate"  Style="{StaticResource ButtonWithOutHover}" Click="Buttoncreateclick" Background="#FF6A1E55" Margin="0,0,550,175" FontSize="20" Foreground="white" Width="140" Height="45" MinWidth="140" MinHeight="45" MaxHeight="45" MaxWidth="140" Panel.ZIndex="2" />
+        <Button x:Name="buttonlist"  Style="{StaticResource ButtonWithOutHover}"  Command="{Binding ListBackupsCommand}" Click="Buttonlistclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="white" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>   
+        <Button x:Name="buttonrun"  Style="{StaticResource ButtonWithOutHover}"  Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="white" Width="140" Height="45"/>
+        <Button x:Name="buttondel"  Style="{StaticResource ButtonWithOutHover}"  Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="white" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
 
 
-    <DataGrid Opacity="0" x:Name="DatagridList" ItemsSource="{Binding Backups}" Width="480" Height="250" Margin="150,20,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" Panel.ZIndex="5">
-        <DataGrid.Columns>
-            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="75" />
-            <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}"  Width="150"/>
-            <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}"  Width="150"/>
-            <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" Width="75" />
-        </DataGrid.Columns>
+
+
+
+
+
+
+
+
+
+
+<Border x:Name="DatagridBorder1" Opacity="0" Width="490" Height="180" Margin="160,0,0,0" BorderThickness="0"    Panel.ZIndex="4">
+
+
+    <DataGrid Opacity="0" x:Name="DatagridList" ItemsSource="{Binding Backups}" GridLinesVisibility="None" Foreground="#FF210F22"         Background="#FFD1A1C7"
+  
+
+          RowBackground="#4E2A42" Width="504" Height="180"  HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" Panel.ZIndex="3">
+        
+    <DataGrid.Resources>
+        <!-- Style pour la ligne en dessous des headers -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/> <!-- Ligne en bas plus épaisse -->
+            <Setter Property="FontWeight" Value="Bold"/> <!-- Texte en gras si nécessaire -->
+        </Style>
+               <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                <!-- Si le champ "Chemin" est vide, on applique une couleur différente -->
+                <DataTrigger Binding="{Binding Chemin}" Value="">
+                    <Setter Property="Background" Value="LightGray"/>
+                </DataTrigger>
+                <!-- Ou si c'est null -->
+                <DataTrigger Binding="{Binding Chemin}" Value="{x:Null}">
+                    <Setter Property="Background" Value="LightGray"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </DataGrid.Resources>
+
+<DataGrid.Columns  >
+
+    <DataGridTextColumn x:Name ="DatagridBorder1Header1" Header="Nom" Binding="{Binding Name}" Width="70">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+
+    <DataGridTextColumn x:Name ="DatagridBorder1Header2"  Header="Source" Binding="{Binding SourcePath}" Width="170">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+
+    <DataGridTextColumn x:Name ="DatagridBorder1Header3"  Header="Destination" Binding="{Binding DestinationPath}" Width="150">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+
+    <DataGridTextColumn x:Name ="DatagridBorder1Header4"  Header="Type" Binding="{Binding BackupType}" Width="100">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+
+</DataGrid.Columns>
     </DataGrid>
-            
-        <DataGrid Opacity="0" x:Name="Datagrid" ItemsSource="{Binding Backups}" Width = "500" Height = "250" Margin="150,20,0,0" HorizontalAlignment = "Center" VerticalAlignment = "Center" AutoGenerateColumns="False" Panel.ZIndex="5">
+         
+    </Border>
+
+
+
+
+
+
+
+
+
+
+<Border x:Name="DatagridBorder2" Opacity="0" Width="490" Height="180" Margin="160,0,0,0" Background="#FFD1A1C7" BorderThickness="0"   Panel.ZIndex="4">
+
+
+    <DataGrid Opacity="0" x:Name="Datagrid" ItemsSource="{Binding Backups}" GridLinesVisibility="None" Foreground="#FF210F22"         Background="#FFD1A1C7"
+  
+
+          RowBackground="#2C0A12" Width="504" Height="180"  HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" Panel.ZIndex="3">
+    
+    <DataGrid.Style>
+        <Style TargetType="DataGrid">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Items.Count, RelativeSource={RelativeSource Self}}"
+                             Value="0">
+                    <Setter Property="Background" Value="LightGray"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </DataGrid.Style>
+    <DataGrid.Resources>
+        <!-- Style pour la ligne en dessous des headers -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/> <!-- Ligne en bas plus épaisse -->
+            <Setter Property="FontWeight" Value="Bold"/> <!-- Texte en gras si nécessaire -->
+        </Style>
+        
+    </DataGrid.Resources>
+
             <DataGrid.Columns>
-                
-                <DataGridTemplateColumn Header="Sélectionner">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="25"  />
+                <DataGridTemplateColumn  x:Name ="DatagridBorder2Header5"  Header="Choix" Width="40"   >
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="#FFD1A1C7"/>
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                    
+                    <DataGridTemplateColumn.CellTemplate  >
+                        <DataTemplate >
+                            <CheckBox        Background="#FFD1A1C7"               HorizontalAlignment="Center" 
+                      VerticalAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="25"  />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
+ 
+
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="75" />
-            <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" Width="150"  />
-                <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}" Width="150"  />
-                <DataGridTextColumn Header="Type" Binding="{Binding BackupType}" Width="80" />
+                <DataGridTextColumn x:Name ="DatagridBorder2Header1"  Header="Nom" Binding="{Binding Name}" Width="75"  >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+                <DataGridTextColumn x:Name ="DatagridBorder2Header2" Header="Source" Binding="{Binding SourcePath}" Width="150"  >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+                <DataGridTextColumn x:Name ="DatagridBorder2Header3" Header="Destination" Binding="{Binding DestinationPath}" Width="150"  >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+                <DataGridTextColumn x:Name ="DatagridBorder2Header4" Header="Type" Binding="{Binding BackupType}" Width="75" >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+                
             </DataGrid.Columns>
         </DataGrid>
 
-        <StackPanel Opacity="1" x:Name="Formulairecreate" Panel.ZIndex="15" Background="#A64D79" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width = "500" Height = "250" Margin="150,20,0,0">
+    </Border>
 
-            <TextBlock Text="Créer une Sauvegarde" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
 
-            <TextBlock Text="Nom de la sauvegarde:"/>
-            <TextBox Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
 
-            <TextBlock Text="Chemin source:"/>
-            <TextBox Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+        <StackPanel Opacity="0" x:Name="Formulairecreate" Panel.ZIndex="15" Background="Transparent" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width = "500" Height = "210" Margin="150,20,0,0">
 
-            <TextBlock Text="Chemin de destination:"/>
-            <TextBox Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+            <TextBlock x:Name ="Textblock1" FontFamily="Yu Gothic UI Semilight" Text="Créer une Sauvegarde" FontSize="25" Background="Transparent" TextAlignment="Center" Foreground="#FF210F22" TextDecorations="Underline" FontWeight="Bold" Margin="0,0,0,10"/>
 
-            <TextBlock Text="Type de sauvegarde (Full/Differential):"/>
-            <TextBox Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+            <TextBlock x:Name ="Textblock2" FontFamily="Yu Gothic UI Semilight" Text="Nom de la sauvegarde :" FontSize="15" Background="Transparent" TextAlignment="Center" Foreground="#FF210F22" Margin="0,1,0,0" FontWeight="Bold" /> 
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}"  FontFamily="Yu Gothic UI Semilight" Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
 
-            <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/>
+            <TextBlock x:Name ="Textblock3" FontFamily="Yu Gothic UI Semilight" Text="Chemin source :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22" />
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" FontFamily="Yu Gothic UI Semilight" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12"/>
+
+            <TextBlock x:Name ="Textblock4" FontFamily="Yu Gothic UI Semilight" Text="Chemin de destination :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22"/>
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" FontFamily="Yu Gothic UI Semilight"  Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
+
+            <TextBlock x:Name ="Textblock5" FontFamily="Yu Gothic UI Semilight" Text="Type de sauvegarde (Full/Differential) :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22"/>
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" FontFamily="Yu Gothic UI Semilight" Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background=" #FFD1A1C7"  BorderThickness="0" Foreground="#2C0A12" />
+
         </StackPanel>
 
 
-        <TextBlock x:Name="Texte" Opacity="0"  Width = "367" Height = "16"  HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="40,300,0,0" Text="{Binding Status}"  Background="#ffffffff" Panel.ZIndex="10" />
-        <Button Opacity="0" x:Name="buttonrunaction" Foreground="White" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="540,302,0,0" Content="Buttonrun" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}"  />
-        <Button Opacity="0" x:Name="buttondelaction" Foreground="White" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="540,302,0,0" Content="Buttondel" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding DeleteSelectedBackupCommand}"  />
+
+        <TextBlock x:Name="Texte" FontFamily="Yu Gothic UI Semilight" Opacity="0" FontSize="12" Background="transparent" Width = "300" Height = "50" FontWeight="Bold" Foreground="#FFD1A1C7" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="40,300,0,0" Text="{Binding Status}"   Panel.ZIndex="10" />
+ 
+ 
+        <!-- <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/> -->
+        <Button Opacity="0" x:Name="buttoncreateaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Créer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+        <Button Opacity="0" x:Name="buttonrunaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}"  />
+        <Button Opacity="0" x:Name="buttondelaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Supprimer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding DeleteSelectedBackupCommand}"  />
 
 
         

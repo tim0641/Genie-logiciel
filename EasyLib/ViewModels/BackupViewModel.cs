@@ -117,7 +117,7 @@ namespace EasyLib.ViewModels
             if (string.IsNullOrWhiteSpace(BackupName) || string.IsNullOrWhiteSpace(SourcePath) ||
                 string.IsNullOrWhiteSpace(DestinationPath) || string.IsNullOrWhiteSpace(BackupType))
             {
-                Status = "Veuillez remplir tous les champs.";
+                Status = Localization.Get("fill_all_fields");
                 return;
             }
 
@@ -132,7 +132,7 @@ namespace EasyLib.ViewModels
             {
                 Backups.Add(backup);
             }
-            Status = Backups.Count == 0 ? "Aucune sauvegarde trouvée." : "Sauvegardes chargées.";
+            Status = Backups.Count == 0 ? Localization.Get("no_backups_found"): "";
         }
 
 
@@ -146,18 +146,18 @@ namespace EasyLib.ViewModels
 
                 if (selectedBackups.Count == 0)
                 {
-                    Status = "Aucune sauvegarde sélectionnée pour l'exécution.";
+                    Status = Localization.Get("no_backups_selected_for_execution");
                     return;
                 }
 
-                Status = "Exécution des sauvegardes en cours...";
+                Status = Localization.Get("backups_execution_in_progress");
                 Status = _backupService.RunBackup(selectedBackups);
                 Status += "\nExécution terminée.";
             }
             catch (Exception ex)
             {
-                Status = $"Erreur lors de l'exécution : {ex.Message}";
-            }
+            Status = Localization.Get("execution_error") + ": " + ex.Message;                  
+             }
         }
 
         private void DeleteSelectedBackups()
@@ -168,16 +168,16 @@ namespace EasyLib.ViewModels
 
                 if (selectedBackups.Count == 0)
                 {
-                    Status = "Aucune sauvegarde sélectionnée pour la suppression.";
+                    Status = Localization.Get("no_backups_selected_for_deletion");
                     return;
                 }
 
-                Status = "Suppression des sauvegardes en cours...";
+                Status = Localization.Get("backups_deletion_in_progress");
                 Status = _backupService.DeleteBackup(selectedBackups);
             }
             catch (Exception ex)
             {
-                Status = $"Erreur lors de la suppression : {ex.Message}";
+            Status = Localization.Get("deletion_error") + ": " + ex.Message;                  
             }
         }
 
