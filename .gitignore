@@ -5,3 +5,6 @@ obj/
 # Visual Studio cache/options directory
 .vs/
 
+EasyCLI/backups.json
+EasySave.sln
+EasyWPF/backups.json

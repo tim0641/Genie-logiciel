@@ -86,6 +86,28 @@ namespace EasyLib.ViewModels
             }
         }
 
+     private bool _isEncrypted;
+        public bool IsEncrypted
+        {
+            get => _isEncrypted;
+            set
+        {
+        _isEncrypted = value;
+        OnPropertyChanged();
+        }
+        }   
+
+    private bool _isDecrypted;
+    public bool IsDecrypted
+{
+    get => _isDecrypted;
+    set
+    {
+        _isDecrypted = value;
+        OnPropertyChanged();
+    }
+}
+
 
 
         public ICommand CreateBackupCommand { get; }
@@ -138,7 +160,7 @@ namespace EasyLib.ViewModels
 
 
 
-        private void RunSelectedBackups()
+        private async void RunSelectedBackups()
         {
             try
             {
@@ -150,8 +172,12 @@ namespace EasyLib.ViewModels
                     return;
                 }
 
+                bool isEncrypted = IsEncrypted; 
+                bool isDecrypted = IsDecrypted; 
+
+                Status = "Exécution des sauvegardes en cours...";
                 Status = Localization.Get("backups_execution_in_progress");
-                Status = _backupService.RunBackup(selectedBackups);
+                Status = _backupService.RunBackup(selectedBackups, isEncrypted, isDecrypted);
                 Status += "\nExécution terminée.";
             }
             catch (Exception ex)

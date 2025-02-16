@@ -102,17 +102,17 @@
         <Button x:Name="buttonlist"  Style="{StaticResource ButtonWithOutHover}"  Command="{Binding ListBackupsCommand}" Click="Buttonlistclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="white" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>   
         <Button x:Name="buttonrun"  Style="{StaticResource ButtonWithOutHover}"  Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="white" Width="140" Height="45"/>
         <Button x:Name="buttondel"  Style="{StaticResource ButtonWithOutHover}"  Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="white" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
+       <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,10,0,0">
+    <TextBlock Text="Options d'exécution :" FontSize="14" FontWeight="Bold" Margin="0,0,0,5" Foreground="White"/>
 
+    <CheckBox x:Name="EncryptionCheckBox" Content="Chiffrer après exécution"
+              IsChecked="{Binding IsEncrypted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+              Width="200" Height="30" HorizontalAlignment="Center"/>
 
-
-
-
-
-
-
-
-
-
+    <CheckBox x:Name="DecryptionCheckBox" Content="Déchiffrer après exécution"
+              IsChecked="{Binding IsDecrypted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+              Width="200" Height="30" HorizontalAlignment="Center"/>
+</StackPanel>
 
 <Border x:Name="DatagridBorder1" Opacity="0" Width="490" Height="180" Margin="160,0,0,0" BorderThickness="0"    Panel.ZIndex="4">
 

@@ -28,7 +28,7 @@ namespace EasyLib.Services
             LoadBackups();
         }
 
-        public string CreateBackup(string name, string srcPath, string destPath, string type)
+        public string CreateBackup(string name, string srcPath, string destPath, string type, bool isEncrypted = false, bool isDecrypted=false)
         {
 
             if (backups.ContainsKey(name))
@@ -56,7 +56,7 @@ namespace EasyLib.Services
 
             }
 
-            var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now);
+            var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now, isEncrypted, isDecrypted);
 
             backups[name] = backup;
             SaveBackups();
@@ -99,7 +99,7 @@ namespace EasyLib.Services
             return new List<BackupModel>(backups.Values);
         }
 
-        public string RunBackup(List<string> backupNames)
+        public string RunBackup(List<string> backupNames,bool isEncrypted=false, bool isDecrypted=false)
         {
             List<string> statuses = new List<string>();
             Parallel.ForEach(backupNames, name =>
@@ -162,6 +162,37 @@ namespace EasyLib.Services
 
                     _stateService.StopTimer();
 
+                    if (isEncrypted || isDecrypted)
+                    {
+                        string encryptionKey = "MaCleSecrete64Bits";
+                        string cryptoSoftPath=@"F:\EasySave\CryptoSoft\CryptoSoft.csproj";
+                         string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
+    
+
+                         ProcessStartInfo psi = new ProcessStartInfo
+                         {
+                                 FileName = "dotnet",
+                                Arguments = $"run --project \"{cryptoSoftPath}\" \"{backup.FullDestinationPath}\" \"{encryptionKey}\" {mode}",
+                                 RedirectStandardOutput = true,
+                                 RedirectStandardError = true,
+                                 UseShellExecute = false,
+                             CreateNoWindow = true
+
+                         };
+                        
+                        using (Process process = new Process { StartInfo = psi })
+                        {
+                            process.Start();
+                            string output = process.StandardOutput.ReadToEnd();
+                            string error = process.StandardError.ReadToEnd();
+                            process.WaitForExit();
+
+                            if (process.ExitCode > 0)
+                                statuses.Add($"{backup.Name} - Chiffrement/Déchiffrement terminé en {process.ExitCode}ms");
+                            else
+                        statuses.Add($"{backup.Name} - Erreur lors du chiffrement/déchiffrement : {error}");
+                        }
+            }
 
                     lock (statuses)
                     {
