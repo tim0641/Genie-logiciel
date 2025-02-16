@@ -29,6 +29,11 @@ namespace EasyWPF
                 new StateService(@"C:\Logs\States\Daily"));
 
             DataContext = _viewModel;
+    EncryptionCheckBox.Checked += (s, e) => DecryptionCheckBox.IsEnabled = false;
+    EncryptionCheckBox.Unchecked += (s, e) => DecryptionCheckBox.IsEnabled = true;
+
+    DecryptionCheckBox.Checked += (s, e) => EncryptionCheckBox.IsEnabled = false;
+    DecryptionCheckBox.Unchecked += (s, e) => EncryptionCheckBox.IsEnabled = true;
         }
         private System.Windows.Shapes.Rectangle MainRectangle;
         private System.Windows.Shapes.Rectangle SecondRectangle;

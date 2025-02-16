@@ -14,6 +14,10 @@ namespace EasyLib.Models
         public string FileName { get; }
         public string FullDestinationPath { get; }
 
+        public bool IsEncrypted { get;}
+
+        public bool IsDecrypted { get;}
+
         public bool IsDirectory { get; } 
 
         private bool _isSelected;
@@ -34,7 +38,7 @@ namespace EasyLib.Models
         }
     
 
-        public BackupModel(string name, string sourcePath, string destinationPath, string backupType, DateTime creationTime)
+        public BackupModel(string name, string sourcePath, string destinationPath, string backupType, DateTime creationTime,bool isEncrypted, bool isDecrypted)
         {
             Name = name;
             SourcePath = sourcePath;
@@ -43,9 +47,12 @@ namespace EasyLib.Models
             CreationTime = creationTime;
             IsDirectory = Directory.Exists(sourcePath); 
 
-            
+            IsEncrypted = isEncrypted;
+            IsDecrypted = isDecrypted;
+
             FileName = Path.GetFileName(sourcePath); 
             FullDestinationPath = Path.Combine(destinationPath, FileName); 
+            
         }
     }
 }
