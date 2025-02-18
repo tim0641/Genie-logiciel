@@ -192,7 +192,6 @@ private async void RunSelectedBackups()
 {
     try
     {
-        
         var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
 
         if (selectedBackups.Count == 0)

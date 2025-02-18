@@ -126,6 +126,7 @@ namespace EasyLib.Services
 
                 var backup = backups[name];
                 long fileSize = GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
+                long encryptionTimeMs = 0; 
 
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
@@ -142,7 +143,7 @@ namespace EasyLib.Services
                     if (backup.IsDirectory)
                     {
                         long totalfiles = CountFilesInDirectory(backup.SourcePath);
-                        CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType, name, backup.BackupType, fileSize);
+                        CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType, name, backup.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
                         _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
 
 
@@ -151,7 +152,7 @@ namespace EasyLib.Services
                     {                
                         long totalfiles = 1;    
                         Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
-                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType);
+                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType,backup.IsEncrypted, backup.IsDecrypted, ref encryptionTimeMs);
                          _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
 
 
@@ -165,44 +166,14 @@ namespace EasyLib.Services
                         DestinationPath = backup.DestinationPath,
                         FileSize = fileSize,
                         Time = stopwatch.ElapsedMilliseconds + "ms",
-                        Type = "Run"
+                        Type = "Run",
+                        EncryptionTime = isEncrypted ? encryptionTimeMs + "ms" : null,
+                        DecryptionTime = isDecrypted ? encryptionTimeMs + "ms" : null
                     });
                     _dailyLogService.FlushLogs();
 
 
                     _stateService.StopTimer();
-
-                    if (isEncrypted || isDecrypted)
-                    {
-                        string encryptionKey = "MaCleSecrete64Bits";
-                        string cryptoSoftPath=@"C:\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
-                         string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
-    
-
-                         ProcessStartInfo psi = new ProcessStartInfo
-                         {
-                                 FileName = "dotnet",
-                                Arguments = $"run --project \"{cryptoSoftPath}\" \"{backup.FullDestinationPath}\" \"{encryptionKey}\" {mode}",
-                                 RedirectStandardOutput = true,
-                                 RedirectStandardError = true,
-                                 UseShellExecute = false,
-                             CreateNoWindow = true
-
-                         };
-                        
-                        using (Process process = new Process { StartInfo = psi })
-                        {
-                            process.Start();
-                            string output = process.StandardOutput.ReadToEnd();
-                            string error = process.StandardError.ReadToEnd();
-                            process.WaitForExit();
-
-                            if (process.ExitCode > 0)
-                                statuses.Add($"{backup.Name} - Chiffrement/Déchiffrement terminé en {process.ExitCode}ms");
-                            else
-                        statuses.Add($"{backup.Name} - Erreur lors du chiffrement/déchiffrement : {error}");
-                        }
-            }
 
                     lock (statuses)
                     {
@@ -329,10 +300,9 @@ namespace EasyLib.Services
         public event Action<long> ProgressUpdated;
         protected virtual void OnProgressUpdated(long progress)
         {
-            // Déclenche l'événement si des abonnés existent
             ProgressUpdated?.Invoke(progress);
         }
-        private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize)
+        private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
             Directory.CreateDirectory(destDirWithSource);
@@ -361,7 +331,7 @@ namespace EasyLib.Services
 
 
                 string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
-                CopyFile(file, destinationFilePath, backupType);
+                CopyFile(file, destinationFilePath, backupType, isEncrypted, isDecrypted,ref encryptionTimeMs);
                 copiedFiles++;
                 filesLeftToDo = totalFiles-copiedFiles;
                 long progression = (long)((double)copiedFiles / totalFiles * 100); 
@@ -374,9 +344,11 @@ namespace EasyLib.Services
 
 
 
-        private void CopyFile(string sourceFile, string destFile, string backupType)
+
+
+        private void CopyFile(string sourceFile, string destFile, string backupType, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs)
         {
-            if (backupType.ToLower() == "full"|| backupType.ToLower() == "complÃ¨te" || !File.Exists(destFile))
+            if (backupType.ToLower() == "full"|| backupType.ToLower() == "complète" || !File.Exists(destFile))
             {
                 File.Copy(sourceFile, destFile, true);
             }
@@ -389,7 +361,19 @@ namespace EasyLib.Services
                 {
                     File.Copy(sourceFile, destFile, true);
                 }
+
+            
             }
+
+                if (isEncrypted || isDecrypted)
+                {
+                string encryptionKey = "MaCleSecrete64Bits";
+                string cryptoSoftPath=@"C:\Users\jpvin\source\repos\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
+                string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
+        EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
+        long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
+        encryptionTimeMs += cryptoTime;
+    }
         }
 
         private void SaveBackups()
@@ -469,8 +453,8 @@ namespace EasyLib.Services
         private List<long> ProcessFilesInDirectory(DirectoryInfo currentDir, string destDirPath, string sourcePath, string destPath, string backupType)
         {
             
-            List<long> result = new List<long> { 0, 0 };  // [0] pour la taille totale, [1] pour le nombre de fichiers traités
-            long fileCount = 0; // Compteur pour le nombre de fichiers traités
+            List<long> result = new List<long> { 0, 0 };  
+            long fileCount = 0; 
 
             foreach (var file in currentDir.GetFiles())
             {
@@ -533,4 +517,32 @@ namespace EasyLib.Services
             }
             return Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories).Length;
         }
+
+
+private long EncryptOrDecryptFile(string filePath, string encryptionKey, string cryptoSoftPath, string mode)
+{
+    Stopwatch stopwatch = new Stopwatch();
+    stopwatch.Start(); 
+    ProcessStartInfo psi = new ProcessStartInfo
+    {
+        FileName = "dotnet",
+        Arguments = $"run --project \"{cryptoSoftPath}\" \"{filePath}\" \"{encryptionKey}\" {mode}",
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        UseShellExecute = false,
+        CreateNoWindow = true
+    };
+
+    using (Process process = new Process { StartInfo = psi })
+    {
+        process.Start();
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+    }
+    stopwatch.Stop();
+    long encryptionTime = stopwatch.ElapsedMilliseconds;
+    return encryptionTime;
+}
+
 }}
