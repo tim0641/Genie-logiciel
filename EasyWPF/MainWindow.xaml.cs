@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows;
 using EasyLib;
+using System.Diagnostics;
 using EasyLib.ViewModels;
 using EasyLib.Services;
 using EasySaveLog.Services;
@@ -20,6 +21,8 @@ namespace EasyWPF
     public partial class MainWindow : Window
     {
         private readonly BackupViewModel _viewModel; 
+        private static bool _isTimerStarted = false;  // Static pour qu'il conserve son état
+
 
         public MainWindow()
         {
@@ -28,32 +31,25 @@ namespace EasyWPF
                 new DailyLogService(@"C:\Logs\Daily"),
                 new BackupService(),
                 new StateService(@"C:\Logs\States\Daily"));
-
             DataContext = _viewModel;
-            LanguageComboBox.SelectedIndex = 0;
+                    LanguageComboBox.SelectedIndex = 0;
             EasyLib.Localization.SetLanguage("en");
-    EncryptionCheckBox.Checked += (s, e) => DecryptionCheckBox.IsEnabled = false;
-    EncryptionCheckBox.Unchecked += (s, e) => DecryptionCheckBox.IsEnabled = true;
-
-    DecryptionCheckBox.Checked += (s, e) => EncryptionCheckBox.IsEnabled = false;
-    DecryptionCheckBox.Unchecked += (s, e) => EncryptionCheckBox.IsEnabled = true;
+            EncryptionCheckBox.Checked += (s, e) => DecryptionCheckBox.IsEnabled = false;
+            EncryptionCheckBox.Unchecked += (s, e) => DecryptionCheckBox.IsEnabled = true;
+            DecryptionCheckBox.Checked += (s, e) => EncryptionCheckBox.IsEnabled = false;
+            DecryptionCheckBox.Unchecked += (s, e) => EncryptionCheckBox.IsEnabled = true;
+        if (!_isTimerStarted)  // Vérifie si le timer a déjà été démarré
+        {
+            _viewModel.StateService.StartTimer("", "", "", "Menu", "", 0, 0, 0, 0);
+            _isTimerStarted = true;  // Marque le timer comme démarré
         }
 
+        }
 
+        public bool _isPaused { get; set; } = false;
 
         private System.Windows.Shapes.Rectangle MainRectangle;
         private System.Windows.Shapes.Rectangle SecondRectangle;
-        private void OpenCreateBackupWindow(object sender, RoutedEventArgs e)
-        {
-            CreateBackupWindow createWindow = new CreateBackupWindow(_viewModel);
-            createWindow.ShowDialog();
-        }
-
-        public void CreateBackupWindow(BackupViewModel viewModel)
-        {
-            InitializeComponent();
-            DataContext = viewModel;
-        }
 
 
         private void LanguageComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -92,6 +88,12 @@ namespace EasyWPF
 
         private void Buttoncreateclick(object sender, RoutedEventArgs e)
         {
+            _viewModel.StateService.StopTimer();
+
+            _viewModel.StateService.TakeAndUpdateStates("", "", "", EasyLib.Localization.Get("create_backup"), "", 0, 0, 0, 0);
+            
+
+
             foreach (var child in MainGrid.Children)
             {
                 if (child is Button button)
@@ -99,12 +101,15 @@ namespace EasyWPF
                     button.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 106, 30, 85));
                 }
             }
+
+
+            
             buttoncreate.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
             buttonrunaction.Opacity = 0;
             Panel.SetZIndex(buttonrunaction, 0);
             buttondelaction.Opacity = 0;
             Panel.SetZIndex(buttondelaction, 0);
-                        buttoncreateaction.Opacity = 1;
+            buttoncreateaction.Opacity = 1;
             Panel.SetZIndex(buttoncreateaction, 1);
             Datagrid.Opacity = 0;
             Panel.SetZIndex(Datagrid, 0);
@@ -185,6 +190,9 @@ namespace EasyWPF
         }
         private void Buttonlistclick(object sender, RoutedEventArgs e)
         {
+            _viewModel.StateService.StopTimer();
+            _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("list_backups"), "", 0, 0, 0, 0);
+            
             
             foreach (var child in MainGrid.Children)
             {
@@ -212,7 +220,13 @@ namespace EasyWPF
             Panel.SetZIndex(DatagridBorder1, 2);
             DatagridBorder2.Opacity = 0;
             Panel.SetZIndex(DatagridBorder2, 0);
-            
+            textprogress.Opacity = 0;
+            Panel.SetZIndex(textprogress, 0);
+            barprogress.Opacity = 0;
+            Panel.SetZIndex(barprogress, 0);
+            buttonprogress.Opacity = 0;
+            Panel.SetZIndex(buttonprogress, 0);
+            Panel.SetZIndex(buttonrunaction, 0);
             var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
             foreach (var rectangle in rectanglesToRemove)
             {
@@ -275,7 +289,11 @@ namespace EasyWPF
         }
         private void Buttonrunclick(object sender, RoutedEventArgs e)
         {
+            _viewModel.StateService.StopTimer();
 
+            _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("run_backup"), "", 0, 0, 0, 0);
+            
+            
             foreach (var child in MainGrid.Children)
             {
                 if (child is Button button)
@@ -288,7 +306,7 @@ namespace EasyWPF
             Panel.SetZIndex(buttonrunaction, 10);
             Panel.SetZIndex(buttondelaction, 0);
             buttonrunaction.Opacity = 1;
-                        buttoncreateaction.Opacity = 0;
+            buttoncreateaction.Opacity = 0;
             Panel.SetZIndex(buttoncreateaction, 0);
             buttondelaction.Opacity = 0;
             Datagrid.Opacity = 1;
@@ -303,6 +321,9 @@ namespace EasyWPF
             Panel.SetZIndex(DatagridBorder1, 2);
             DatagridBorder2.Opacity = 2;
             Panel.SetZIndex(DatagridBorder2, 2);
+
+
+
             var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
             foreach (var rectangle in rectanglesToRemove)
             {
@@ -365,6 +386,9 @@ namespace EasyWPF
         }
         private void Buttondeleteclick(object sender, RoutedEventArgs e)
         {
+            _viewModel.StateService.StopTimer();
+
+            _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("delete_backup"), "", 0, 0, 0, 0);
 
             foreach (var child in MainGrid.Children)
             {
@@ -375,7 +399,7 @@ namespace EasyWPF
             }
             buttondel.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(166, 77, 121));
             Panel.SetZIndex(buttonrunaction, 0);
-                        buttoncreateaction.Opacity = 0;
+            buttoncreateaction.Opacity = 0;
             Panel.SetZIndex(buttoncreateaction, 0);
             Panel.SetZIndex(buttondelaction, 10);
             buttonrunaction.Opacity = 0;
@@ -390,6 +414,13 @@ namespace EasyWPF
             Panel.SetZIndex(DatagridBorder1, 1);
             DatagridBorder2.Opacity = 1;
             Panel.SetZIndex(DatagridBorder2, 1);
+            textprogress.Opacity = 0;
+            Panel.SetZIndex(textprogress, 0);
+            barprogress.Opacity = 0;
+            Panel.SetZIndex(barprogress, 0);
+            buttonprogress.Opacity = 0;
+            Panel.SetZIndex(buttonprogress, 0);
+            Panel.SetZIndex(buttonrunaction, 0);
             var rectanglesToRemove = new[] { MainRectangle, SecondRectangle };
             foreach (var rectangle in rectanglesToRemove)
             {
@@ -457,6 +488,25 @@ namespace EasyWPF
                 MainRectangle.Margin = new Thickness(160, 50, 0, 0);
             }
         }
+        private void OpenProgression(object sender, RoutedEventArgs e)
+        {
+            textprogress.Opacity = 1;
+            Panel.SetZIndex(textprogress, 20);
+            barprogress.Opacity = 1;
+            Panel.SetZIndex(barprogress, 20);
+            buttonprogress.Opacity = 1;
+            Panel.SetZIndex(buttonprogress, 20);
+            Panel.SetZIndex(buttonrunaction, 0);
+
+            buttonrunaction.Opacity = 0;
+            Datagrid.Opacity = 0;
+            Panel.SetZIndex(Datagrid, 0);
+            Panel.SetZIndex(buttonrunaction, 0);
+            Panel.SetZIndex(buttondelaction, 0);
+            DatagridBorder2.Opacity = 0;
+            Panel.SetZIndex(DatagridBorder2, 0);
+
+}
 
     }
 }

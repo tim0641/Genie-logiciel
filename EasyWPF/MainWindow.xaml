@@ -32,7 +32,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border Name="border" BorderThickness="1" Padding="4,2"
                          CornerRadius="25" BorderBrush="Black" 
-                        Background="#FF6A1E55" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100" MaxWidth="100" MinHeight="30" MaxHeight="30">
+                        Background="#A03E6E" VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100" MaxWidth="100" MinHeight="30" MaxHeight="30">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -69,7 +69,6 @@
     </Window.Resources>
     <Grid x:Name="MainGrid" Background="#FF1A1A1D" Margin="10,10,0,-6">
         <Rectangle x:Name="ZoneAffichage" HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="748" Fill="#FF3B1C32" RadiusY="50" RadiusX="50" Margin="0,40,0,0"/>
-
         <Rectangle HorizontalAlignment="Center" Height="60" Margin="0,0,0,325" VerticalAlignment="Center" Width="376" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
      <ComboBox x:Name="LanguageComboBox" 
                   HorizontalAlignment="Center" 
@@ -184,8 +183,10 @@
 
 
 
+<TextBlock x:Name="textprogress" Opacity="0" Text="{Binding ProgressText, StringFormat=Progression : {0}%}" Panel.ZIndex="50"  HorizontalAlignment="Left" Margin="600,230,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="20" Foreground="White"></TextBlock>
 
-
+        <ProgressBar x:Name="barprogress" Opacity="0" Panel.ZIndex="50"   Minimum="0" Maximum="100" Value="{Binding ProgressText}" Height="30" Margin="150,0,0,0" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background= "#3B1C32" Foreground="#A64D79" />
+        <Button  x:Name="buttonprogress" Opacity="0" Panel.ZIndex="20"  Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="150,100,0,0" Content="{Binding PlayPauseButtonText}" Style="{StaticResource ButtonWithOutHover2}"  Background= "#A64D79" />
 
 
 
@@ -210,11 +211,11 @@
         </Style>
     </DataGrid.Style>
     <DataGrid.Resources>
-        <!-- Style pour la ligne en dessous des headers -->
+      
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="0,0,0,2"/> <!-- Ligne en bas plus épaisse -->
-            <Setter Property="FontWeight" Value="Bold"/> <!-- Texte en gras si nécessaire -->
+            <Setter Property="BorderThickness" Value="0,0,0,2"/> 
+            <Setter Property="FontWeight" Value="Bold"/> 
         </Style>
         
     </DataGrid.Resources>
@@ -277,16 +278,16 @@
             <TextBlock x:Name ="Textblock1" FontFamily="Yu Gothic UI Semilight" Text="Créer une Sauvegarde" FontSize="25" Background="Transparent" TextAlignment="Center" Foreground="#FF210F22" TextDecorations="Underline" FontWeight="Bold" Margin="0,0,0,10"/>
 
             <TextBlock x:Name ="Textblock2" FontFamily="Yu Gothic UI Semilight" Text="Nom de la sauvegarde :" FontSize="15" Background="Transparent" TextAlignment="Center" Foreground="#FF210F22" Margin="0,1,0,0" FontWeight="Bold" /> 
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}"  FontFamily="Yu Gothic UI Semilight" Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}"   Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
 
             <TextBlock x:Name ="Textblock3" FontFamily="Yu Gothic UI Semilight" Text="Chemin source :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22" />
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" FontFamily="Yu Gothic UI Semilight" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12"/>
-
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12"/>
+            
             <TextBlock x:Name ="Textblock4" FontFamily="Yu Gothic UI Semilight" Text="Chemin de destination :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22"/>
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" FontFamily="Yu Gothic UI Semilight"  Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}"  Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
 
             <TextBlock x:Name ="Textblock5" FontFamily="Yu Gothic UI Semilight" Text="Type de sauvegarde (Full/Differential) :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22"/>
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" FontFamily="Yu Gothic UI Semilight" Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background=" #FFD1A1C7"  BorderThickness="0" Foreground="#2C0A12" />
+            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background=" #FFD1A1C7"  BorderThickness="0" Foreground="#2C0A12" />
 
         </StackPanel>
 
@@ -297,7 +298,7 @@
  
         <!-- <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/> -->
         <Button Opacity="0" x:Name="buttoncreateaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Créer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
-        <Button Opacity="0" x:Name="buttonrunaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}"  />
+        <Button Opacity="0" x:Name="buttonrunaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}" Click="OpenProgression" />
         <Button Opacity="0" x:Name="buttondelaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Supprimer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding DeleteSelectedBackupCommand}"  />
 
 

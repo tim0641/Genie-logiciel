@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EasyLib\EasyLib.csproj" />
     <ProjectReference Include="..\EasySaveLog\EasySaveLog.csproj" />
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
   </ItemGroup>
 
 </Project>

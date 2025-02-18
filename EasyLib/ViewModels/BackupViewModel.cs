@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -7,7 +8,6 @@ using System.Windows.Input;
 using EasyLib.Models;
 using EasyLib.Services;
 using EasySaveLog.Services;
-
 
 namespace EasyLib.ViewModels
 {
@@ -109,21 +109,35 @@ namespace EasyLib.ViewModels
 }
 
 
+    private string _progressText;
+    public string ProgressText
+    {
+        get => _progressText;
+        set
+        {
+            if (_progressText != value)
+            {
+                _progressText = value;
+                OnPropertyChanged(nameof(ProgressText));
+            }
+        }}
+
+
 
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
         public ICommand RunSelectedBackupCommand { get; }
         public ICommand DeleteSelectedBackupCommand { get; }
 
+        public StateService StateService => _stateService;  
 
 
-        
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
             _backupService = backupService;
             _stateService = stateService;
-
+            backupService.ProgressUpdated += Service_ProgressUpdated;
             Backups = new ObservableCollection<BackupModel>();
 
             CreateBackupCommand = new RelayCommand(CreateBackupFromUserInput);
@@ -133,9 +147,20 @@ namespace EasyLib.ViewModels
         }
 
 
+        private void Service_ProgressUpdated(long progress)
+        {
+            ProgressText = progress.ToString();
+        }
+
+
+
+
+
 
         private void CreateBackupFromUserInput()
         {
+
+
             if (string.IsNullOrWhiteSpace(BackupName) || string.IsNullOrWhiteSpace(SourcePath) ||
                 string.IsNullOrWhiteSpace(DestinationPath) || string.IsNullOrWhiteSpace(BackupType))
             {
@@ -146,8 +171,11 @@ namespace EasyLib.ViewModels
             Status = _backupService.CreateBackup(BackupName, SourcePath, DestinationPath, BackupType);
         }
 
+
+
         private void ListBackups()
         {
+
 
             Backups.Clear();
             foreach (var backup in _backupService.GetAllBackups())
@@ -160,34 +188,42 @@ namespace EasyLib.ViewModels
 
 
 
-        private async void RunSelectedBackups()
+private async void RunSelectedBackups()
+{
+    try
+    {
+        
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
+
+        if (selectedBackups.Count == 0)
         {
-            try
-            {
-                var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
-
-                if (selectedBackups.Count == 0)
-                {
-                    Status = Localization.Get("no_backups_selected_for_execution");
-                    return;
-                }
-
-                bool isEncrypted = IsEncrypted; 
-                bool isDecrypted = IsDecrypted; 
-
-                Status = "Exécution des sauvegardes en cours...";
-                Status = Localization.Get("backups_execution_in_progress");
-                Status = _backupService.RunBackup(selectedBackups, isEncrypted, isDecrypted);
-                Status += "\nExécution terminée.";
-            }
-            catch (Exception ex)
-            {
-            Status = Localization.Get("execution_error") + ": " + ex.Message;                  
-             }
+            Status = Localization.Get("no_backups_selected_for_execution");
+            return;
         }
+
+        bool isEncrypted = IsEncrypted; 
+        bool isDecrypted = IsDecrypted; 
+
+        Status = Localization.Get("backups_execution_in_progress");
+        StateService.StopTimer();
+
+    
+        await Task.Run(() => 
+        {
+            _backupService.RunBackup(selectedBackups, isEncrypted, isDecrypted);
+        });
+
+        Status = Localization.Get("execution_completed");
+    }
+    catch (Exception ex)
+    {
+        Status = Localization.Get("execution_error") + ": " + ex.Message;
+    }
+}
 
         private void DeleteSelectedBackups()
         {
+
             try
             {
                 var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
@@ -234,4 +270,7 @@ namespace EasyLib.ViewModels
         public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
         public void Execute(object parameter) => _execute();
     }
+
+
+    
 }

@@ -76,6 +76,10 @@ namespace EasySaveLog.Services
             _timer?.Change(Timeout.Infinite, 0);  // Arrête le timer
             _isTimerActive = false;
         }
+
+
+
+        
         }
 
     }

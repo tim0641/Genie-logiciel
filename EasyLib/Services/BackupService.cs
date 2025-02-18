@@ -4,13 +4,22 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Spectre.Console;
 using EasyLib.Models;
 using EasySaveLog.Models;
 using EasySaveLog.Services;
 using System.Reflection.Metadata.Ecma335;
- 
+using System.Drawing;
+using System.Text;
+using System.Windows;
+using EasyLib;
+using EasyLib.ViewModels;
+using EasyLib.Services;
+using System.Windows.Input;
+
+
 namespace EasyLib.Services
 {
     public class BackupService
@@ -21,6 +30,8 @@ namespace EasyLib.Services
         public string Status { get; private set; }
         private static readonly object _lock = new object();
         private readonly StateService _stateService;
+
+
         public BackupService()
         {
             _dailyLogService = new DailyLogService(@"C:\Logs\Daily");
@@ -50,8 +61,8 @@ namespace EasyLib.Services
             }
             catch (Exception)
             {
-                _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("create failed"), type, 0 , 0, 0, 0);
-                _stateService.StopTimer();
+                 _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("create failed"), type, 0 , 0, 0, 0);
+                 _stateService.StopTimer();
                 return Localization.Get("wrong_path");
 
             }
@@ -87,8 +98,8 @@ namespace EasyLib.Services
 
                   totalfiles =1;
             }
-            _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("backup_success"), type, totalfiles , fileSize, 0, 100);
-                _stateService.StopTimer();
+             _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("backup_success"), type, totalfiles , fileSize, 0, 100);
+               _stateService.StopTimer();
 
 
             return Localization.Get("backup_success");
@@ -116,7 +127,6 @@ namespace EasyLib.Services
                 var backup = backups[name];
                 long fileSize = GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
 
-
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 try
@@ -142,7 +152,7 @@ namespace EasyLib.Services
                         long totalfiles = 1;    
                         Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
                         CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType);
-                        _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
+                         _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
 
 
                     }
@@ -165,7 +175,7 @@ namespace EasyLib.Services
                     if (isEncrypted || isDecrypted)
                     {
                         string encryptionKey = "MaCleSecrete64Bits";
-                        string cryptoSoftPath=@"F:\EasySave\CryptoSoft\CryptoSoft.csproj";
+                        string cryptoSoftPath=@"C:\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
                          string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
     
 
@@ -250,7 +260,7 @@ namespace EasyLib.Services
                                 foreach (var file in Directory.GetFiles(directoryToDelete, "*", SearchOption.AllDirectories))
                                 {
                                     File.Delete(file);
-                                    _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("delete_progress"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
+                                     _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("delete_progress"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
 
                                 // Thread.Sleep(100);
                                 }
@@ -262,7 +272,7 @@ namespace EasyLib.Services
                                 }
                                 progression = 100;
                                 Directory.Delete(directoryToDelete, true);
-                                _stateService.TakeAndUpdateStates(name, backup.SourcePath, backup.DestinationPath, Localization.Get("directory_sucessfully_deleted"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
+                                 _stateService.TakeAndUpdateStates(name, backup.SourcePath, backup.DestinationPath, Localization.Get("directory_sucessfully_deleted"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
                                 statuses.Add($"{name} - {Localization.Get("directory_sucessfully_deleted")}");
                             }
                             else
@@ -273,7 +283,7 @@ namespace EasyLib.Services
                         else if (File.Exists(backup.FullDestinationPath))
                         {
                             File.Delete(backup.FullDestinationPath);
-                            _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("file_sucessfully_deleted"), backup.BackupType, 1, fileSize, 0, 100);
+                             _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("file_sucessfully_deleted"), backup.BackupType, 1, fileSize, 0, 100);
 
 
                             statuses.Add($"{name} - {Localization.Get("file_sucessfully_deleted")}");
@@ -299,7 +309,7 @@ namespace EasyLib.Services
                         });
                         _dailyLogService.FlushLogs();
 
-                         _stateService.StopTimer();
+                        //  _stateService.StopTimer();
 
                     }
                     catch (Exception ex)
@@ -312,7 +322,16 @@ namespace EasyLib.Services
             return Status;
         }
 
-
+        public async Task<string> RunBackupAsync(List<string> backupNames)
+        {
+            return await Task.Run(() => RunBackup(backupNames));
+        }
+        public event Action<long> ProgressUpdated;
+        protected virtual void OnProgressUpdated(long progress)
+        {
+            // Déclenche l'événement si des abonnés existent
+            ProgressUpdated?.Invoke(progress);
+        }
         private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize)
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
@@ -320,6 +339,7 @@ namespace EasyLib.Services
 
 
             long copiedFiles = 0;
+            long totalFiles = CountFilesInDirectory(sourceDir);
 
 
             foreach (var dir in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
@@ -328,26 +348,31 @@ namespace EasyLib.Services
 
             }
 
-            
-            long totalFiles = CountFilesInDirectory(sourceDir);
+            _stateService.StopTimer();
+            long filesLeftToDo = totalFiles;
+
 
             foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
 
-                long? filesLeftToDo = totalFiles; 
+
+
+
+
+
                 string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
                 CopyFile(file, destinationFilePath, backupType);
                 copiedFiles++;
                 filesLeftToDo = totalFiles-copiedFiles;
-
                 long progression = (long)((double)copiedFiles / totalFiles * 100); 
 
-                _stateService.StartTimer(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
+                OnProgressUpdated(progression);
+                _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
             }
-            _stateService.StopTimer();
-
-
+             _stateService.StopTimer();
         }
+
+
 
         private void CopyFile(string sourceFile, string destFile, string backupType)
         {
