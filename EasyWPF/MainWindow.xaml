@@ -282,19 +282,34 @@
 
         <StackPanel Opacity="0" x:Name="Formulairecreate" Panel.ZIndex="15" Background="Transparent" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width = "500" Height = "210" Margin="150,20,0,0">
 
-            <TextBlock x:Name ="Textblock1" FontFamily="Yu Gothic UI Semilight" Text="Créer une Sauvegarde" FontSize="25" Background="Transparent" TextAlignment="Center" Foreground="#FF210F22" TextDecorations="Underline" FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock x:Name ="Textblock1" FontFamily="Yu Gothic UI Semilight" Text="Créer une Sauvegarde" FontSize="25" Background="Transparent" TextAlignment="Center" Foreground="White" TextDecorations="Underline" FontWeight="Bold" Margin="0,0,0,10"/>
 
-            <TextBlock x:Name ="Textblock2" FontFamily="Yu Gothic UI Semilight" Text="Nom de la sauvegarde :" FontSize="15" Background="Transparent" TextAlignment="Center" Foreground="#FF210F22" Margin="0,1,0,0" FontWeight="Bold" /> 
+            <TextBlock x:Name ="Textblock2" FontFamily="Yu Gothic UI Semilight" Text="Nom de la sauvegarde :" FontSize="15" Background="Transparent" TextAlignment="Center" Foreground="White" Margin="0,1,0,0" FontWeight="Bold" /> 
             <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}"   Text="{Binding BackupName, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
 
-            <TextBlock x:Name ="Textblock3" FontFamily="Yu Gothic UI Semilight" Text="Chemin source :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22" />
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12"/>
-            
-            <TextBlock x:Name ="Textblock4" FontFamily="Yu Gothic UI Semilight" Text="Chemin de destination :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22"/>
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}"  Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
+            <TextBlock x:Name ="Textblock3" FontFamily="Yu Gothic UI Semilight" Text="Chemin source :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="White" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBox x:Name="sourcepath" Opacity="0.5" Style="{StaticResource RoundedTextBox}" Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background="White" BorderThickness="0"  Foreground="#2C0A12"/>
+                <Button  Content="F" Width="20" Height="20" Margin="5,0,0,0" Click="BrowseSourceFile" />
+                <Button  Content="D" Width="20" Height="20" Margin="5,0,0,0" Click="BrowseSourceFolder" />
 
-            <TextBlock x:Name ="Textblock5" FontFamily="Yu Gothic UI Semilight" Text="Type de sauvegarde (Full/Differential) :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="#FF210F22"/>
-            <TextBox Opacity="0.5" Style="{StaticResource RoundedTextBox}" Text="{Binding BackupType, UpdateSourceTrigger=PropertyChanged}" Width="250" TextAlignment="Center" Background=" #FFD1A1C7"  BorderThickness="0" Foreground="#2C0A12" />
+            </StackPanel>
+            <TextBlock x:Name ="Textblock4" FontFamily="Yu Gothic UI Semilight" Text="Chemin de destination :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="White"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBox x:Name="destinatiopath" Opacity="0.5" Style="{StaticResource RoundedTextBox}"  Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}" Width="200" TextAlignment="Center" Background="#FFD1A1C7" BorderThickness="0"  Foreground="#2C0A12" />
+                <Button  Content="D" Width="20" Height="20" Margin="5,0,0,0" Click="BrowseDestinationFolder" />
+            </StackPanel>
+
+
+            <TextBlock x:Name ="Textblock5" FontFamily="Yu Gothic UI Semilight" Text="Type de sauvegarde :" FontSize="15" Background="Transparent" TextAlignment="Center" Margin="0,1,0,0" Foreground="White"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                <CheckBox x:Name="Full" Content="Full"
+                        IsChecked="{Binding IsFullBackup, Mode=TwoWay}" Foreground="White"/>
+                <CheckBox x:Name="Dif" Content="Differential"
+                        IsChecked="{Binding IsDifferentialBackup, Mode=TwoWay}" Margin="20,0,0,0" Foreground="White"/>
+            </StackPanel>
+
+
 
         </StackPanel>
 
@@ -306,6 +321,8 @@
         <!-- <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/> -->
         <Button Opacity="0" x:Name="buttoncreateaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Créer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
         <Button Opacity="0" x:Name="buttonrunaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}" Click="OpenProgression" />
+        <Button Opacity="1" x:Name="boutontest" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="250,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"   Click="OpenNewWindow" Panel.ZIndex="10"  />
+
         <Button Opacity="0" x:Name="buttondelaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Supprimer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding DeleteSelectedBackupCommand}"  />
 
 

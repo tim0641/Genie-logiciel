@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework> 
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,5 +12,5 @@
     <ProjectReference Include="..\EasySaveLog\EasySaveLog.csproj" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
   </ItemGroup>
-
+  
 </Project>

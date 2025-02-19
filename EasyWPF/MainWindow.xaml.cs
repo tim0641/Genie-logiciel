@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using Microsoft.Win32;
 
 namespace EasyWPF
 {
@@ -22,6 +23,9 @@ namespace EasyWPF
     {
         private readonly BackupViewModel _viewModel; 
         private static bool _isTimerStarted = false;  // Static pour qu'il conserve son état
+
+    private string SourcePath;
+    private string DestinationPath;
 
 
         public MainWindow()
@@ -81,7 +85,8 @@ namespace EasyWPF
                 buttoncreateaction.Content = EasyLib.Localization.Get("create");
                 buttonrunaction.Content = EasyLib.Localization.Get("run");
                 buttondelaction.Content = EasyLib.Localization.Get("delete");
-
+                Full.Content = EasyLib.Localization.Get("full");
+                Dif.Content = EasyLib.Localization.Get("dif");
                 
             }
         }
@@ -508,5 +513,59 @@ namespace EasyWPF
 
 }
 
+        private void OpenNewWindow(object sender, RoutedEventArgs e)
+        {
+            ProgressWindow progressWindow = new ProgressWindow
+            {
+                DataContext = _viewModel
+            };
+            progressWindow.Show();
+        }
+
+
+
+
+private void BrowseSourceFile(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            CheckFileExists = false,  // Pas besoin de vérifier l'existence du fichier
+            CheckPathExists = true,
+            FileName = "Sélectionner un dossier",  // Message dans la boîte de dialogue
+            ValidateNames = false,  // Permet la sélection d'un dossier
+            Filter = "Tous les fichiers (.)|."  // Accepte tous les types de fichiers
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            SourcePath = dialog.FileName;
+            sourcepath.Text = dialog.FileName;
+        }
+
     }
-}
+
+    private void BrowseSourceFolder(object sender, RoutedEventArgs e)
+    {
+        var dialog = new System.Windows.Forms.FolderBrowserDialog();
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                SourcePath = dialog.SelectedPath;
+                sourcepath.Text = dialog.SelectedPath;
+            
+        }
+    }
+
+    // Sélectionner un dossier de destination
+    private void BrowseDestinationFolder(object sender, RoutedEventArgs e)
+    {
+        var dialog = new System.Windows.Forms.FolderBrowserDialog();
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                DestinationPath = dialog.SelectedPath;
+                destinatiopath.Text = dialog.SelectedPath;
+            }
+        }
+    }
+    }

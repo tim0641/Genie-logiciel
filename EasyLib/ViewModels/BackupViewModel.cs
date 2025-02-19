@@ -70,11 +70,34 @@ namespace EasyLib.ViewModels
             get => _backupType;
             set
             {
+            if (_backupType != value)
+            {
                 _backupType = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsFullBackup)); // Met à jour les CheckBox
+                OnPropertyChanged(nameof(IsDifferentialBackup));
+            }
+            }
+        }
+        public bool IsFullBackup
+        {
+            get => BackupType == "Full";
+            set
+            {
+                if (value)
+                    BackupType = "Full"; // Si on coche Full, on met à jour BackupType
             }
         }
 
+        public bool IsDifferentialBackup
+        {
+            get => BackupType == "Differential";
+            set
+            {
+                if (value)
+                    BackupType = "Differential"; // Si on coche Differential, on met à jour BackupType
+            }
+        }
         private bool _isSelectionMode;
         public bool IsSelectionMode
         {

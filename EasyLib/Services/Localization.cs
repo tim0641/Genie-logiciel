@@ -50,7 +50,7 @@ namespace EasyLib
                     { "createname", "Backup Name:" },
                     { "createsource", "Source Path:" },
                     { "createdestination", "Destination Path:" },
-                    { "createtype", "Backup Type (Full/Differential):" },
+                    { "createtype", "Backup Type :" },
                     { "name", "Name" },
                     { "source", "Source" },
                     { "destination", "Destination" },
@@ -64,7 +64,9 @@ namespace EasyLib
                     { "execution_error", "Error during execution:" },
                     { "no_backups_selected_for_deletion", "No backups selected for deletion." },
                     { "backups_deletion_in_progress", "Backups deletion in progress..." },
-                    { "deletion_error", "Error during deletion:" }
+                    { "deletion_error", "Error during deletion:" },
+                    { "full", "Full" },
+                    { "dif", "Differential" }
 
 
 
@@ -111,12 +113,14 @@ namespace EasyLib
                     { "createname", "Nom de la sauvegarde :" },
                     { "createsource", "Chemin source :" },
                     { "createdestination", "Chemin de destination :" },
-                    { "createtype", "Type de sauvegarde (Complete/Différentiel) :" },
+                    { "createtype", "Type de sauvegarde :" },
                     { "name", "Nom" },
                     { "source", "Source" },
                     { "destination", "Destination" },
                     { "type", "Type" },
                     { "choice", "Choix" },
+                    { "full", "Complète" },
+                    { "dif", "Différentiel" },
 
       
 
