@@ -32,10 +32,10 @@ namespace EasyLib.Services
         private readonly StateService _stateService;
 
 
-        public BackupService()
+        public BackupService(DailyLogService dailyLogService, StateService stateService)
         {
-            _dailyLogService = new DailyLogService(@"C:\Logs\Daily");
-            _stateService = new StateService(@"C:\Logs\States\Daily");
+            _dailyLogService = dailyLogService;
+            _stateService = stateService;
             LoadBackups();
         }
 

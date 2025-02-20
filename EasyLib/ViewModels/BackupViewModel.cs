@@ -8,6 +8,7 @@ using System.Windows.Input;
 using EasyLib.Models;
 using EasyLib.Services;
 using EasySaveLog.Services;
+using EasySaveLog.Models;
 
 namespace EasyLib.ViewModels
 {
@@ -144,6 +145,16 @@ namespace EasyLib.ViewModels
                 OnPropertyChanged(nameof(ProgressText));
             }
         }}
+
+    public LogFormat LogFormat
+{
+    get => _dailyLogService.Format;
+    set
+    {
+        _dailyLogService.Format = value; // Met à jour le format du service de logs
+        OnPropertyChanged();
+    }
+}
 
 
 

@@ -101,6 +101,23 @@
         <Button x:Name="buttonlist"  Style="{StaticResource ButtonWithOutHover}"  Command="{Binding ListBackupsCommand}" Click="Buttonlistclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,0,550,25" FontSize="20" Foreground="white" Width="140" Height="45" MinWidth="140" MaxWidth="140" MinHeight="45" MaxHeight="45"/>   
         <Button x:Name="buttonrun"  Style="{StaticResource ButtonWithOutHover}"  Click="Buttonrunclick" Panel.ZIndex="2"  Background="#FF6A1E55" Margin="0,125,550,0" FontSize="20" Foreground="white" Width="140" Height="45"/>
         <Button x:Name="buttondel"  Style="{StaticResource ButtonWithOutHover}"  Click="Buttondeleteclick" Panel.ZIndex="2"   Background="#FF6A1E55" Margin="0,275,550,0" FontSize="20" Foreground="white" Width="140" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center"/> 
+<StackPanel Orientation="Horizontal" HorizontalAlignment="left" Margin="135">
+    <ComboBox x:Name="LogFormatComboBox"
+              SelectionChanged="LogFormatComboBox_SelectionChanged"
+              Width="80"
+              Height="25"
+              Padding="5,2"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Top"
+              Background="White"
+              Foreground="Black"
+              BorderBrush="Gray"
+              BorderThickness="1"
+              FontSize="12">
+        <ComboBoxItem Content="JSON" IsSelected="True"/>
+        <ComboBoxItem Content="XML"/>
+    </ComboBox>
+</StackPanel>
 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,450,0,0">
 
     <Grid>
