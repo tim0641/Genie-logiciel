@@ -152,7 +152,7 @@ namespace EasyLib.Services
                     {                
                         long totalfiles = 1;    
                         Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
-                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType,backup.IsEncrypted, backup.IsDecrypted, ref encryptionTimeMs);
+                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType,isEncrypted, isDecrypted, ref encryptionTimeMs);
                          _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
 
 
@@ -370,7 +370,6 @@ namespace EasyLib.Services
                 string encryptionKey = "MaCleSecrete64Bits";
                 string cryptoSoftPath=@"C:\Users\jpvin\source\repos\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
                 string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
-        EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         encryptionTimeMs += cryptoTime;
     }

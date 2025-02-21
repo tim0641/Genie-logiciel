@@ -210,6 +210,11 @@ namespace EasyWPF
         {
             _viewModel.StateService.StopTimer();
             _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("list_backups"), "", 0, 0, 0, 0);
+
+                _viewModel.IsEncrypted = EncryptionCheckBox.IsChecked ?? false;
+                _viewModel.IsDecrypted = DecryptionCheckBox.IsChecked ?? false;
+
+
             
             
             foreach (var child in MainGrid.Children)
@@ -506,6 +511,7 @@ namespace EasyWPF
                 MainRectangle.Margin = new Thickness(160, 50, 0, 0);
             }
         }
+        
         private void OpenProgression(object sender, RoutedEventArgs e)
         {
             textprogress.Opacity = 1;
@@ -526,14 +532,6 @@ namespace EasyWPF
 
 }
 
-        private void OpenNewWindow(object sender, RoutedEventArgs e)
-        {
-            ProgressWindow progressWindow = new ProgressWindow
-            {
-                DataContext = _viewModel
-            };
-            progressWindow.Show();
-        }
 
 
 

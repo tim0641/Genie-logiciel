@@ -338,7 +338,6 @@
         <!-- <Button Content="Créer" Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="10"/> -->
         <Button Opacity="0" x:Name="buttoncreateaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Créer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding CreateBackupCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
         <Button Opacity="0" x:Name="buttonrunaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding RunSelectedBackupCommand}" Click="OpenProgression" />
-        <Button Opacity="1" x:Name="boutontest" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="250,250,0,0" Content="Exécuter" Style="{StaticResource ButtonWithOutHover2}"   Click="OpenNewWindow" Panel.ZIndex="10"  />
 
         <Button Opacity="0" x:Name="buttondelaction" Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="500,250,0,0" Content="Supprimer" Style="{StaticResource ButtonWithOutHover2}"  Command="{Binding DeleteSelectedBackupCommand}"  />
 
