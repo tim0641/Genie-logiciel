@@ -3,21 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Progression de la sauvegarde" Height="200" Width="400">
     <Grid>
-
-<Button   Command="{Binding RunSelectedBackupCommand}" />
-        <!-- <TextBlock  Text="{Binding ProgressText, StringFormat=Progression : {0}%}" Panel.ZIndex="50"  HorizontalAlignment="Left" Margin="600,230,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="20" Foreground="White"></TextBlock>
-
-        <ProgressBar  Panel.ZIndex="50"   Minimum="0" Maximum="100" Value="{Binding ProgressText}" Height="30" Margin="150,0,0,0" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center" Background= "#3B1C32" Foreground="#A64D79" />
-        <Button   Panel.ZIndex="20"  Foreground="#FF210F22" HorizontalAlignment = "Center" VerticalAlignment = "Center"  Margin="150,100,0,0" Content="{Binding PlayPauseButtonText}" Style="{StaticResource ButtonWithOutHover2}"  Background= "#A64D79" /> -->
-
-
-
-
-
-        <!-- Conteneur pour les boutons -->
-        <!-- <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" />
         
-    <DataGrid Opacity="1" x:Name="Datagrid" ItemsSource="{Binding Backups}" GridLinesVisibility="None" Foreground="#FF210F22"         Background="#FFD1A1C7"
+<StackPanel Orientation="Vertical">
+    <TextBlock  Text="{Binding ProgressText, StringFormat=Progression : {0}%}"   TextWrapping="Wrap"  FontSize="20" Foreground="Black"></TextBlock>
+    <ProgressBar  Minimum="0" Maximum="100" Value="{Binding ProgressText}" Height="30" Width="300"  Background= "#3B1C32" Foreground="#A64D79" />
+    <Button Content="Démarrer" Command="{Binding StartCommand}" Width="100" Height="30" Margin="5" />
+    <Button Content="Arrêter" Command="{Binding StopCommand}" Width="100" Height="30" Margin="5" />
+    <TextBlock Text="{Binding Boolrun}" />
+
+</StackPanel>
+<!-- 
+         <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" />
+        
+    <DataGrid  x:Name="Datagrid" ItemsSource="{Binding Backups}" GridLinesVisibility="None" Foreground="#FF210F22"         Background="#FFD1A1C7"
   
 
           RowBackground="#2C0A12" Width="504" Height="180"  HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" Panel.ZIndex="3">
@@ -32,63 +30,62 @@
             </Style.Triggers>
         </Style>
     </DataGrid.Style>
-    <DataGrid.Resources>
-      
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="0,0,0,2"/> 
-            <Setter Property="FontWeight" Value="Bold"/> 
-        </Style>
-        
-    </DataGrid.Resources>
+
 
             <DataGrid.Columns>
-                <DataGridTemplateColumn  x:Name ="DatagridBorder2Header5"  Header="Choix" Width="40"   >
-                    <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="Background" Value="#FFD1A1C7"/>
-                        </Style>
-                    </DataGridTemplateColumn.CellStyle>
-                    
-                    <DataGridTemplateColumn.CellTemplate  >
-                        <DataTemplate >
-                            <CheckBox        Background="#FFD1A1C7"               HorizontalAlignment="Center" 
-                      VerticalAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="25"  />
+
+                <DataGridTextColumn   Header="Nom" Binding="{Binding Name}" Width="75"  >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+                <DataGridTextColumn Header="Progression" Binding="{Binding Progression}" Width="150"  >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+                <DataGridTextColumn Header="BoolRun" Binding="{Binding BoolRun}" Width="150"  >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+            <DataGridTemplateColumn Header="Action">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <Button Content="Run" Command="{Binding RunSelectedBackupCommand}" CommandParameter="{Binding}" />
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+    </DataGrid.Columns>
+ -->
+
+
+        <!-- <DataGrid ItemsSource="{Binding SelectedBackups}" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Progress" Binding="{Binding Progression}" Width="*"/>
+                <DataGridTemplateColumn Header="Actions" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="▶" Width="30" Height="30" Margin="5" Command="{Binding DataContext.StartBackupCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"/>
+                                <Button Content="⏹" Width="30" Height="30" Margin="5" Command="{Binding DataContext.StopBackupCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"/>
+                            </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
- 
-
                 </DataGridTemplateColumn>
-                <DataGridTextColumn x:Name ="DatagridBorder2Header1"  Header="Nom" Binding="{Binding Name}" Width="75"  >
-        <DataGridTextColumn.ElementStyle>
-            <Style TargetType="TextBlock">
-                <Setter Property="Background" Value="#FFD1A1C7"/>
-            </Style>
-        </DataGridTextColumn.ElementStyle>
-    </DataGridTextColumn>
-                <DataGridTextColumn x:Name ="DatagridBorder2Header2" Header="Source" Binding="{Binding SourcePath}" Width="150"  >
-        <DataGridTextColumn.ElementStyle>
-            <Style TargetType="TextBlock">
-                <Setter Property="Background" Value="#FFD1A1C7"/>
-            </Style>
-        </DataGridTextColumn.ElementStyle>
-    </DataGridTextColumn>
-                <DataGridTextColumn x:Name ="DatagridBorder2Header3" Header="Destination" Binding="{Binding DestinationPath}" Width="150"  >
-        <DataGridTextColumn.ElementStyle>
-            <Style TargetType="TextBlock">
-                <Setter Property="Background" Value="#FFD1A1C7"/>
-            </Style>
-        </DataGridTextColumn.ElementStyle>
-    </DataGridTextColumn>
-                <DataGridTextColumn x:Name ="DatagridBorder2Header4" Header="Type" Binding="{Binding BackupType}" Width="75" >
-        <DataGridTextColumn.ElementStyle>
-            <Style TargetType="TextBlock">
-                <Setter Property="Background" Value="#FFD1A1C7"/>
-            </Style>
-        </DataGridTextColumn.ElementStyle>
-    </DataGridTextColumn>
-                
             </DataGrid.Columns>
         </DataGrid> -->
+
+
+
+
+
     </Grid>
 </Window>

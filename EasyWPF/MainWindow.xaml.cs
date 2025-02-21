@@ -518,6 +518,7 @@ namespace EasyWPF
             ProgressWindow progressWindow = new ProgressWindow
             {
                 DataContext = _viewModel
+                
             };
             progressWindow.Show();
         }

@@ -31,6 +31,7 @@ namespace EasyLib.Services
         private static readonly object _lock = new object();
         private readonly StateService _stateService;
 
+        private bool _isRunning;
 
         public BackupService()
         {
@@ -302,6 +303,27 @@ namespace EasyLib.Services
         {
             ProgressUpdated?.Invoke(progress);
         }
+
+
+        public event Action<bool> BoolrunUpdated;
+
+        public void GetBoolRun()
+        {
+            BoolrunUpdated?.Invoke(_isRunning); // Vous pouvez envoyer la valeur de _isRunning
+        }
+
+        public void OnBoolrunUpdated(bool newValue)
+        {
+            _isRunning = newValue;
+        }
+
+public void UpdateBoolrunState(bool newValue)
+{
+    _isRunning = newValue;  // Met à jour la variable _isRunning
+
+    // Si nécessaire, vous pouvez aussi déclencher l'événement pour informer d'autres parties de l'application
+    BoolrunUpdated?.Invoke(_isRunning); // Notifie si _isRunning a changé
+}
         private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
@@ -325,11 +347,10 @@ namespace EasyLib.Services
             foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
 
-
-
-
-
-
+                while (!_isRunning) 
+                {
+                    Thread.Sleep(500);
+                }
                 string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
                 CopyFile(file, destinationFilePath, backupType, isEncrypted, isDecrypted,ref encryptionTimeMs);
                 copiedFiles++;

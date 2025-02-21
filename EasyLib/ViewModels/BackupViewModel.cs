@@ -145,12 +145,34 @@ namespace EasyLib.ViewModels
             }
         }}
 
+    private bool _Boolrun;
+    public bool Boolrun
+    {
+        get => _Boolrun;
+        set
+        {
+            if (_Boolrun != value)
+            {
+                _Boolrun = value;
+                OnPropertyChanged(nameof(Boolrun));
+                OnBoolrunUpdated(_Boolrun); // Déclenche l'événement
+                _backupService.UpdateBoolrunState(_Boolrun);
+            }
+        }
+    }
+
+
+
 
 
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
         public ICommand RunSelectedBackupCommand { get; }
         public ICommand DeleteSelectedBackupCommand { get; }
+
+        public ICommand StartCommand { get; }
+        public ICommand StopCommand { get; }
+
 
         public StateService StateService => _stateService;  
 
@@ -161,13 +183,23 @@ namespace EasyLib.ViewModels
             _backupService = backupService;
             _stateService = stateService;
             backupService.ProgressUpdated += Service_ProgressUpdated;
+            backupService.BoolrunUpdated += OnBoolrunUpdated; // Abonnez le service à l'événement
+
+
             Backups = new ObservableCollection<BackupModel>();
 
             CreateBackupCommand = new RelayCommand(CreateBackupFromUserInput);
             ListBackupsCommand = new RelayCommand(ListBackups);
             RunSelectedBackupCommand = new RelayCommand(RunSelectedBackups);
             DeleteSelectedBackupCommand = new RelayCommand(DeleteSelectedBackups);
+
+            StartCommand = new RelayCommand(() => Boolrun = true);
+            StopCommand = new RelayCommand(() => Boolrun = false);
         }
+
+
+
+
 
 
         private void Service_ProgressUpdated(long progress)
@@ -175,8 +207,22 @@ namespace EasyLib.ViewModels
             ProgressText = progress.ToString();
         }
 
+        public event Action<bool> BoolrunUpdated;
+        private void OnBoolrunUpdated(bool newValue)
+        {
+            BoolrunUpdated?.Invoke(newValue);
+        }
 
 
+        public void SetBoolrunTrue()
+        {
+            Boolrun = true;
+        }
+
+        public void SetBoolrunFalse()
+        {
+            Boolrun = false;
+        }
 
 
 
