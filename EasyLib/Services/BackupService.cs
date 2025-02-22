@@ -111,50 +111,65 @@ namespace EasyLib.Services
             return new List<BackupModel>(backups.Values);
         }
 
-        public string RunBackup(List<string> backupNames,bool isEncrypted=false, bool isDecrypted=false)
+        public string RunBackup(BackupModel backups, EncoursModel encours ,bool isEncrypted=false, bool isDecrypted=false)
         {
             List<string> statuses = new List<string>();
-            Parallel.ForEach(backupNames, name =>
-            {
-                if (!backups.ContainsKey(name))
-                {
-                    lock (statuses)
-                    {
-                        statuses.Add($"{name} - {Localization.Get("no_backups")}");
-                    }
-                    return;
-                }
 
-                var backup = backups[name];
-                long fileSize = GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
+  
+    if (backups == null)
+    {
+        lock (statuses)
+        {
+            statuses.Add($"{backups.Name} - {Localization.Get("no_backups")}");
+        }
+        return string.Join("\n", statuses); // Retourne le statut si le backup n'existe pas
+    }
+
+                
+                long fileSize = GetSize(backups.SourcePath, backups.DestinationPath, backups.BackupType);
                 long encryptionTimeMs = 0; 
 
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 try
                 {
-                if(File.Exists(backup.SourcePath))
+                if(File.Exists(backups.SourcePath))
                 {
-                    ValidatePath(backup.SourcePath, false);
+                    ValidatePath(backups.SourcePath, false);
                 }
                 else
                 {
-                    ValidatePath(backup.SourcePath, true);
+                    ValidatePath(backups.SourcePath, true);
                 }
-                    if (backup.IsDirectory)
+                    if (backups.IsDirectory)
                     {
-                        long totalfiles = CountFilesInDirectory(backup.SourcePath);
-                        CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType, name, backup.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
-                        _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
+
+// MessageBox.Show(
+//     $"Source Path: {backups.SourcePath}\n" +
+//     $"Destination Path: {backups.DestinationPath}\n" +
+//     $"Backup Type: {backups.BackupType}\n" +
+//     $"Name: {backups.Name}\n" +
+//     $"File Size: {fileSize} bytes\n" +
+//     $"Encrypted: {isEncrypted}\n" +
+//     $"Decrypted: {isDecrypted}\n" +
+//     $"Encryption Time: {encryptionTimeMs} ms",
+//     "Backup Details"
+
+// );
+
+                        long totalfiles = CountFilesInDirectory(backups.SourcePath);
+                        CopyDirectory(encours, backups.SourcePath, backups.DestinationPath, backups.BackupType, backups.Name, backups.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
+                        _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                                           
 
 
                     }
                     else
                     {                
                         long totalfiles = 1;    
-                        Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
-                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType,backup.IsEncrypted, backup.IsDecrypted, ref encryptionTimeMs);
-                         _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
+                        Directory.CreateDirectory(Path.GetDirectoryName(backups.FullDestinationPath));
+                        CopyFile(backups.SourcePath, backups.FullDestinationPath, backups.BackupType,backups.IsEncrypted, backups.IsDecrypted, ref encryptionTimeMs);
+                         _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
 
 
                     }
@@ -162,9 +177,9 @@ namespace EasyLib.Services
                     _dailyLogService.WriteLogEntry(new LogEntry
                     {   
                         Timestamp = DateTime.Now,
-                        BackupName = backup.Name,
-                        SourcePath = backup.SourcePath,
-                        DestinationPath = backup.DestinationPath,
+                        BackupName = backups.Name,
+                        SourcePath = backups.SourcePath,
+                        DestinationPath = backups.DestinationPath,
                         FileSize = fileSize,
                         Time = stopwatch.ElapsedMilliseconds + "ms",
                         Type = "Run",
@@ -178,18 +193,18 @@ namespace EasyLib.Services
 
                     lock (statuses)
                     {
-                        statuses.Add($"{backup.Name} ({backup.BackupType}) - {Localization.Get("backup_run_success")}");
+                        statuses.Add($"{backups.Name} ({backups.BackupType}) - {Localization.Get("backup_run_success")}");
                     }
                 }
                 catch (Exception ex)
                 {
                     lock (statuses)
                     {
-                        statuses.Add($"{backup.Name} - [red]{ex.Message}[/]");
+                        statuses.Add($"{backups.Name} - [red]{ex.Message}[/]");
        
                     }
                 }
-            });
+            
 
             Status = string.Join("\n", statuses);
             return Status;
@@ -294,10 +309,7 @@ namespace EasyLib.Services
             return Status;
         }
 
-        public async Task<string> RunBackupAsync(List<string> backupNames)
-        {
-            return await Task.Run(() => RunBackup(backupNames));
-        }
+
         public event Action<long> ProgressUpdated;
         protected virtual void OnProgressUpdated(long progress)
         {
@@ -324,10 +336,11 @@ public void UpdateBoolrunState(bool newValue)
     // Si nécessaire, vous pouvez aussi déclencher l'événement pour informer d'autres parties de l'application
     BoolrunUpdated?.Invoke(_isRunning); // Notifie si _isRunning a changé
 }
-        private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
+        private void CopyDirectory(EncoursModel encours, string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
             Directory.CreateDirectory(destDirWithSource);
+                                          
 
 
             long copiedFiles = 0;
@@ -342,24 +355,28 @@ public void UpdateBoolrunState(bool newValue)
 
             _stateService.StopTimer();
             long filesLeftToDo = totalFiles;
+                                        
 
 
             foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
 
-                while (!_isRunning) 
-                {
+                while (!encours.EnCoursbool) {
                     Thread.Sleep(500);
                 }
+
                 string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
+
                 CopyFile(file, destinationFilePath, backupType, isEncrypted, isDecrypted,ref encryptionTimeMs);
                 copiedFiles++;
                 filesLeftToDo = totalFiles-copiedFiles;
                 long progression = (long)((double)copiedFiles / totalFiles * 100); 
+                encours.Progress = progression;
 
                 OnProgressUpdated(progression);
                 _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
             }
+                                                                      
              _stateService.StopTimer();
         }
 
@@ -369,6 +386,9 @@ public void UpdateBoolrunState(bool newValue)
 
         private void CopyFile(string sourceFile, string destFile, string backupType, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs)
         {
+
+
+
             if (backupType.ToLower() == "full"|| backupType.ToLower() == "complète" || !File.Exists(destFile))
             {
                 File.Copy(sourceFile, destFile, true);

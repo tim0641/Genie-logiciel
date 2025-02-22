@@ -151,6 +151,22 @@
 
 <DataGrid.Columns  >
 
+    <DataGridTextColumn x:Name ="DatagridBorder1Header0" Header="ID" Binding="{Binding ID}" Width="70">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+
+    <DataGridTextColumn x:Name ="DatagridBorder1Header9" Header="IsSelected" Binding="{Binding IsSelected}" Width="70">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+
     <DataGridTextColumn x:Name ="DatagridBorder1Header1" Header="Nom" Binding="{Binding Name}" Width="70">
         <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">

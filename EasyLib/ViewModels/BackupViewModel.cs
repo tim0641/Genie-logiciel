@@ -8,6 +8,9 @@ using System.Windows.Input;
 using EasyLib.Models;
 using EasyLib.Services;
 using EasySaveLog.Services;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 
 namespace EasyLib.ViewModels
 {
@@ -176,7 +179,8 @@ namespace EasyLib.ViewModels
 
         public StateService StateService => _stateService;  
 
-
+        public ICommand PlayCommand { get; }
+        public ICommand StopCommand2 { get; }
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
@@ -195,7 +199,36 @@ namespace EasyLib.ViewModels
 
             StartCommand = new RelayCommand(() => Boolrun = true);
             StopCommand = new RelayCommand(() => Boolrun = false);
+
+            EncoursBackups = new ObservableCollection<EncoursModel>();
+            PlayCommand = new RelayCommand<int>(PlayBackup);
+            StopCommand2 = new RelayCommand<int>(StopBackup);
         }
+
+
+
+
+public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
+
+private void PlayBackup(int backupId)
+{
+    var backup = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    if (backup != null)
+    {
+        backup.EnCoursbool = true;  // Mettre à jour l'attribut "EnCours" de la backup à "true"
+    }
+}
+
+private void StopBackup(int backupId)
+{
+    // MessageBox.Show("aaaaa");
+
+    var backup = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    if (backup != null)
+    {
+        backup.EnCoursbool = false; // Mettre à jour l'attribut "EnCours" de la backup à "false"
+    }
+}
 
 
 
@@ -261,8 +294,8 @@ private async void RunSelectedBackups()
 {
     try
     {
-        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
-
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();
+        
         if (selectedBackups.Count == 0)
         {
             Status = Localization.Get("no_backups_selected_for_execution");
@@ -275,11 +308,56 @@ private async void RunSelectedBackups()
         Status = Localization.Get("backups_execution_in_progress");
         StateService.StopTimer();
 
-    
-        await Task.Run(() => 
+
+        var selectedBackupsd = Backups.Where(b => b.IsSelected).ToList();
+        foreach (var backup in selectedBackupsd)
         {
-            _backupService.RunBackup(selectedBackups, isEncrypted, isDecrypted);
-        });
+            if (!EncoursBackups.Any(e => e.ID == backup.ID))
+            {
+                var encours = new EncoursModel(backup.ID,  backup.Name);
+                EncoursBackups.Add(encours);
+                
+            }
+        
+        }
+        List<Task> tasks = new List<Task>();
+
+        foreach (var backupId in selectedBackups)
+        {
+            var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+            var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId); // Récupérer l'objet encours
+
+
+            if (backup != null && encours != null)
+            {
+                tasks.Add(Task.Run(() =>
+                {
+                    _backupService.RunBackup(backup, encours, isEncrypted, isDecrypted);
+                }));
+            }
+        }
+
+        // List<Thread> threads = new List<Thread>();
+        // foreach (var backupId in selectedBackups)
+        // {
+        //     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+
+        //     if (backup != null)
+        //     {
+        //         Thread thread = new Thread(() => ExecuteSingleBackup(backup, isEncrypted, isDecrypted));
+        //         threads.Add(thread);
+        //         thread.Start();
+                
+        //     }
+        // }
+        // foreach (var thread in threads)
+        // {
+        //     thread.Join();
+        //     }        
+
+
+
+
 
         Status = Localization.Get("execution_completed");
     }
@@ -334,9 +412,24 @@ private async void RunSelectedBackups()
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
-
+ 
         public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
         public void Execute(object parameter) => _execute();
+    }
+       public class RelayCommand<T> : ICommand
+    {
+        private readonly Action<T> _execute;
+        private readonly Func<T, bool> _canExecute;
+        public event EventHandler? CanExecuteChanged;
+
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object parameter) => _canExecute == null || _canExecute((T)parameter);
+        public void Execute(object parameter) => _execute((T)parameter);
     }
 
 

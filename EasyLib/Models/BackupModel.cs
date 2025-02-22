@@ -61,6 +61,8 @@ namespace EasyLib.Models
                 OnPropertyChanged(nameof(BoolRun));
             }
         }
+private static int _lastId = 0; 
+public int ID { get; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
@@ -86,6 +88,9 @@ namespace EasyLib.Models
 
             _progression = 0;
             _boolRun = false;
+
+            ID = ++_lastId;
+            
         }
     
 
