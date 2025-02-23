@@ -101,16 +101,6 @@ namespace EasyLib.ViewModels
                     BackupType = "Differential"; // Si on coche Differential, on met à jour BackupType
             }
         }
-        private bool _isSelectionMode;
-        public bool IsSelectionMode
-        {
-            get => _isSelectionMode;
-            set
-            {
-                _isSelectionMode = value;
-                OnPropertyChanged();
-            }
-        }
 
      private bool _isEncrypted;
         public bool IsEncrypted
@@ -135,34 +125,8 @@ namespace EasyLib.ViewModels
 }
 
 
-    private string _progressText;
-    public string ProgressText
-    {
-        get => _progressText;
-        set
-        {
-            if (_progressText != value)
-            {
-                _progressText = value;
-                OnPropertyChanged(nameof(ProgressText));
-            }
-        }}
 
-    private bool _Boolrun;
-    public bool Boolrun
-    {
-        get => _Boolrun;
-        set
-        {
-            if (_Boolrun != value)
-            {
-                _Boolrun = value;
-                OnPropertyChanged(nameof(Boolrun));
-                OnBoolrunUpdated(_Boolrun); // Déclenche l'événement
-                _backupService.UpdateBoolrunState(_Boolrun);
-            }
-        }
-    }
+
 
 
 
@@ -173,49 +137,80 @@ namespace EasyLib.ViewModels
         public ICommand RunSelectedBackupCommand { get; }
         public ICommand DeleteSelectedBackupCommand { get; }
 
-        public ICommand StartCommand { get; }
-        public ICommand StopCommand { get; }
+
+public ICommand CancelCommand { get; }
 
 
         public StateService StateService => _stateService;  
 
         public ICommand PlayCommand { get; }
-        public ICommand StopCommand2 { get; }
+        public ICommand StopCommand { get; }
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
             _backupService = backupService;
             _stateService = stateService;
-            backupService.ProgressUpdated += Service_ProgressUpdated;
-            backupService.BoolrunUpdated += OnBoolrunUpdated; // Abonnez le service à l'événement
-
 
             Backups = new ObservableCollection<BackupModel>();
-
+            Application.Current.Dispatcher.InvokeAsync(() => ListBackups());
+            
             CreateBackupCommand = new RelayCommand(CreateBackupFromUserInput);
             ListBackupsCommand = new RelayCommand(ListBackups);
             RunSelectedBackupCommand = new RelayCommand(RunSelectedBackups);
             DeleteSelectedBackupCommand = new RelayCommand(DeleteSelectedBackups);
 
-            StartCommand = new RelayCommand(() => Boolrun = true);
-            StopCommand = new RelayCommand(() => Boolrun = false);
 
             EncoursBackups = new ObservableCollection<EncoursModel>();
             PlayCommand = new RelayCommand<int>(PlayBackup);
-            StopCommand2 = new RelayCommand<int>(StopBackup);
+            StopCommand = new RelayCommand<int>(StopBackup);
+            CancelCommand = new RelayCommand<int>(CancelBackup);
+
         }
 
 
+
+private void CancelBackup(int backupId)
+{
+    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+    if (encours != null && backup != null)
+    {
+        // Marquer comme annulé et réinitialiser
+        encours.Cancelled = true;
+        encours.EnCoursbool = false;
+        encours.Progress = 0;
+        // Désélectionner le backup
+        backup.IsSelected = false;
+        // Appeler le service pour supprimer le travail partiel
+        _backupService.CancelBackup(backup);
+    }
+}
 
 
 public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
 
 private void PlayBackup(int backupId)
 {
-    var backup = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
-    if (backup != null)
+    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+    if (encours != null && backup != null)
     {
-        backup.EnCoursbool = true;  // Mettre à jour l'attribut "EnCours" de la backup à "true"
+        if (encours.Cancelled)
+        {
+            // Réinitialiser l'état d'annulation et la progression
+            encours.Cancelled = false;
+            encours.Progress = 0;
+            // Démarrer une nouvelle exécution pour ce backup
+            Task.Run(() =>
+            {
+                _backupService.RunBackup(backup, encours, IsEncrypted, IsDecrypted);
+            });
+        }
+        else
+        {
+            // Si l'opération était en pause, reprendre
+            encours.EnCoursbool = true;
+        }
     }
 }
 
@@ -232,30 +227,6 @@ private void StopBackup(int backupId)
 
 
 
-
-
-
-        private void Service_ProgressUpdated(long progress)
-        {
-            ProgressText = progress.ToString();
-        }
-
-        public event Action<bool> BoolrunUpdated;
-        private void OnBoolrunUpdated(bool newValue)
-        {
-            BoolrunUpdated?.Invoke(newValue);
-        }
-
-
-        public void SetBoolrunTrue()
-        {
-            Boolrun = true;
-        }
-
-        public void SetBoolrunFalse()
-        {
-            Boolrun = false;
-        }
 
 
 
@@ -294,13 +265,8 @@ private async void RunSelectedBackups()
 {
     try
     {
-        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();
-        
-        if (selectedBackups.Count == 0)
-        {
-            Status = Localization.Get("no_backups_selected_for_execution");
-            return;
-        }
+
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();   
 
         bool isEncrypted = IsEncrypted; 
         bool isDecrypted = IsDecrypted; 
@@ -369,6 +335,7 @@ private async void RunSelectedBackups()
 
         private void DeleteSelectedBackups()
         {
+
 
             try
             {

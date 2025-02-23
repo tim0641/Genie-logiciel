@@ -40,27 +40,7 @@ namespace EasyLib.Models
             }
         }
 
-        private long _progression;
-        public long Progression
-        {
-            get => _progression;
-            set
-            {
-                _progression = value;
-                OnPropertyChanged(nameof(Progression));
-            }
-        }
 
-        private bool _boolRun;
-        public bool BoolRun
-        {
-            get => _boolRun;
-            set
-            {
-                _boolRun = value;
-                OnPropertyChanged(nameof(BoolRun));
-            }
-        }
 private static int _lastId = 0; 
 public int ID { get; }
 
@@ -86,24 +66,10 @@ public int ID { get; }
             FileName = Path.GetFileName(sourcePath);
             FullDestinationPath = Path.Combine(destinationPath, FileName);
 
-            _progression = 0;
-            _boolRun = false;
-
             ID = ++_lastId;
             
         }
     
 
-
-            public void UpdateProgress(long progress)
-    {
-        _progression = progress;
-    }
-
-    public void UpdateBoolrunState(bool newValue)
-    {
-        _boolRun = newValue;  
-
-    }
     }
 }

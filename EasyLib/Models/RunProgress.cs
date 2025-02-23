@@ -9,8 +9,8 @@ namespace EasyLib.Models
         private int _id;
         private long _progress;
         private string name;
-        private bool _enCoursbool;
-
+        private bool _enCoursbool;  
+        private bool _cancelled;
         public int ID
         {
             get => _id;
@@ -25,7 +25,9 @@ namespace EasyLib.Models
         public long Progress
         {
             get => _progress;
-            set { _progress = value; OnPropertyChanged(nameof(Progress)); }
+            set { _progress = value; OnPropertyChanged(nameof(Progress)); 
+                        OnPropertyChanged(nameof(Etat));}
+            
         }
 
 public bool EnCoursbool
@@ -36,8 +38,35 @@ public bool EnCoursbool
             if (_enCoursbool != value)
             {
                 _enCoursbool = value;
-                OnPropertyChanged(nameof(EnCoursbool)); // Notifie la vue que la propriété a changé
+                OnPropertyChanged(nameof(EnCoursbool));
+                            OnPropertyChanged(nameof(Etat));
             }
+        }
+    }
+    public bool Cancelled
+    {
+        get => _cancelled;
+        set
+        {
+            if (_cancelled != value)
+            {
+                _cancelled = value;
+                OnPropertyChanged(nameof(Cancelled));
+                OnPropertyChanged(nameof(Etat));
+            }
+        }
+    }
+
+    public string Etat
+    {
+        get
+        {
+            if (EnCoursbool)
+                return "En cours";
+            else if (!EnCoursbool && Progress > 0)
+                return "En pause";
+            else
+                return "Pas lancé";
         }
     }
 
@@ -51,6 +80,7 @@ public bool EnCoursbool
             Name = name;
             Progress = 0;
             EnCoursbool = false;
+            Cancelled = false;
         }
 
 

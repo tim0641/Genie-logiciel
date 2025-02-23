@@ -66,9 +66,9 @@ namespace EasyLib
                     { "backups_deletion_in_progress", "Backups deletion in progress..." },
                     { "deletion_error", "Error during deletion:" },
                     { "full", "Full" },
-                    { "dif", "Differential" }
-
-
+                    { "dif", "Differential" },
+{"Encryption","Encrypt after execution"},
+{"Decryption","Decrypt after execution"}
 
                 }
             },
@@ -122,7 +122,9 @@ namespace EasyLib
                     { "full", "Complète" },
                     { "dif", "Différentiel" },
 
-      
+                    {"Encryption ","Chiffrer après exécution"},
+                    {"Decryption","Déchiffrer après exécution"},
+
 
                     { "fill_all_fields", "Veuillez remplir tous les champs." },
                     { "no_backups_found", "Aucune sauvegarde trouvée." },

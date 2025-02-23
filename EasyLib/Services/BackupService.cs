@@ -116,14 +116,14 @@ namespace EasyLib.Services
             List<string> statuses = new List<string>();
 
   
-    if (backups == null)
-    {
-        lock (statuses)
-        {
-            statuses.Add($"{backups.Name} - {Localization.Get("no_backups")}");
-        }
-        return string.Join("\n", statuses); // Retourne le statut si le backup n'existe pas
-    }
+            if (backups == null)
+            {
+                lock (statuses)
+                {
+                    statuses.Add($"{backups.Name} - {Localization.Get("no_backups")}");
+                }
+                return string.Join("\n", statuses); // Retourne le statut si le backup n'existe pas
+            }
 
                 
                 long fileSize = GetSize(backups.SourcePath, backups.DestinationPath, backups.BackupType);
@@ -144,33 +144,24 @@ namespace EasyLib.Services
                     if (backups.IsDirectory)
                     {
 
-// MessageBox.Show(
-//     $"Source Path: {backups.SourcePath}\n" +
-//     $"Destination Path: {backups.DestinationPath}\n" +
-//     $"Backup Type: {backups.BackupType}\n" +
-//     $"Name: {backups.Name}\n" +
-//     $"File Size: {fileSize} bytes\n" +
-//     $"Encrypted: {isEncrypted}\n" +
-//     $"Decrypted: {isDecrypted}\n" +
-//     $"Encryption Time: {encryptionTimeMs} ms",
-//     "Backup Details"
-
-// );
 
                         long totalfiles = CountFilesInDirectory(backups.SourcePath);
                         CopyDirectory(encours, backups.SourcePath, backups.DestinationPath, backups.BackupType, backups.Name, backups.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
-                        _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                        // _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
                                            
 
 
                     }
                     else
-                    {                
-                        long totalfiles = 1;    
+                    {      
+                        while (!encours.EnCoursbool) {
+                            Thread.Sleep(500);
+                        }          
+                        // long totalfiles = 1;    
                         Directory.CreateDirectory(Path.GetDirectoryName(backups.FullDestinationPath));
                         CopyFile(backups.SourcePath, backups.FullDestinationPath, backups.BackupType,backups.IsEncrypted, backups.IsDecrypted, ref encryptionTimeMs);
-                         _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
-
+                        //  _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                        encours.Progress = 100;
 
                     }
                     stopwatch.Stop();
@@ -189,7 +180,7 @@ namespace EasyLib.Services
                     _dailyLogService.FlushLogs();
 
 
-                    _stateService.StopTimer();
+                    // _stateService.StopTimer();
 
                     lock (statuses)
                     {
@@ -353,7 +344,7 @@ public void UpdateBoolrunState(bool newValue)
 
             }
 
-            _stateService.StopTimer();
+            // _stateService.StopTimer();
             long filesLeftToDo = totalFiles;
                                         
 
@@ -361,9 +352,18 @@ public void UpdateBoolrunState(bool newValue)
             foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
 
-                while (!encours.EnCoursbool) {
+                // Si l'annulation a été demandée, on sort de la boucle
+                if (encours.Cancelled)
+                    break;
+                
+                // Si l'opération est en pause, on attend (tout en vérifiant l'annulation)
+                while (!encours.EnCoursbool && !encours.Cancelled)
+                {
                     Thread.Sleep(500);
                 }
+                
+                if (encours.Cancelled)
+                    break;
 
                 string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
 
@@ -374,10 +374,13 @@ public void UpdateBoolrunState(bool newValue)
                 encours.Progress = progression;
 
                 OnProgressUpdated(progression);
-                _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
+                // _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
             }
-                                                                      
-             _stateService.StopTimer();
+            if (encours.Cancelled && Directory.Exists(destDirWithSource))
+            {
+                Directory.Delete(destDirWithSource, true);
+            }                                
+            //  _stateService.StopTimer();
         }
 
 
@@ -406,7 +409,7 @@ public void UpdateBoolrunState(bool newValue)
             
             }
 
-                if (isEncrypted || isDecrypted)
+                if (isEncrypted || isDecrypted) 
                 {
                 string encryptionKey = "MaCleSecrete64Bits";
                 string cryptoSoftPath=@"C:\Users\jpvin\source\repos\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
@@ -416,7 +419,29 @@ public void UpdateBoolrunState(bool newValue)
         encryptionTimeMs += cryptoTime;
     }
         }
-
+public void CancelBackup(BackupModel backup)
+{
+    if (backup == null)
+        return;
+    
+    if (backup.IsDirectory)
+    {
+        string destDirWithSource = Path.Combine(backup.DestinationPath, Path.GetFileName(backup.SourcePath));
+        if (Directory.Exists(destDirWithSource))
+        {
+            try { Directory.Delete(destDirWithSource, true); }
+            catch (Exception ex) { /* Gérer l'erreur si nécessaire */ }
+        }
+    }
+    else
+    {
+        if (File.Exists(backup.FullDestinationPath))
+        {
+            try { File.Delete(backup.FullDestinationPath); }
+            catch (Exception ex) { /* Gérer l'erreur si nécessaire */ }
+        }
+    }
+}
         private void SaveBackups()
         {
             lock (_lock)

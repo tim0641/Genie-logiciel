@@ -26,6 +26,7 @@ namespace EasyWPF
 
     private string SourcePath;
     private string DestinationPath;
+        private ProgressWindow _progressWindow;
 
 
         public MainWindow()
@@ -47,7 +48,6 @@ namespace EasyWPF
             _viewModel.StateService.StartTimer("", "", "", "Menu", "", 0, 0, 0, 0);
             _isTimerStarted = true;  // Marque le timer comme démarré
         }
-
         }
 
         public bool _isPaused { get; set; } = false;
@@ -87,7 +87,8 @@ namespace EasyWPF
                 buttondelaction.Content = EasyLib.Localization.Get("delete");
                 Full.Content = EasyLib.Localization.Get("full");
                 Dif.Content = EasyLib.Localization.Get("dif");
-                
+                EncryptionCheckBox.Content = EasyLib.Localization.Get("Encryption");
+                DecryptionCheckBox.Content = EasyLib.Localization.Get("Decryption");
             }
         }
 
@@ -513,15 +514,20 @@ namespace EasyWPF
 
 }
 
-        private void OpenNewWindow(object sender, RoutedEventArgs e)
-        {
-            ProgressWindow progressWindow = new ProgressWindow
-            {
-                DataContext = _viewModel
-                
-            };
-            progressWindow.Show();
-        }
+private void OpenNewWindow(object sender, RoutedEventArgs e)
+{
+    if (_progressWindow == null || !_progressWindow.IsVisible)
+    {
+        // Si la fenêtre n'existe pas ou est fermée, on en crée une nouvelle
+        _progressWindow = new ProgressWindow(_viewModel);
+        _progressWindow.Show();
+    }
+    else
+    {
+        // Sinon, on la ramène à l'avant ou on l'actualise si besoin
+        _progressWindow.Activate();
+    }
+}
 
 
 
@@ -534,8 +540,8 @@ private void BrowseSourceFile(object sender, RoutedEventArgs e)
             CheckPathExists = true,
             FileName = "Sélectionner un dossier",  // Message dans la boîte de dialogue
             ValidateNames = false,  // Permet la sélection d'un dossier
-            Filter = "Tous les fichiers (.)|."  // Accepte tous les types de fichiers
-        };
+            Filter = "Tous les fichiers (*.*)|*.*"        
+            };
 
         if (dialog.ShowDialog() == true)
         {

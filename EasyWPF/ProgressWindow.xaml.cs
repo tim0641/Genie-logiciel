@@ -28,11 +28,11 @@ namespace EasyWPF
     {
 
     private BackupViewModel _viewModel;
-    public ProgressWindow()
+    public ProgressWindow(BackupViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
         DataContext = _viewModel;
-            
     }
     }
 
