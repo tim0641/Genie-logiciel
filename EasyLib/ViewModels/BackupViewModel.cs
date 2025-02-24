@@ -286,7 +286,7 @@ private async void RunSelectedBackups()
 {
     try
     {
-
+        MessageBox.Show($"IsEncrypted: {IsEncrypted}");
         var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();   
 
         bool isEncrypted = IsEncrypted; 
@@ -322,25 +322,7 @@ private async void RunSelectedBackups()
                     _backupService.RunBackup(backup, encours, isEncrypted, isDecrypted);
                 }));
             }
-        }
-
-        // List<Thread> threads = new List<Thread>();
-        // foreach (var backupId in selectedBackups)
-        // {
-        //     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
-
-        //     if (backup != null)
-        //     {
-        //         Thread thread = new Thread(() => ExecuteSingleBackup(backup, isEncrypted, isDecrypted));
-        //         threads.Add(thread);
-        //         thread.Start();
-                
-        //     }
-        // }
-        // foreach (var thread in threads)
-        // {
-        //     thread.Join();
-        //     }        
+        }       
 
 
 
