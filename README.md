@@ -25,5 +25,5 @@ EasyLib Backup Service est une application de sauvegarde qui permet de créer, g
 
 ## Structure du Projet
 - **EasyLib** : Contient la logique principale de l'application, y compris les services de sauvegarde et de journalisation.
-- **EasyWPF** : Contient l'interface utilisateur WPF pour interagir avec l'application.
+- **EasyCLI** : Contient l'interface console pour interagir avec l'application.
 - **EasySaveLog** : Contient les modèles et services de journalisation.
