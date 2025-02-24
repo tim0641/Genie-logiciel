@@ -96,6 +96,10 @@ public bool EnCoursbool
             Progress = newValue;  
 
         }
+        public void RefreshEtat()
+        {
+            OnPropertyChanged(nameof(Etat));
+        }
 
     }
 }

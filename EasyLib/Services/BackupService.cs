@@ -147,7 +147,7 @@ namespace EasyLib.Services
 
                         long totalfiles = CountFilesInDirectory(backups.SourcePath);
                         CopyDirectory(encours, backups.SourcePath, backups.DestinationPath, backups.BackupType, backups.Name, backups.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
-                        // _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                        _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
                                            
 
 
@@ -157,10 +157,10 @@ namespace EasyLib.Services
                         while (!encours.EnCoursbool) {
                             Thread.Sleep(500);
                         }          
-                        // long totalfiles = 1;    
+                        long totalfiles = 1;    
                         Directory.CreateDirectory(Path.GetDirectoryName(backups.FullDestinationPath));
                         CopyFile(backups.SourcePath, backups.FullDestinationPath, backups.BackupType,backups.IsEncrypted, backups.IsDecrypted, ref encryptionTimeMs);
-                        //  _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                        _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
                         encours.Progress = 100;
 
                     }
@@ -180,7 +180,7 @@ namespace EasyLib.Services
                     _dailyLogService.FlushLogs();
 
 
-                    // _stateService.StopTimer();
+                    _stateService.StopTimer();
 
                     lock (statuses)
                     {
@@ -308,25 +308,6 @@ namespace EasyLib.Services
         }
 
 
-        public event Action<bool> BoolrunUpdated;
-
-        public void GetBoolRun()
-        {
-            BoolrunUpdated?.Invoke(_isRunning); // Vous pouvez envoyer la valeur de _isRunning
-        }
-
-        public void OnBoolrunUpdated(bool newValue)
-        {
-            _isRunning = newValue;
-        }
-
-public void UpdateBoolrunState(bool newValue)
-{
-    _isRunning = newValue;  // Met à jour la variable _isRunning
-
-    // Si nécessaire, vous pouvez aussi déclencher l'événement pour informer d'autres parties de l'application
-    BoolrunUpdated?.Invoke(_isRunning); // Notifie si _isRunning a changé
-}
         private void CopyDirectory(EncoursModel encours, string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
@@ -344,7 +325,7 @@ public void UpdateBoolrunState(bool newValue)
 
             }
 
-            // _stateService.StopTimer();
+            _stateService.StopTimer();
             long filesLeftToDo = totalFiles;
                                         
 
@@ -352,11 +333,9 @@ public void UpdateBoolrunState(bool newValue)
             foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
 
-                // Si l'annulation a été demandée, on sort de la boucle
                 if (encours.Cancelled)
                     break;
                 
-                // Si l'opération est en pause, on attend (tout en vérifiant l'annulation)
                 while (!encours.EnCoursbool && !encours.Cancelled)
                 {
                     Thread.Sleep(500);
@@ -374,13 +353,13 @@ public void UpdateBoolrunState(bool newValue)
                 encours.Progress = progression;
 
                 OnProgressUpdated(progression);
-                // _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
+                _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
             }
             if (encours.Cancelled && Directory.Exists(destDirWithSource))
             {
                 Directory.Delete(destDirWithSource, true);
             }                                
-            //  _stateService.StopTimer();
+            _stateService.StopTimer();
         }
 
 

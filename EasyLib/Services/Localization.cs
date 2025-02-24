@@ -5,6 +5,7 @@ namespace EasyLib
     public static class Localization
     {
         private static string currentLanguage = "en"; 
+        public static string CurrentLanguage => currentLanguage;
         private static readonly string defaultLanguage = "fr"; 
 
         private static readonly Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>

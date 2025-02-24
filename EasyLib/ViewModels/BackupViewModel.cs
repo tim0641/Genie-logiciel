@@ -175,13 +175,10 @@ private void CancelBackup(int backupId)
     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
     if (encours != null && backup != null)
     {
-        // Marquer comme annulé et réinitialiser
         encours.Cancelled = true;
         encours.EnCoursbool = false;
         encours.Progress = 0;
-        // Désélectionner le backup
         backup.IsSelected = false;
-        // Appeler le service pour supprimer le travail partiel
         _backupService.CancelBackup(backup);
     }
 }
@@ -198,10 +195,8 @@ private void PlayBackup(int backupId)
     {
         if (encours.Cancelled)
         {
-            // Réinitialiser l'état d'annulation et la progression
             encours.Cancelled = false;
             encours.Progress = 0;
-            // Démarrer une nouvelle exécution pour ce backup
             Task.Run(() =>
             {
                 _backupService.RunBackup(backup, encours, IsEncrypted, IsDecrypted);
@@ -209,7 +204,6 @@ private void PlayBackup(int backupId)
         }
         else
         {
-            // Si l'opération était en pause, reprendre
             encours.EnCoursbool = true;
         }
     }
@@ -235,6 +229,10 @@ public void RefreshLocalization()
     OnPropertyChanged(nameof(PlayText));
     OnPropertyChanged(nameof(StopText));
     OnPropertyChanged(nameof(CancelText));
+        foreach (var item in EncoursBackups)
+    {
+        item.RefreshEtat();
+    }
 }
 
 
@@ -301,7 +299,7 @@ private async void RunSelectedBackups()
         foreach (var backupId in selectedBackups)
         {
             var backup = Backups.FirstOrDefault(b => b.ID == backupId);
-            var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId); // Récupérer l'objet encours
+            var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId); 
 
 
             if (backup != null && encours != null)

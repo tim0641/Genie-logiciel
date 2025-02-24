@@ -33,6 +33,15 @@ namespace EasyWPF
         InitializeComponent();
         _viewModel = viewModel;
         DataContext = _viewModel;
+
+        foreach (ComboBoxItem item in LanguageSelectorComboBox.Items)
+    {
+        if (item.Tag.ToString() == EasyLib.Localization.CurrentLanguage)
+        {
+            LanguageSelectorComboBox.SelectedItem = item;
+            break;
+        }
+    }
     }
 
 private void LanguageSelectorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

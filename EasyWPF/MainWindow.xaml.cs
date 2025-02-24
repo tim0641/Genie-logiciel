@@ -45,7 +45,6 @@ namespace EasyWPF
             DecryptionCheckBox.Unchecked += (s, e) => EncryptionCheckBox.IsEnabled = true;
         if (!_isTimerStarted)  // Vérifie si le timer a déjà été démarré
         {
-            _viewModel.StateService.StartTimer("", "", "", "Menu", "", 0, 0, 0, 0);
             _isTimerStarted = true;  // Marque le timer comme démarré
         }
         }
@@ -96,7 +95,6 @@ namespace EasyWPF
         {
             _viewModel.StateService.StopTimer();
 
-            _viewModel.StateService.TakeAndUpdateStates("", "", "", EasyLib.Localization.Get("create_backup"), "", 0, 0, 0, 0);
             
 
 
@@ -197,7 +195,6 @@ namespace EasyWPF
         private void Buttonlistclick(object sender, RoutedEventArgs e)
         {
             _viewModel.StateService.StopTimer();
-            _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("list_backups"), "", 0, 0, 0, 0);
             
             
             foreach (var child in MainGrid.Children)
@@ -297,7 +294,6 @@ namespace EasyWPF
         {
             _viewModel.StateService.StopTimer();
 
-            _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("run_backup"), "", 0, 0, 0, 0);
             
             
             foreach (var child in MainGrid.Children)
@@ -394,7 +390,6 @@ namespace EasyWPF
         {
             _viewModel.StateService.StopTimer();
 
-            _viewModel.StateService.StartTimer("", "", "", EasyLib.Localization.Get("delete_backup"), "", 0, 0, 0, 0);
 
             foreach (var child in MainGrid.Children)
             {
