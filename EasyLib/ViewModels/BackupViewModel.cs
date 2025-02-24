@@ -8,6 +8,9 @@ using System.Windows.Input;
 using EasyLib.Models;
 using EasyLib.Services;
 using EasySaveLog.Services;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 using EasySaveLog.Models;
 
 namespace EasyLib.ViewModels
@@ -99,16 +102,6 @@ namespace EasyLib.ViewModels
                     BackupType = "Differential"; // Si on coche Differential, on met à jour BackupType
             }
         }
-        private bool _isSelectionMode;
-        public bool IsSelectionMode
-        {
-            get => _isSelectionMode;
-            set
-            {
-                _isSelectionMode = value;
-                OnPropertyChanged();
-            }
-        }
 
      private bool _isEncrypted;
         public bool IsEncrypted
@@ -133,18 +126,10 @@ namespace EasyLib.ViewModels
 }
 
 
-    private string _progressText;
-    public string ProgressText
-    {
-        get => _progressText;
-        set
-        {
-            if (_progressText != value)
-            {
-                _progressText = value;
-                OnPropertyChanged(nameof(ProgressText));
-            }
-        }}
+
+
+
+
 
     public LogFormat LogFormat
 {
@@ -163,30 +148,105 @@ namespace EasyLib.ViewModels
         public ICommand RunSelectedBackupCommand { get; }
         public ICommand DeleteSelectedBackupCommand { get; }
 
+
+public ICommand CancelCommand { get; }
+
+
         public StateService StateService => _stateService;  
 
-
+        public ICommand PlayCommand { get; }
+        public ICommand StopCommand { get; }
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
             _backupService = backupService;
             _stateService = stateService;
-            backupService.ProgressUpdated += Service_ProgressUpdated;
-            Backups = new ObservableCollection<BackupModel>();
 
+            Backups = new ObservableCollection<BackupModel>();
+            Application.Current.Dispatcher.InvokeAsync(() => ListBackups());
+            
             CreateBackupCommand = new RelayCommand(CreateBackupFromUserInput);
             ListBackupsCommand = new RelayCommand(ListBackups);
             RunSelectedBackupCommand = new RelayCommand(RunSelectedBackups);
             DeleteSelectedBackupCommand = new RelayCommand(DeleteSelectedBackups);
+
+
+            EncoursBackups = new ObservableCollection<EncoursModel>();
+            PlayCommand = new RelayCommand<int>(PlayBackup);
+            StopCommand = new RelayCommand<int>(StopBackup);
+            CancelCommand = new RelayCommand<int>(CancelBackup);
+
         }
 
 
-        private void Service_ProgressUpdated(long progress)
+
+private void CancelBackup(int backupId)
+{
+    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+    if (encours != null && backup != null)
+    {
+        // Marquer comme annulé et réinitialiser
+        encours.Cancelled = true;
+        encours.EnCoursbool = false;
+        encours.Progress = 0;
+        // Désélectionner le backup
+        backup.IsSelected = false;
+        // Appeler le service pour supprimer le travail partiel
+        _backupService.CancelBackup(backup);
+    }
+}
+
+
+public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
+
+private void PlayBackup(int backupId)
+{
+    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+    
+    if (encours != null && backup != null)
+    {
+        if (encours.Cancelled)
         {
-            ProgressText = progress.ToString();
+            // Réinitialiser l'état d'annulation et la progression
+            encours.Cancelled = false;
+            encours.Progress = 0;
+            // Démarrer une nouvelle exécution pour ce backup
+            Task.Run(() =>
+            {
+                _backupService.RunBackup(backup, encours, IsEncrypted, IsDecrypted);
+            });
         }
+        else
+        {
+            // Si l'opération était en pause, reprendre
+            encours.EnCoursbool = true;
+        }
+    }
+}
 
+private void StopBackup(int backupId)
+{
+    // MessageBox.Show("aaaaa");
 
+    var backup = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    if (backup != null)
+    {
+        backup.EnCoursbool = false; // Mettre à jour l'attribut "EnCours" de la backup à "false"
+    }
+}
+
+public string PlayText => Localization.Get("start");
+public string StopText => Localization.Get("stop");
+public string CancelText => Localization.Get("cancel");
+
+public void RefreshLocalization()
+{
+    OnPropertyChanged(nameof(PlayText));
+    OnPropertyChanged(nameof(StopText));
+    OnPropertyChanged(nameof(CancelText));
+}
 
 
 
@@ -226,13 +286,8 @@ private async void RunSelectedBackups()
 {
     try
     {
-        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
 
-        if (selectedBackups.Count == 0)
-        {
-            Status = Localization.Get("no_backups_selected_for_execution");
-            return;
-        }
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();   
 
         bool isEncrypted = IsEncrypted; 
         bool isDecrypted = IsDecrypted; 
@@ -240,11 +295,56 @@ private async void RunSelectedBackups()
         Status = Localization.Get("backups_execution_in_progress");
         StateService.StopTimer();
 
-    
-        await Task.Run(() => 
+
+        var selectedBackupsd = Backups.Where(b => b.IsSelected).ToList();
+        foreach (var backup in selectedBackupsd)
         {
-            _backupService.RunBackup(selectedBackups, isEncrypted, isDecrypted);
-        });
+            if (!EncoursBackups.Any(e => e.ID == backup.ID))
+            {
+                var encours = new EncoursModel(backup.ID,  backup.Name);
+                EncoursBackups.Add(encours);
+                
+            }
+        
+        }
+        List<Task> tasks = new List<Task>();
+
+        foreach (var backupId in selectedBackups)
+        {
+            var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+            var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId); // Récupérer l'objet encours
+
+
+            if (backup != null && encours != null)
+            {
+                tasks.Add(Task.Run(() =>
+                {
+                    _backupService.RunBackup(backup, encours, isEncrypted, isDecrypted);
+                }));
+            }
+        }
+
+        // List<Thread> threads = new List<Thread>();
+        // foreach (var backupId in selectedBackups)
+        // {
+        //     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+
+        //     if (backup != null)
+        //     {
+        //         Thread thread = new Thread(() => ExecuteSingleBackup(backup, isEncrypted, isDecrypted));
+        //         threads.Add(thread);
+        //         thread.Start();
+                
+        //     }
+        // }
+        // foreach (var thread in threads)
+        // {
+        //     thread.Join();
+        //     }        
+
+
+
+
 
         Status = Localization.Get("execution_completed");
     }
@@ -256,6 +356,7 @@ private async void RunSelectedBackups()
 
         private void DeleteSelectedBackups()
         {
+
 
             try
             {
@@ -299,9 +400,24 @@ private async void RunSelectedBackups()
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
-
+ 
         public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
         public void Execute(object parameter) => _execute();
+    }
+       public class RelayCommand<T> : ICommand
+    {
+        private readonly Action<T> _execute;
+        private readonly Func<T, bool> _canExecute;
+        public event EventHandler? CanExecuteChanged;
+
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object parameter) => _canExecute == null || _canExecute((T)parameter);
+        public void Execute(object parameter) => _execute((T)parameter);
     }
 
 

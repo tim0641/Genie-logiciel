@@ -31,6 +31,7 @@ namespace EasyLib.Services
         private static readonly object _lock = new object();
         private readonly StateService _stateService;
 
+        private bool _isRunning;
 
         public BackupService(DailyLogService dailyLogService, StateService stateService)
         {
@@ -110,60 +111,66 @@ namespace EasyLib.Services
             return new List<BackupModel>(backups.Values);
         }
 
-        public string RunBackup(List<string> backupNames,bool isEncrypted=false, bool isDecrypted=false)
+        public string RunBackup(BackupModel backups, EncoursModel encours ,bool isEncrypted=false, bool isDecrypted=false)
         {
             List<string> statuses = new List<string>();
-            Parallel.ForEach(backupNames, name =>
-            {
-                if (!backups.ContainsKey(name))
-                {
-                    lock (statuses)
-                    {
-                        statuses.Add($"{name} - {Localization.Get("no_backups")}");
-                    }
-                    return;
-                }
 
-                var backup = backups[name];
-                long fileSize = GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
+  
+            if (backups == null)
+            {
+                lock (statuses)
+                {
+                    statuses.Add($"{backups.Name} - {Localization.Get("no_backups")}");
+                }
+                return string.Join("\n", statuses); // Retourne le statut si le backup n'existe pas
+            }
+
+                
+                long fileSize = GetSize(backups.SourcePath, backups.DestinationPath, backups.BackupType);
                 long encryptionTimeMs = 0; 
 
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 try
                 {
-                if(File.Exists(backup.SourcePath))
+                if(File.Exists(backups.SourcePath))
                 {
-                    ValidatePath(backup.SourcePath, false);
+                    ValidatePath(backups.SourcePath, false);
                 }
                 else
                 {
-                    ValidatePath(backup.SourcePath, true);
+                    ValidatePath(backups.SourcePath, true);
                 }
-                    if (backup.IsDirectory)
+                    if (backups.IsDirectory)
                     {
-                        long totalfiles = CountFilesInDirectory(backup.SourcePath);
-                        CopyDirectory(backup.SourcePath, backup.DestinationPath, backup.BackupType, name, backup.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
-                        _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
+
+
+                        long totalfiles = CountFilesInDirectory(backups.SourcePath);
+                        CopyDirectory(encours, backups.SourcePath, backups.DestinationPath, backups.BackupType, backups.Name, backups.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
+                        // _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                                           
 
 
                     }
                     else
-                    {                
-                        long totalfiles = 1;    
-                        Directory.CreateDirectory(Path.GetDirectoryName(backup.FullDestinationPath));
-                        CopyFile(backup.SourcePath, backup.FullDestinationPath, backup.BackupType,backup.IsEncrypted, backup.IsDecrypted, ref encryptionTimeMs);
-                         _stateService.StartTimer(name, backup.SourcePath, backup.DestinationPath, Localization.Get("backup_run_success"), backup.BackupType, totalfiles, fileSize, 0, 100);
-
+                    {      
+                        while (!encours.EnCoursbool) {
+                            Thread.Sleep(500);
+                        }          
+                        // long totalfiles = 1;    
+                        Directory.CreateDirectory(Path.GetDirectoryName(backups.FullDestinationPath));
+                        CopyFile(backups.SourcePath, backups.FullDestinationPath, backups.BackupType,backups.IsEncrypted, backups.IsDecrypted, ref encryptionTimeMs);
+                        //  _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
+                        encours.Progress = 100;
 
                     }
                     stopwatch.Stop();
                     _dailyLogService.WriteLogEntry(new LogEntry
                     {   
                         Timestamp = DateTime.Now,
-                        BackupName = backup.Name,
-                        SourcePath = backup.SourcePath,
-                        DestinationPath = backup.DestinationPath,
+                        BackupName = backups.Name,
+                        SourcePath = backups.SourcePath,
+                        DestinationPath = backups.DestinationPath,
                         FileSize = fileSize,
                         Time = stopwatch.ElapsedMilliseconds + "ms",
                         Type = "Run",
@@ -173,22 +180,22 @@ namespace EasyLib.Services
                     _dailyLogService.FlushLogs();
 
 
-                    _stateService.StopTimer();
+                    // _stateService.StopTimer();
 
                     lock (statuses)
                     {
-                        statuses.Add($"{backup.Name} ({backup.BackupType}) - {Localization.Get("backup_run_success")}");
+                        statuses.Add($"{backups.Name} ({backups.BackupType}) - {Localization.Get("backup_run_success")}");
                     }
                 }
                 catch (Exception ex)
                 {
                     lock (statuses)
                     {
-                        statuses.Add($"{backup.Name} - [red]{ex.Message}[/]");
+                        statuses.Add($"{backups.Name} - [red]{ex.Message}[/]");
        
                     }
                 }
-            });
+            
 
             Status = string.Join("\n", statuses);
             return Status;
@@ -293,19 +300,38 @@ namespace EasyLib.Services
             return Status;
         }
 
-        public async Task<string> RunBackupAsync(List<string> backupNames)
-        {
-            return await Task.Run(() => RunBackup(backupNames));
-        }
+
         public event Action<long> ProgressUpdated;
         protected virtual void OnProgressUpdated(long progress)
         {
             ProgressUpdated?.Invoke(progress);
         }
-        private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
+
+
+        public event Action<bool> BoolrunUpdated;
+
+        public void GetBoolRun()
+        {
+            BoolrunUpdated?.Invoke(_isRunning); // Vous pouvez envoyer la valeur de _isRunning
+        }
+
+        public void OnBoolrunUpdated(bool newValue)
+        {
+            _isRunning = newValue;
+        }
+
+public void UpdateBoolrunState(bool newValue)
+{
+    _isRunning = newValue;  // Met à jour la variable _isRunning
+
+    // Si nécessaire, vous pouvez aussi déclencher l'événement pour informer d'autres parties de l'application
+    BoolrunUpdated?.Invoke(_isRunning); // Notifie si _isRunning a changé
+}
+        private void CopyDirectory(EncoursModel encours, string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
             Directory.CreateDirectory(destDirWithSource);
+                                          
 
 
             long copiedFiles = 0;
@@ -318,28 +344,43 @@ namespace EasyLib.Services
 
             }
 
-            _stateService.StopTimer();
+            // _stateService.StopTimer();
             long filesLeftToDo = totalFiles;
+                                        
 
 
             foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
 
-
-
-
-
+                // Si l'annulation a été demandée, on sort de la boucle
+                if (encours.Cancelled)
+                    break;
+                
+                // Si l'opération est en pause, on attend (tout en vérifiant l'annulation)
+                while (!encours.EnCoursbool && !encours.Cancelled)
+                {
+                    Thread.Sleep(500);
+                }
+                
+                if (encours.Cancelled)
+                    break;
 
                 string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
+
                 CopyFile(file, destinationFilePath, backupType, isEncrypted, isDecrypted,ref encryptionTimeMs);
                 copiedFiles++;
                 filesLeftToDo = totalFiles-copiedFiles;
                 long progression = (long)((double)copiedFiles / totalFiles * 100); 
+                encours.Progress = progression;
 
                 OnProgressUpdated(progression);
-                _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
+                // _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
             }
-             _stateService.StopTimer();
+            if (encours.Cancelled && Directory.Exists(destDirWithSource))
+            {
+                Directory.Delete(destDirWithSource, true);
+            }                                
+            //  _stateService.StopTimer();
         }
 
 
@@ -348,6 +389,9 @@ namespace EasyLib.Services
 
         private void CopyFile(string sourceFile, string destFile, string backupType, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs)
         {
+
+
+
             if (backupType.ToLower() == "full"|| backupType.ToLower() == "complète" || !File.Exists(destFile))
             {
                 File.Copy(sourceFile, destFile, true);
@@ -365,17 +409,39 @@ namespace EasyLib.Services
             
             }
 
-                if (isEncrypted || isDecrypted)
+                if (isEncrypted || isDecrypted) 
                 {
                 string encryptionKey = "MaCleSecrete64Bits";
-                string cryptoSoftPath=@"C:\Users\jpvin\source\repos\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
+                string cryptoSoftPath=@"C:\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
                 string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
         EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         encryptionTimeMs += cryptoTime;
     }
         }
-
+public void CancelBackup(BackupModel backup)
+{
+    if (backup == null)
+        return;
+    
+    if (backup.IsDirectory)
+    {
+        string destDirWithSource = Path.Combine(backup.DestinationPath, Path.GetFileName(backup.SourcePath));
+        if (Directory.Exists(destDirWithSource))
+        {
+            try { Directory.Delete(destDirWithSource, true); }
+            catch (Exception ex) { /* Gérer l'erreur si nécessaire */ }
+        }
+    }
+    else
+    {
+        if (File.Exists(backup.FullDestinationPath))
+        {
+            try { File.Delete(backup.FullDestinationPath); }
+            catch (Exception ex) { /* Gérer l'erreur si nécessaire */ }
+        }
+    }
+}
         private void SaveBackups()
         {
             lock (_lock)

@@ -56,6 +56,20 @@ namespace EasyLib
                     { "destination", "Destination" },
                     { "type", "Type" },
                     { "choice", "Choice" },
+
+                    { "progression", "Progress" },
+                    { "etats", "States" },
+                    { "start", "Play" },
+                    { "stop", "Stop" },
+                    { "cancel", "Cancel" },
+                    { "progress", "In progress" },
+                    { "pause", "Paused" },
+                    { "notlauch", "Not launched" },
+                    { "finish", "Finished" },
+
+
+
+
                     { "fill_all_fields", "Please fill in all fields." },
                     { "no_backups_found", "No backups found." },
                     { "backups_loaded", "Backups loaded." },
@@ -66,9 +80,9 @@ namespace EasyLib
                     { "backups_deletion_in_progress", "Backups deletion in progress..." },
                     { "deletion_error", "Error during deletion:" },
                     { "full", "Full" },
-                    { "dif", "Differential" }
-
-
+                    { "dif", "Differential" },
+{"Encryption","Encrypt after execution"},
+{"Decryption","Decrypt after execution"}
 
                 }
             },
@@ -122,7 +136,22 @@ namespace EasyLib
                     { "full", "Complète" },
                     { "dif", "Différentiel" },
 
-      
+                    { "progression", "Progression" },
+                    { "etats", "États" },
+                    { "start", "Lancer" },
+                    { "stop", "Arréter" },
+                    { "cancel", "Annuler" },
+                    { "progress", "En cours" },
+                    { "pause", "En pause" },
+                    { "notlauch", "Pas lancé" },
+                    { "finish", "Finis" },
+
+
+
+
+                    {"Encryption ","Chiffrer après exécution"},
+                    {"Decryption","Déchiffrer après exécution"},
+
 
                     { "fill_all_fields", "Veuillez remplir tous les champs." },
                     { "no_backups_found", "Aucune sauvegarde trouvée." },
