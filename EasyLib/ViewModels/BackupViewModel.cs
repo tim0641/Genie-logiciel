@@ -193,6 +193,7 @@ private void PlayBackup(int backupId)
 {
     var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+    
     if (encours != null && backup != null)
     {
         if (encours.Cancelled)
@@ -225,7 +226,16 @@ private void StopBackup(int backupId)
     }
 }
 
+public string PlayText => Localization.Get("start");
+public string StopText => Localization.Get("stop");
+public string CancelText => Localization.Get("cancel");
 
+public void RefreshLocalization()
+{
+    OnPropertyChanged(nameof(PlayText));
+    OnPropertyChanged(nameof(StopText));
+    OnPropertyChanged(nameof(CancelText));
+}
 
 
 

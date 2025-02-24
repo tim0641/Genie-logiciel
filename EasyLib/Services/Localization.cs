@@ -56,6 +56,20 @@ namespace EasyLib
                     { "destination", "Destination" },
                     { "type", "Type" },
                     { "choice", "Choice" },
+
+                    { "progression", "Progress" },
+                    { "etats", "States" },
+                    { "start", "Play" },
+                    { "stop", "Stop" },
+                    { "cancel", "Cancel" },
+                    { "progress", "In progress" },
+                    { "pause", "Paused" },
+                    { "notlauch", "Not launched" },
+                    { "finish", "Finished" },
+
+
+
+
                     { "fill_all_fields", "Please fill in all fields." },
                     { "no_backups_found", "No backups found." },
                     { "backups_loaded", "Backups loaded." },
@@ -121,6 +135,19 @@ namespace EasyLib
                     { "choice", "Choix" },
                     { "full", "Complète" },
                     { "dif", "Différentiel" },
+
+                    { "progression", "Progression" },
+                    { "etats", "États" },
+                    { "start", "Lancer" },
+                    { "stop", "Arréter" },
+                    { "cancel", "Annuler" },
+                    { "progress", "En cours" },
+                    { "pause", "En pause" },
+                    { "notlauch", "Pas lancé" },
+                    { "finish", "Finis" },
+
+
+
 
                     {"Encryption ","Chiffrer après exécution"},
                     {"Decryption","Déchiffrer après exécution"},

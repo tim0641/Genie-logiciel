@@ -16,7 +16,7 @@ namespace EasyLib.Models
             get => _id;
             set { _id = value; OnPropertyChanged(nameof(ID)); }
         }
-        public string Name
+        public string Name  
         {
             get => name;
             set { name = value; OnPropertyChanged(nameof(Name)); }
@@ -57,18 +57,19 @@ public bool EnCoursbool
         }
     }
 
-    public string Etat
-    {
-        get
+        public string Etat
         {
-            if (EnCoursbool)
-                return "En cours";
-            else if (!EnCoursbool && Progress > 0)
-                return "En pause";
-            else
-                return "Pas lancé";
+            get
+            {
+                if (Progress == 100)
+                    return EasyLib.Localization.Get("finish");
+                if (EnCoursbool)
+                    return EasyLib.Localization.Get("progress");
+                if (!EnCoursbool && Progress > 0)
+                    return  EasyLib.Localization.Get("pause");;
+                return EasyLib.Localization.Get("notlauch");
+            }
         }
-    }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>

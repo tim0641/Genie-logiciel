@@ -36,6 +36,31 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
                 <Run Language="fr-fr" Text="EasySave"/>
             </TextBlock>
 
+
+     <ComboBox x:Name="LanguageSelectorComboBox" 
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Center" 
+                  Width="100" 
+                  Panel.ZIndex="50"
+                  Margin="580,0,0,280" 
+                  SelectionChanged="LanguageSelectorComboBox_SelectionChanged" 
+                  Background="#FFD1A1C7" Foreground="#FF210F22"
+                  >
+            <ComboBox.Style>
+                <Style TargetType="ComboBox">
+                    <Setter Property="BorderThickness" Value="2" />
+                    <Setter Property="FontFamily" Value="Yu Gothic UI Semilight" />
+                    <Setter Property="FontSize" Value="14" />
+                    <Setter Property="Foreground" Value="#FF210F22" />
+                </Style>
+                
+            </ComboBox.Style> 
+            <ComboBoxItem Content="English"  Tag="en"                   Panel.ZIndex="50"/>
+            <ComboBoxItem Content="Français" Tag="fr"                   Panel.ZIndex="50"/>
+        </ComboBox>
+
+
+
  <DataGrid ItemsSource="{Binding EncoursBackups}"  Width="550" Height="250" GridLinesVisibility="None" Foreground="#FF210F22"  Background="#FFD1A1C7"    RowBackground="#FFD1A1C7"    HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" >
        <DataGrid.CellStyle>
   <Style TargetType="DataGridCell">
@@ -53,7 +78,7 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
         </Style>
     </DataGrid.Resources>
 <DataGrid.Columns>
-        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="100">
+        <DataGridTextColumn x:Name="Header1" Header="Name" Binding="{Binding Name}" Width="100">
         <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
                 <Setter Property="Background" Value="#FFD1A1C7"/>
@@ -61,7 +86,7 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
             </Style>
         </DataGridTextColumn.ElementStyle>
     </DataGridTextColumn>
-    <DataGridTemplateColumn Header="Progression" Width="200">
+    <DataGridTemplateColumn x:Name="Header2" Header="Progression" Width="200">
     <DataGridTemplateColumn.CellTemplate>
         <DataTemplate>
             <StackPanel Orientation="Vertical">
@@ -84,16 +109,16 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
          <DataGridTemplateColumn Header="Actions" Width="150">
             <DataGridTemplateColumn.CellTemplate >
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Width="200">
-                        <Button   Style="{StaticResource ActionButton}" Foreground="White" Background="#FFD1A1C7" Content="Play" Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
-                        <Button    Style="{StaticResource ActionButton}" Foreground="White"  Background="#FFD1A1C7" Content="Stop" Command="{Binding DataContext.StopCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
-                        <Button  Style="{StaticResource ActionButton}"   Foreground="White"  Background="#FFD1A1C7" Content="Cancel" Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
+                    <StackPanel Orientation="Horizontal" Width="220">
+                        <Button   Content="{Binding DataContext.PlayText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White" Background="#FFD1A1C7"  Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
+                        <Button   Content="{Binding DataContext.StopText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White"  Background="#FFD1A1C7" Command="{Binding DataContext.StopCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
+                        <Button   Content="{Binding DataContext.CancelText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}"   Foreground="White"  Background="#FFD1A1C7"  Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
 
                     </StackPanel>
                 </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
-        <DataGridTextColumn Header="États" Binding="{Binding Etat}" Width="100">
+        <DataGridTextColumn x:Name="Header3" Header="États" Binding="{Binding Etat}" Width="100">
         <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
                 <Setter Property="TextAlignment" Value="Center"/>

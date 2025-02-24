@@ -34,6 +34,20 @@ namespace EasyWPF
         _viewModel = viewModel;
         DataContext = _viewModel;
     }
+
+private void LanguageSelectorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+    if (LanguageSelectorComboBox.SelectedItem is ComboBoxItem selectedItem)
+    {
+        string language = selectedItem.Tag.ToString();
+        EasyLib.Localization.SetLanguage(language);
+        Header1.Header = EasyLib.Localization.Get("name");
+        Header2.Header = EasyLib.Localization.Get("progression");
+        Header3.Header = EasyLib.Localization.Get("etats");
+        _viewModel.RefreshLocalization();
+    }
+}
+
     }
 
 

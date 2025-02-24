@@ -412,7 +412,7 @@ public void UpdateBoolrunState(bool newValue)
                 if (isEncrypted || isDecrypted) 
                 {
                 string encryptionKey = "MaCleSecrete64Bits";
-                string cryptoSoftPath=@"C:\Users\jpvin\source\repos\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
+                string cryptoSoftPath=@"C:\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
                 string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
         EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
