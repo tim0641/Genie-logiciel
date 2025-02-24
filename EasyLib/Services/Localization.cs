@@ -69,7 +69,10 @@ namespace EasyLib
                     { "finish", "Finished" },
                     { "del", "Delete" },
 
-               { "isdirectory", "Directory" },
+                    { "isdirectory", "Directory" },
+        
+                    { "Totalfiles", "Number of files" },
+                    { "Totalsizes", "Sizes" },
 
 
                     { "fill_all_fields", "Please fill in all fields." },
@@ -151,7 +154,8 @@ namespace EasyLib
 
 
                { "isdirectory", "Dossier" },
-
+                    { "Totalfiles", "Nombres de fichiers" },
+                    { "Totalsizes", "Tailles" },
 
                     {"Encryption ","Chiffrer après exécution"},
                     {"Decryption","Déchiffrer après exécution"},

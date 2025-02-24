@@ -112,6 +112,21 @@
             <ComboBoxItem Content="Français" Tag="fr"                   Panel.ZIndex="50"/>
         </ComboBox>
 
+
+
+<StackPanel Margin="10">
+    <!-- Checkbox pour le type .docx -->
+    <CheckBox Content=".docx" IsChecked="{Binding Priority.IsDocx, Mode=TwoWay}" />
+    <!-- Checkbox pour le type .pdf -->
+    <CheckBox Content=".pdf" IsChecked="{Binding Priority.IsPdf, Mode=TwoWay}" />
+    <!-- Checkbox pour le type .txt -->
+    <CheckBox Content=".txt" IsChecked="{Binding Priority.IsTxt, Mode=TwoWay}" />
+    <!-- Checkbox pour le type .jpg -->
+    <CheckBox Content=".jpg" IsChecked="{Binding Priority.IsJpg, Mode=TwoWay}" />
+</StackPanel>
+
+
+
             <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Height="38" Width="111" FontSize="30" FontFamily="Calibri" Foreground="#FFFFFFFF" Margin="0,0,0,325">
                 <Run Language="fr-fr" Text="EasySave"/>
             </TextBlock>
@@ -201,14 +216,27 @@
         </DataGridTextColumn.ElementStyle>
     </DataGridTextColumn>
     
-        <DataGridTextColumn x:Name ="DatagridBorder1Header5"  Header="Type" Binding="{Binding IsDirectory}" Width="100">
+        <DataGridTextColumn x:Name ="DatagridBorder1Header5"  Header="Directory" Binding="{Binding IsDirectory}" Width="100">
         <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
                 <Setter Property="Background" Value="#FFD1A1C7"/>
             </Style>
         </DataGridTextColumn.ElementStyle>
     </DataGridTextColumn>
-
+    <DataGridTextColumn x:Name ="DatagridBorder1Header6" Header="Nombre de fichiers" Binding="{Binding FileCount}" >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+    <DataGridTextColumn x:Name ="DatagridBorder1Header7" Header="Taille totale" Binding="{Binding TotalSize}" >
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
 </DataGrid.Columns>
     </DataGrid>
          

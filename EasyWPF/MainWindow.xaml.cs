@@ -84,7 +84,8 @@ namespace EasyWPF
                 DatagridBorder2Header3.Header = EasyLib.Localization.Get("destination");
                 DatagridBorder2Header4.Header = EasyLib.Localization.Get("type");
                 DatagridBorder1Header5.Header = EasyLib.Localization.Get("isdirectory");
- 
+                DatagridBorder1Header6.Header = EasyLib.Localization.Get("Totalfiles");
+                DatagridBorder1Header7.Header = EasyLib.Localization.Get("Totalsizes");
                 
                 buttoncreateaction.Content = EasyLib.Localization.Get("create");
                 buttonrunaction.Content = EasyLib.Localization.Get("run");

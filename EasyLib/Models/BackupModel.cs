@@ -39,7 +39,27 @@ namespace EasyLib.Models
                 OnPropertyChanged(nameof(IsSelectionMode));
             }
         }
+    private int _fileCount;
+    public int FileCount
+    {
+        get => _fileCount;
+        set
+        {
+            _fileCount = value;
+            OnPropertyChanged(nameof(FileCount));
+        }
+    }
 
+    private long _totalSize;
+    public long TotalSize
+    {
+        get => _totalSize;
+        set
+        {
+            _totalSize = value;
+            OnPropertyChanged(nameof(TotalSize));
+        }
+    }
 
 private static int _lastId = 0; 
 public int ID { get; }
@@ -62,7 +82,8 @@ public int ID { get; }
             IsEncrypted = isEncrypted;
             IsDecrypted = isDecrypted;
             IsSelectionMode = false; // ✅ Initialisé à false par défaut
-
+            FileCount = 0;
+            TotalSize =0;
             FileName = Path.GetFileName(sourcePath);
             FullDestinationPath = Path.Combine(destinationPath, FileName);
 

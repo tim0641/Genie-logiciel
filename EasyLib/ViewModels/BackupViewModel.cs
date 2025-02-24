@@ -23,6 +23,14 @@ namespace EasyLib.ViewModels
         public ObservableCollection<BackupModel> Backups { get; private set; }
     public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
 
+    public PriorityModel Priority { get; set; } = new PriorityModel
+    {
+        IsDocx = false,
+        IsPdf = false,
+        IsTxt = false,
+        IsJpg = false
+    };
+
         private string _status;
         public string Status
         {
@@ -196,7 +204,7 @@ private void PlayBackup(int backupId)
             encours.Progress = 0;
             Task.Run(() =>
             {
-                _backupService.RunBackup(backup, encours, IsEncrypted, IsDecrypted);
+                _backupService.RunBackup(backup, encours,Priority, IsEncrypted, IsDecrypted);
             });
         }
         else
@@ -281,6 +289,12 @@ private void CancelBackup(int backupId)
             Backups.Clear();
             foreach (var backup in _backupService.GetAllBackups())
             {
+
+                        backup.FileCount = backup.IsDirectory 
+            ? _backupService.CountFilesInDirectory(backup.SourcePath) 
+            : 1;
+        backup.TotalSize = _backupService.GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
+       
                 Backups.Add(backup);
             }
             Status = Backups.Count == 0 ? Localization.Get("no_backups_found"): "";
@@ -326,7 +340,7 @@ private async void RunSelectedBackups()
             {
                 tasks.Add(Task.Run(() =>
                 {
-                    _backupService.RunBackup(backup, encours, isEncrypted, isDecrypted);
+                    _backupService.RunBackup(backup, encours,Priority, isEncrypted, isDecrypted);
                 }));
             }
         }

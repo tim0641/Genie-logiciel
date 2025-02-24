@@ -111,7 +111,7 @@ _stateService.StopTimer();
             return new List<BackupModel>(backups.Values);
         }
 
-        public string RunBackup(BackupModel backups, EncoursModel encours ,bool isEncrypted=false, bool isDecrypted=false)
+        public string RunBackup(BackupModel backups, EncoursModel encours, PriorityModel priority ,bool isEncrypted=false, bool isDecrypted=false)
         {
             List<string> statuses = new List<string>();
 
@@ -146,7 +146,7 @@ _stateService.StopTimer();
 
 
                         long totalfiles = CountFilesInDirectory(backups.SourcePath);
-                        CopyDirectory(encours, backups.SourcePath, backups.DestinationPath, backups.BackupType, backups.Name, backups.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
+                        CopyDirectory(encours, priority, backups.SourcePath, backups.DestinationPath, backups.BackupType, backups.Name, backups.BackupType, fileSize, isEncrypted, isDecrypted, ref encryptionTimeMs);
                         _stateService.StartTimer(backups.Name, backups.SourcePath, backups.DestinationPath, Localization.Get("backup_run_success"), backups.BackupType, totalfiles, fileSize, 0, 100);
                                            
 
@@ -307,7 +307,7 @@ _stateService.StopTimer();
         }
 
 
-        private void CopyDirectory(EncoursModel encours, string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
+        private void CopyDirectory(EncoursModel encours, PriorityModel priority, string sourceDir, string destDir, string backupType, string name, string type, long filesize, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs )
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
             Directory.CreateDirectory(destDirWithSource);
@@ -325,44 +325,84 @@ _stateService.StopTimer();
             }
 
             _stateService.StopTimer();
+
+
+    // Récupérer tous les fichiers du répertoire source
+    var allFiles = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
+    
+    // Séparer les fichiers prioritaires et non prioritaires selon le modèle
+    var prioritizedFiles = new List<string>();
+    var nonPrioritizedFiles = new List<string>();
+
+    foreach (var file in allFiles)
+    {
+        string ext = Path.GetExtension(file).ToLower();
+        bool isPriority = false;
+        if (ext == ".docx" && priority.IsDocx)
+            isPriority = true;
+        else if (ext == ".pdf" && priority.IsPdf)
+            isPriority = true;
+        else if (ext == ".txt" && priority.IsTxt)
+            isPriority = true;
+        else if (ext == ".jpg" && priority.IsJpg)
+            isPriority = true;
+        // Vous pouvez ajouter d'autres conditions selon vos besoins
+
+        if (isPriority)
+            prioritizedFiles.Add(file);
+        else
+            nonPrioritizedFiles.Add(file);
+    }
+
+    // Concaténer la liste : les fichiers prioritaires en premier
+    var filesToCopy = new List<string>();
+    filesToCopy.AddRange(prioritizedFiles);
+    filesToCopy.AddRange(nonPrioritizedFiles);
+
+
+
+
             long filesLeftToDo = totalFiles;
                                         
 
 
-            foreach (var file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
-            {
+foreach (var file in filesToCopy)
+{
+    if (encours.Cancelled)
+        break;
+    
+    while (!encours.EnCoursbool && !encours.Cancelled)
+    {
+        Thread.Sleep(500);
+    }
+    
+    if (encours.Cancelled)
+        break;
 
-                if (encours.Cancelled)
-                    break;
-                
-                while (!encours.EnCoursbool && !encours.Cancelled)
-                {
-                    Thread.Sleep(500);
-                }
-                
-                if (encours.Cancelled)
-                    break;
+    string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
+    CopyFile(file, destinationFilePath, backupType, isEncrypted, isDecrypted, ref encryptionTimeMs);
+    copiedFiles++;
+    filesLeftToDo = totalFiles - copiedFiles;
+    long progression = (long)((double)copiedFiles / totalFiles * 100);
+    encours.Progress = progression;
 
-                string destinationFilePath = file.Replace(sourceDir, destDirWithSource);
+    // Mise à jour de l'interface et de l'état de la sauvegarde
+    OnProgressUpdated(progression);
+    _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
 
-                CopyFile(file, destinationFilePath, backupType, isEncrypted, isDecrypted,ref encryptionTimeMs);
-                copiedFiles++;
-                filesLeftToDo = totalFiles-copiedFiles;
-                long progression = (long)((double)copiedFiles / totalFiles * 100); 
-                encours.Progress = progression;
+    Thread.Sleep(500);
+}
 
-                OnProgressUpdated(progression);
-                _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
-            }
-            if (encours.Cancelled && Directory.Exists(destDirWithSource))
-            {
-                Directory.Delete(destDirWithSource, true);
-            }                                
-            _stateService.StopTimer();
+// Si la sauvegarde a été annulée et que le dossier existe, le supprimer pour éviter les fichiers partiellement copiés
+if (encours.Cancelled && Directory.Exists(destDirWithSource))
+{
+    Directory.Delete(destDirWithSource, true);
+}
+
+// Arrêter le timer de mise à jour des états
+_stateService.StopTimer();
+
         }
-
-
-
 
 
         private void CopyFile(string sourceFile, string destFile, string backupType, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs)
@@ -553,7 +593,7 @@ public void CancelBackup(BackupModel backup)
             }
 
         }
-        private int CountFilesInDirectory(string directoryPath)
+        public int CountFilesInDirectory(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
             {
