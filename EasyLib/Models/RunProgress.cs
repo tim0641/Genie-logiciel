@@ -9,6 +9,7 @@ namespace EasyLib.Models
         private int _id;
         private long _progress;
         private string name;
+        private string backupType ;
         private bool _enCoursbool;  
         private bool _cancelled;
         public int ID
@@ -20,6 +21,11 @@ namespace EasyLib.Models
         {
             get => name;
             set { name = value; OnPropertyChanged(nameof(Name)); }
+        }
+        public string BackupType  
+        {
+            get => backupType;
+            set { backupType = value; OnPropertyChanged(nameof(BackupType)); }
         }
 
         public long Progress
@@ -75,10 +81,11 @@ public bool EnCoursbool
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        public EncoursModel(int id, string name)
+        public EncoursModel(int id, string name, string Type)
         {
             ID = id;
             Name = name;
+            BackupType = Type;
             Progress = 0;
             EnCoursbool = false;
             Cancelled = false;
@@ -99,6 +106,10 @@ public bool EnCoursbool
         public void RefreshEtat()
         {
             OnPropertyChanged(nameof(Etat));
+        }
+        public void RefreshType()
+        {
+            OnPropertyChanged(nameof(BackupType));
         }
 
     }

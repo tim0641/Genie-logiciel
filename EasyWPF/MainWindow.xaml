@@ -1,7 +1,7 @@
 <Window x:Class="EasyWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="608" Width="1240" Background="#FF1A1A1D">
+        Title="MainWindow" Height="608" Width="1240" MinHeight="450" MinWidth="600" Background="#FF1A1A1D">
             <Window.Resources>
         
         <Style x:Key="ButtonWithOutHover" TargetType="Button">
@@ -194,6 +194,14 @@
     </DataGridTextColumn>
 
     <DataGridTextColumn x:Name ="DatagridBorder1Header4"  Header="Type" Binding="{Binding BackupType}" Width="100">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
+    
+        <DataGridTextColumn x:Name ="DatagridBorder1Header5"  Header="Type" Binding="{Binding IsDirectory}" Width="100">
         <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
                 <Setter Property="Background" Value="#FFD1A1C7"/>

@@ -99,8 +99,8 @@ namespace EasyLib.Services
 
                   totalfiles =1;
             }
-             _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("backup_success"), type, totalfiles , fileSize, 0, 100);
-               _stateService.StopTimer();
+_stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("backup_success"), type, totalfiles, fileSize, 0, 100);
+_stateService.StopTimer();
 
 
             return Localization.Get("backup_success");
@@ -248,9 +248,8 @@ namespace EasyLib.Services
                                     Directory.Delete(dir, true);
 
                                 }
-                                progression = 100;
                                 Directory.Delete(directoryToDelete, true);
-                                 _stateService.TakeAndUpdateStates(name, backup.SourcePath, backup.DestinationPath, Localization.Get("directory_sucessfully_deleted"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, progression);
+                                 _stateService.TakeAndUpdateStates(name, backup.SourcePath, backup.DestinationPath, Localization.Get("directory_sucessfully_deleted"), backup.BackupType, totalfiles, fileSize, filesLeftToDo, 100);
                                 statuses.Add($"{name} - {Localization.Get("directory_sucessfully_deleted")}");
                             }
                             else

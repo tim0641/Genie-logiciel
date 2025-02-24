@@ -67,8 +67,9 @@ namespace EasyLib
                     { "pause", "Paused" },
                     { "notlauch", "Not launched" },
                     { "finish", "Finished" },
+                    { "del", "Delete" },
 
-
+               { "isdirectory", "Directory" },
 
 
                     { "fill_all_fields", "Please fill in all fields." },
@@ -146,8 +147,10 @@ namespace EasyLib
                     { "pause", "En pause" },
                     { "notlauch", "Pas lancé" },
                     { "finish", "Finis" },
+                    { "del", "Supprimer" },
 
 
+               { "isdirectory", "Dossier" },
 
 
                     {"Encryption ","Chiffrer après exécution"},

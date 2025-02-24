@@ -21,6 +21,7 @@ namespace EasyLib.ViewModels
         private readonly StateService _stateService;
 
         public ObservableCollection<BackupModel> Backups { get; private set; }
+    public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
 
         private string _status;
         public string Status
@@ -126,25 +127,15 @@ namespace EasyLib.ViewModels
 
 
 
-
-
-
-
-
-
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
         public ICommand RunSelectedBackupCommand { get; }
         public ICommand DeleteSelectedBackupCommand { get; }
-
-
-public ICommand CancelCommand { get; }
-
-
+        public ICommand CancelCommand { get; }
         public StateService StateService => _stateService;  
-
         public ICommand PlayCommand { get; }
         public ICommand StopCommand { get; }
+        public ICommand DeleteProgressCommand { get; }  
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
@@ -164,27 +155,33 @@ public ICommand CancelCommand { get; }
             PlayCommand = new RelayCommand<int>(PlayBackup);
             StopCommand = new RelayCommand<int>(StopBackup);
             CancelCommand = new RelayCommand<int>(CancelBackup);
+            DeleteProgressCommand = new RelayCommand<int>(DeleteProgress); 
+
+        File.WriteAllText("C:\\Logs\\States\\Daily\\state.json", string.Empty);
 
         }
 
+public string PlayText => Localization.Get("start");
+public string StopText => Localization.Get("stop");
+public string CancelText => Localization.Get("cancel");
+public string DelText => Localization.Get("del");
 
-
-private void CancelBackup(int backupId)
+public void RefreshLocalization()
 {
-    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
-    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
-    if (encours != null && backup != null)
+    OnPropertyChanged(nameof(PlayText));
+    OnPropertyChanged(nameof(StopText));
+    OnPropertyChanged(nameof(CancelText));
+    OnPropertyChanged(nameof(DelText));
+        foreach (var item in EncoursBackups)
     {
-        encours.Cancelled = true;
-        encours.EnCoursbool = false;
-        encours.Progress = 0;
-        backup.IsSelected = false;
-        _backupService.CancelBackup(backup);
+        item.RefreshEtat();
+        
     }
 }
 
 
-public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
+
+
 
 private void PlayBackup(int backupId)
 {
@@ -211,7 +208,6 @@ private void PlayBackup(int backupId)
 
 private void StopBackup(int backupId)
 {
-    // MessageBox.Show("aaaaa");
 
     var backup = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
     if (backup != null)
@@ -219,19 +215,41 @@ private void StopBackup(int backupId)
         backup.EnCoursbool = false; // Mettre à jour l'attribut "EnCours" de la backup à "false"
     }
 }
-
-public string PlayText => Localization.Get("start");
-public string StopText => Localization.Get("stop");
-public string CancelText => Localization.Get("cancel");
-
-public void RefreshLocalization()
+private void DeleteProgress(int backupId)
 {
-    OnPropertyChanged(nameof(PlayText));
-    OnPropertyChanged(nameof(StopText));
-    OnPropertyChanged(nameof(CancelText));
-        foreach (var item in EncoursBackups)
+    // Retrouver l'élément de progression dans la collection d'états en cours
+    var progressItem = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    if (progressItem != null)
     {
-        item.RefreshEtat();
+        // Réinitialise la progression et l'état de l'élément
+        progressItem.Progress = 0;
+        progressItem.EnCoursbool = false;
+        // Supprime l'élément de la collection pour qu'il disparaisse du DataGrid
+        EncoursBackups.Remove(progressItem);
+    }
+
+    // Retrouver le backup dans la collection principale et décocher sa sélection
+    var backupItem = Backups.FirstOrDefault(b => b.ID == backupId);
+    if (backupItem != null)
+    {
+        backupItem.IsSelected = false;
+        // Appeler le StateService pour supprimer l'état correspondant dans le fichier d'états
+        _stateService.StopStateForBackup(backupItem.Name);
+    }
+}
+
+
+private void CancelBackup(int backupId)
+{
+    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
+    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+    if (encours != null && backup != null)
+    {
+        encours.Cancelled = true;
+        encours.EnCoursbool = false;
+        encours.Progress = 0;
+        backup.IsSelected = false;
+        _backupService.CancelBackup(backup);
     }
 }
 
@@ -250,6 +268,8 @@ public void RefreshLocalization()
             }
 
             Status = _backupService.CreateBackup(BackupName, SourcePath, DestinationPath, BackupType);
+                    
+
         }
 
 
@@ -288,7 +308,7 @@ private async void RunSelectedBackups()
         {
             if (!EncoursBackups.Any(e => e.ID == backup.ID))
             {
-                var encours = new EncoursModel(backup.ID,  backup.Name);
+                var encours = new EncoursModel(backup.ID,  backup.Name, backup.BackupType);
                 EncoursBackups.Add(encours);
                 
             }

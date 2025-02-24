@@ -32,6 +32,7 @@ namespace EasyWPF
         public MainWindow()
         {
             InitializeComponent();
+
             _viewModel = new BackupViewModel(
                 new DailyLogService(@"C:\Logs\Daily"),
                 new BackupService(),
@@ -47,6 +48,7 @@ namespace EasyWPF
         {
             _isTimerStarted = true;  // Marque le timer comme démarré
         }
+
         }
 
         public bool _isPaused { get; set; } = false;
@@ -81,6 +83,9 @@ namespace EasyWPF
                 DatagridBorder2Header2.Header = EasyLib.Localization.Get("source");
                 DatagridBorder2Header3.Header = EasyLib.Localization.Get("destination");
                 DatagridBorder2Header4.Header = EasyLib.Localization.Get("type");
+                DatagridBorder1Header5.Header = EasyLib.Localization.Get("isdirectory");
+ 
+                
                 buttoncreateaction.Content = EasyLib.Localization.Get("create");
                 buttonrunaction.Content = EasyLib.Localization.Get("run");
                 buttondelaction.Content = EasyLib.Localization.Get("delete");
@@ -88,7 +93,7 @@ namespace EasyWPF
                 Dif.Content = EasyLib.Localization.Get("dif");
                 EncryptionCheckBox.Content = EasyLib.Localization.Get("Encryption");
                 DecryptionCheckBox.Content = EasyLib.Localization.Get("Decryption");
-            }
+           }
         }
 
         private void Buttoncreateclick(object sender, RoutedEventArgs e)
@@ -293,6 +298,7 @@ namespace EasyWPF
         private void Buttonrunclick(object sender, RoutedEventArgs e)
         {
             _viewModel.StateService.StopTimer();
+            ClearSelectedBackups();
 
             
             
@@ -389,7 +395,7 @@ namespace EasyWPF
         private void Buttondeleteclick(object sender, RoutedEventArgs e)
         {
             _viewModel.StateService.StopTimer();
-
+            ClearSelectedBackups();
 
             foreach (var child in MainGrid.Children)
             {
@@ -489,25 +495,19 @@ namespace EasyWPF
                 MainRectangle.Margin = new Thickness(160, 50, 0, 0);
             }
         }
-        private void OpenProgression(object sender, RoutedEventArgs e)
+
+        private void ClearSelectedBackups()
         {
-            textprogress.Opacity = 1;
-            Panel.SetZIndex(textprogress, 20);
-            barprogress.Opacity = 1;
-            Panel.SetZIndex(barprogress, 20);
-            buttonprogress.Opacity = 1;
-            Panel.SetZIndex(buttonprogress, 20);
-            Panel.SetZIndex(buttonrunaction, 0);
+            foreach (var backupItem in _viewModel.Backups)
+            {
+                if (backupItem.IsSelected)
+                {
+                    backupItem.IsSelected = false;
+                    _viewModel.StateService.StopStateForBackup(backupItem.Name);
+                }
+            }
+        }
 
-            buttonrunaction.Opacity = 0;
-            Datagrid.Opacity = 0;
-            Panel.SetZIndex(Datagrid, 0);
-            Panel.SetZIndex(buttonrunaction, 0);
-            Panel.SetZIndex(buttondelaction, 0);
-            DatagridBorder2.Opacity = 0;
-            Panel.SetZIndex(DatagridBorder2, 0);
-
-}
 
 private void OpenNewWindow(object sender, RoutedEventArgs e)
 {

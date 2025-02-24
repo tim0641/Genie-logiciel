@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
 DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Progression de la sauvegarde" Height="500" Width="800">
+        Title="Progression de la sauvegarde" Height="500" Width="1000" MinHeight="475" MinWidth="750">
                  <Window.Resources>
         <Style x:Key="ActionButton" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -11,7 +11,7 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
                     <ControlTemplate TargetType="Button">
                         <Border Name="border" BorderThickness="1" 
                          CornerRadius="50" BorderBrush="Black" 
-                        Background="#FF6A1E55" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0" Width="45" Height ="30"  >
+                        Background="#FF6A1E55" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0" MinWidth="45" MinHeight ="30"  >
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -27,10 +27,10 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
 
 <Grid  Background="#FF1A1A1D">
         
-        <Rectangle  HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="600" Fill="#FF3B1C32" RadiusY="50" RadiusX="50" />
-        <Rectangle HorizontalAlignment="Center" Height="275" VerticalAlignment="Center" Width="580" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
+        <Rectangle  HorizontalAlignment="Center" Height="368" VerticalAlignment="Center" Width="700" Fill="#FF3B1C32" RadiusY="50" RadiusX="50" />
+        <Rectangle HorizontalAlignment="Center" Height="275" VerticalAlignment="Center" Width="675" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
 
-        <Rectangle HorizontalAlignment="Center" Height="60" Margin="0,0,0,375" VerticalAlignment="Center" Width="376" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
+        <Rectangle HorizontalAlignment="Center" Height="60" Margin="0,0,0,375" VerticalAlignment="Center" Width="476" Fill="#FF6A1E55" RadiusX="40" RadiusY="40"/>
 
             <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Height="38" Width="111" FontSize="30" FontFamily="Calibri" Foreground="#FFFFFFFF" Margin="0,0,0,375">
                 <Run Language="fr-fr" Text="EasySave"/>
@@ -42,7 +42,7 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
                   VerticalAlignment="Center" 
                   Width="80" 
                   Panel.ZIndex="50"
-                  Margin="470,0,0,320" 
+                  Margin="570,0,0,320" 
                   SelectionChanged="LanguageSelectorComboBox_SelectionChanged" 
                   Background="#FFD1A1C7" Foreground="#FF210F22"
                   >
@@ -59,9 +59,10 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
             <ComboBoxItem Content="Français" Tag="fr"                   Panel.ZIndex="50"/>
         </ComboBox>
 
+<Border  Width="640" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center"  BorderThickness="0"    Panel.ZIndex="4">
 
 
- <DataGrid ItemsSource="{Binding EncoursBackups}"  Width="550" Height="250" GridLinesVisibility="None" Foreground="#FF210F22"  Background="#FFD1A1C7"    RowBackground="#FFD1A1C7"    HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" >
+ <DataGrid ItemsSource="{Binding EncoursBackups}"  Width="655" Height="250" GridLinesVisibility="None" Foreground="#FF210F22"  Background="#FFD1A1C7"    RowBackground="#FFD1A1C7"    HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" >
        <DataGrid.CellStyle>
   <Style TargetType="DataGridCell">
     <Setter Property="Background" Value="#FFD1A1C7"/>
@@ -78,7 +79,7 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
         </Style>
     </DataGrid.Resources>
 <DataGrid.Columns>
-        <DataGridTextColumn x:Name="Header1" Header="Name" Binding="{Binding Name}" Width="100">
+        <DataGridTextColumn x:Name="Header1" Header="Name" Binding="{Binding Name}" Width="80">
         <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
                 <Setter Property="Background" Value="#FFD1A1C7"/>
@@ -86,7 +87,7 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
             </Style>
         </DataGridTextColumn.ElementStyle>
     </DataGridTextColumn>
-    <DataGridTemplateColumn x:Name="Header2" Header="Progression" Width="200">
+    <DataGridTemplateColumn x:Name="Header2" Header="Progression" Width="180">
     <DataGridTemplateColumn.CellTemplate>
         <DataTemplate>
             <StackPanel Orientation="Vertical">
@@ -106,14 +107,14 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
 </DataGridTemplateColumn>
 
                             
-         <DataGridTemplateColumn Header="Actions" Width="150">
+         <DataGridTemplateColumn Header="Actions" Width="220">
             <DataGridTemplateColumn.CellTemplate >
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Width="220">
-                        <Button   Content="{Binding DataContext.PlayText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White" Background="#FFD1A1C7"  Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
-                        <Button   Content="{Binding DataContext.StopText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White"  Background="#FFD1A1C7" Command="{Binding DataContext.StopCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
-                        <Button   Content="{Binding DataContext.CancelText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}"   Foreground="White"  Background="#FFD1A1C7"  Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
-
+                        <Button  FontWeight="Bold" Content="{Binding DataContext.PlayText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White" Background="#FFD1A1C7"  Command="{Binding DataContext.PlayCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
+                        <Button  FontWeight="Bold" Content="{Binding DataContext.StopText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White"  Background="#FFD1A1C7" Command="{Binding DataContext.StopCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
+                        <Button  FontWeight="Bold" Content="{Binding DataContext.CancelText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}"   Foreground="White"  Background="#FFD1A1C7"  Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
+                        <Button  FontWeight="Bold" Content="{Binding DataContext.DelText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource ActionButton}" Foreground="White" Background="#FFD1A1C7"  Command="{Binding DataContext.DeleteProgressCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding ID}" />
                     </StackPanel>
                 </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
@@ -126,11 +127,19 @@ DataContext="{Binding RelativeSource={RelativeSource Self}}"
             </Style>
         </DataGridTextColumn.ElementStyle>
     </DataGridTextColumn>
+            <DataGridTextColumn  Header="Type" Binding="{Binding BackupType}" Width="80">
+        <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+                <Setter Property="Background" Value="#FFD1A1C7"/>
+                <Setter Property="TextAlignment" Value="Center"/>
+            </Style>
+        </DataGridTextColumn.ElementStyle>
+    </DataGridTextColumn>
     </DataGrid.Columns>
 </DataGrid> 
 
 
-
+    </Border>
 
     </Grid>
 </Window>

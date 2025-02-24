@@ -22,7 +22,11 @@ namespace EasySaveLog.Services
         {
             _logDirectory = logDirectory;
             Directory.CreateDirectory(_logDirectory);
+            var logFilePath = Path.Combine(_logDirectory, "states.log");
+            File.WriteAllText(logFilePath, "");
+
         }
+        
 
         public void TakeAndUpdateStates(string? name, string? sourceFilePath, string? targetFilePath, string state, string? type, long? totalFilesToCopy, long? totalFilesSize, long? nbFilesLeftToDo, long? progression)
         {
