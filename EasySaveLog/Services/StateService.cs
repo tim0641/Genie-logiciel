@@ -22,6 +22,7 @@ namespace EasySaveLog.Services
             _logDirectory = logDirectory;
             Directory.CreateDirectory(_logDirectory);
         }
+        // Méthode pour écrire une entrée de log dans un fichier journalier
         public void TakeAndUpdateStates(string? name,string? sourceFilePath,string? targetFilePath,string state,string? type,long? totalFilesToCopy,long? totalFilesSize,long? nbFilesLeftToDo, long? progression)
         {
             var stateEntry = new StateEntry
@@ -54,7 +55,7 @@ namespace EasySaveLog.Services
 
                     AppendStates(formattedEntry);
         }
-
+        // Méthode pour écrire une entrée de log dans un fichier journalier
         public void AppendStates(string formattedEntry)
         {
             var logFilePath = Path.Combine(_logDirectory, "states.log");

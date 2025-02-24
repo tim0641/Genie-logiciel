@@ -1,5 +1,6 @@
 namespace EasySaveLog.Models
 {
+    // Modèle pour les entrées de log
     public class LogEntry
     {
         public DateTime Timestamp { get; set; }

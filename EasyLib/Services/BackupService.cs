@@ -15,12 +15,15 @@ namespace EasyLib.Services
 {
     public class BackupService
     {
-        private readonly string BackupFilePath = "backups.json";
-        private Dictionary<string, BackupModel> backups;
-        private readonly DailyLogService _dailyLogService;
-        public string Status { get; private set; }
-        private static readonly object _lock = new object();
-        private readonly StateService _stateService;
+        private readonly string BackupFilePath = "backups.json";// Chemin du fichier où sont sauvegardées les sauvegardes
+        private Dictionary<string, BackupModel> backups; // Dictionnaire stockant les sauvegardes
+        private readonly DailyLogService _dailyLogService; // Service de journalisation
+        public string Status { get; private set; } // État des opérations en cours
+        private static readonly object _lock = new object(); // Objet de verrouillage pour les accès concurrents
+        private readonly StateService _stateService; // Service de gestion des états
+
+
+        // Constructeur initialisant les services de log et d'état et chargeant les sauvegardes
         public BackupService()
         {
             _dailyLogService = new DailyLogService(@"C:\Logs\Daily");
@@ -28,6 +31,7 @@ namespace EasyLib.Services
             LoadBackups();
         }
 
+            // Crée une sauvegarde en validant les chemins et en l'ajoutant à la liste des sauvegardes
         public string CreateBackup(string name, string srcPath, string destPath, string type)
         {
 
@@ -36,6 +40,7 @@ namespace EasyLib.Services
                 return Localization.Get("backup_exists");
 
             try
+            // Vérification de la validité des chemins source et destination
             {
                 if(File.Exists(srcPath))
                 {
@@ -49,13 +54,14 @@ namespace EasyLib.Services
                 ValidatePath(destPath, true);
             }
             catch (Exception)
+            // Mise à jour de l'état en cas d'échec de validation des chemins
             {
                 _stateService.TakeAndUpdateStates(name, srcPath, destPath, Localization.Get("create failed"), type, 0 , 0, 0, 0);
                 _stateService.StopTimer();
                 return Localization.Get("wrong_path");
 
             }
-
+            // Création et stockage du modèle de sauvegarde
             var backup = new BackupModel(name, srcPath, destPath, type, DateTime.Now);
 
             backups[name] = backup;
@@ -64,6 +70,7 @@ namespace EasyLib.Services
             long fileSize = GetSize(srcPath, destPath, type);
 
             Console.WriteLine( name, srcPath, destPath, fileSize, "Create");
+             // Enregistrement du log de création de sauvegarde
 
             _dailyLogService.WriteLogEntry(new LogEntry
             {
@@ -81,6 +88,7 @@ namespace EasyLib.Services
             if (backup.IsDirectory)
             {
                   totalfiles = CountFilesInDirectory(backup.SourcePath);
+                    // Mise à jour de l'état après la création de la sauvegarde
             }
             else
             {
@@ -93,12 +101,12 @@ namespace EasyLib.Services
 
             return Localization.Get("backup_success");
         }
-
+         // Récupère la liste de toutes les sauvegardes
         public List<BackupModel> GetAllBackups()
         {
             return new List<BackupModel>(backups.Values);
         }
-
+        // Exécute les sauvegardes en parallèle et met à jour les logs et l'état
         public string RunBackup(List<string> backupNames)
         {
             List<string> statuses = new List<string>();
@@ -181,7 +189,7 @@ namespace EasyLib.Services
             Status = string.Join("\n", statuses);
             return Status;
         }
-
+         // Supprime les sauvegardes demandées et met à jour l'état
         public string DeleteBackup(List<string> backupNames)
         {
             List<string> statuses = new List<string>();
@@ -281,7 +289,7 @@ namespace EasyLib.Services
             return Status;
         }
 
-
+     // Copie un répertoire et ses fichiers dans le répertoire de destination
         private void CopyDirectory(string sourceDir, string destDir, string backupType, string name, string type, long filesize)
         {
             var destDirWithSource = Path.Combine(destDir, Path.GetFileName(sourceDir));
@@ -317,7 +325,7 @@ namespace EasyLib.Services
 
 
         }
-
+            // Copie un fichier dans le répertoire de destination
         private void CopyFile(string sourceFile, string destFile, string backupType)
         {
             if (backupType.ToLower() == "full"|| backupType.ToLower() == "complÃ¨te" || !File.Exists(destFile))
@@ -335,6 +343,7 @@ namespace EasyLib.Services
                 }
             }
         }
+        // Sauvegarde les sauvegardes dans le fichier de sauvegardes
 
         private void SaveBackups()
         {
@@ -344,7 +353,7 @@ namespace EasyLib.Services
                 File.WriteAllText(BackupFilePath, json);
             }
         }
-
+        // Charge les sauvegardes depuis le fichier de sauvegardes
         private void LoadBackups()
         {
             if (File.Exists(BackupFilePath))
@@ -357,7 +366,7 @@ namespace EasyLib.Services
                 backups = new Dictionary<string, BackupModel>();
             }
         }
-
+        // Récupère la taille de la sauvegarde en fonction du type de sauvegarde
         public long GetSize(string sourcePath, string destPath, string backupType)
         {
             if (File.Exists(sourcePath))
@@ -371,7 +380,7 @@ namespace EasyLib.Services
             }
             return 0;
         }
-
+        // Récupère la taille du fichier en fonction du type de sauvegarde
         private long GetFileSize(string sourcePath, string destPath, string backupType)
         {
             string destinationFile = Path.Combine(destPath, Path.GetFileName(sourcePath));
@@ -409,7 +418,7 @@ namespace EasyLib.Services
 
             return result;
         }
-
+        // Traite les fichiers dans un répertoire et retourne la taille totale et le nombre de fichiers traités
         private List<long> ProcessFilesInDirectory(DirectoryInfo currentDir, string destDirPath, string sourcePath, string destPath, string backupType)
         {
             
@@ -436,7 +445,7 @@ namespace EasyLib.Services
 
             return result;
         }
-
+        // Vérifie si le fichier source a été modifié
         private bool IsFileModified(string sourceFile, string destFile)
         {
             if (!File.Exists(destFile))
@@ -447,7 +456,7 @@ namespace EasyLib.Services
 
             return sourceInfo.Length != destInfo.Length || sourceInfo.LastWriteTime > destInfo.LastWriteTime;
         }
-
+        // Vérifie si le chemin est valide
         private void ValidatePath(string path, bool isDirectory = false)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -469,6 +478,7 @@ namespace EasyLib.Services
             }
 
         }
+        // Compte le nombre de fichiers dans un répertoire
         private int CountFilesInDirectory(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))

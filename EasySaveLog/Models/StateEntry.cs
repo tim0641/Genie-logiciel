@@ -1,5 +1,6 @@
 namespace EasySaveLog.Models
 {
+    // Modèle pour les entrées de log
     public class StateEntry
     {
         public string? Name { get; set; }

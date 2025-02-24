@@ -5,6 +5,7 @@ using EasySaveLog.Models;
 
 namespace EasySaveLog.Services
 {
+    // Service pour écrire les logs dans un fichier journalier
     public class DailyLogService
     {
         private readonly string _logsDirectory;
@@ -14,7 +15,7 @@ namespace EasySaveLog.Services
             _logsDirectory = logsDirectory;
             Directory.CreateDirectory(_logsDirectory);
         }
-
+        // Méthode pour écrire une entrée de log dans un fichier journalier
         public void WriteLogEntry(LogEntry entry)
         {
             string fileName = DateTime.Now.ToString("yyyy-MM-dd") + ".json";

@@ -2,13 +2,15 @@ using System.Collections.Generic;
 
 namespace EasyLib
 {
+    // Classe pour la gestion de la localisation
     public static class Localization
     {
         private static string currentLanguage = "en"; 
         private static readonly string defaultLanguage = "fr"; 
-
+        // Dictionnaire de traductions
         private static readonly Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>
         {
+            // Traductions en anglais
             { "en", new Dictionary<string, string>
                 {
                     { "menu_title", "Main Menu" },
@@ -42,6 +44,7 @@ namespace EasyLib
 
                 }
             },
+            // Traductions en français
             { "fr", new Dictionary<string, string>
                 {
                     { "menu_title", "Menu Principal" },
@@ -76,7 +79,7 @@ namespace EasyLib
                 }
             }
         };
-
+        // Méthode pour définir la langue
         public static void SetLanguage(string lang)
         {
             lang = lang.ToLower();

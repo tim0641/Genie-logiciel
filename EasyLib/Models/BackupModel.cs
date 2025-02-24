@@ -3,8 +3,10 @@ using System.IO;
 
 namespace EasyLib.Models
 {
+    // Modèle pour les sauvegardes
     public class BackupModel
     {
+        // Nom de la sauvegarde
         public string Name { get; }
         public string SourcePath { get; }
         public string DestinationPath { get; }

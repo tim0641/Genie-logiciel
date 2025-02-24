@@ -23,7 +23,7 @@ namespace EasyLib.ViewModels
             _stateService= stateService;
 
         }
-        
+        // Méthode pour créer un backup à partir de l'entrée de l'utilisateur
         public void CreateBackupFromUserInput()
         {
             _stateService.StartTimer("", "", "", Localization.Get("create_backup"), "", 0, 0, 0, 0);
@@ -47,7 +47,7 @@ namespace EasyLib.ViewModels
 
         }
 
-        
+        // Méthode pour lister les backups
         public string ListBackups()
         {
             _stateService.StartTimer("", "", "",Localization.Get("list_backups"), "", 0, 0, 0, 0);
@@ -72,7 +72,7 @@ namespace EasyLib.ViewModels
             return Status;
         }
 
-        
+        // Méthode pour exécuter un backup à partir de la sélection de l'utilisateur
         public void RunBackupFromUserSelection()
         {
             _stateService.StartTimer("", "", "", Localization.Get("run_backup"), "", 0, 0, 0, 0);
@@ -100,7 +100,7 @@ namespace EasyLib.ViewModels
             
         }
 
-        
+        // Méthode pour supprimer un backup à partir de la sélection de l'utilisateur
         public void DeleteBackupFromUserSelection()
         {
             _stateService.StartTimer("", "", "", Localization.Get("delete_backup"), "", 0, 0, 0, 0);
