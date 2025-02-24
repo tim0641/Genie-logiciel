@@ -286,7 +286,6 @@ private async void RunSelectedBackups()
 {
     try
     {
-        MessageBox.Show($"IsEncrypted: {IsEncrypted}");
         var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();   
 
         bool isEncrypted = IsEncrypted; 

@@ -389,7 +389,6 @@ public void UpdateBoolrunState(bool newValue)
 
         private void CopyFile(string sourceFile, string destFile, string backupType, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs)
         {
-                MessageBox.Show($"IsEncrypted dans copyfile: {isEncrypted}");
 
 
             if (backupType.ToLower() == "full"|| backupType.ToLower() == "complète" || !File.Exists(destFile))
@@ -414,7 +413,6 @@ public void UpdateBoolrunState(bool newValue)
                 string encryptionKey = "MaCleSecrete64Bits";
                 string cryptoSoftPath=@"C:\Users\jpvin\source\repos\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
                 string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
-
         long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         encryptionTimeMs += cryptoTime;
     }
