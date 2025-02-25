@@ -141,7 +141,9 @@ namespace EasyLib.ViewModels
     }
 }
 
-
+private readonly string _processToMonitor = "CalculatorApp"; // Processus à surveiller
+private bool _isProcessRunning = false;
+private CancellationTokenSource _monitoringCancellationToken; // Annuler le jeton pour arrêter la surveillance
 
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
@@ -246,6 +248,65 @@ public void RefreshLocalization()
     OnPropertyChanged(nameof(PlayText));
     OnPropertyChanged(nameof(StopText));
     OnPropertyChanged(nameof(CancelText));
+}
+
+
+
+public void StartProcessMonitoring()
+{
+    _monitoringCancellationToken = new CancellationTokenSource();
+
+    Task.Run(() =>
+    {
+        while (!_monitoringCancellationToken.Token.IsCancellationRequested)
+        {
+            bool processDetected = Process.GetProcessesByName(_processToMonitor).Length > 0 ||
+                                   Process.GetProcessesByName("calc").Length > 0; // Vérifie les 2 versions
+
+            if (processDetected && !_isProcessRunning)
+            {
+                _isProcessRunning = true;
+                PauseAllBackups();
+            }
+            else if (!processDetected && _isProcessRunning)
+            {
+                _isProcessRunning = false;
+                ResumeAllBackups();
+            }
+
+            Thread.Sleep(5000); // Vérifie toutes les 5 secondes
+        }
+    }, _monitoringCancellationToken.Token);
+}
+
+
+
+
+private void PauseAllBackups()
+{
+    foreach (var encours in EncoursBackups)
+    {
+        encours.EnCoursbool = false; // Met en pause tous les backups en cours
+    }
+    Status = "Backups mis en pause (Logiciel métier en cours d'utilisation)";
+}
+
+
+
+
+private void ResumeAllBackups()
+{
+    foreach (var encours in EncoursBackups)
+    {
+        encours.EnCoursbool = true; // Reprend tous les backups
+    }
+    Status = "Backups repris (Calculatrice fermée)";
+}
+
+
+public void StopProcessMonitoring()
+{
+    _monitoringCancellationToken?.Cancel(); // Annuler la surveillance
 }
 
 
