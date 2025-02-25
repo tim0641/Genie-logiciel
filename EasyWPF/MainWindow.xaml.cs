@@ -89,7 +89,14 @@ namespace EasyWPF
                 DatagridBorder1Header5.Header = EasyLib.Localization.Get("isdirectory");
                 DatagridBorder1Header6.Header = EasyLib.Localization.Get("Totalfiles");
                 DatagridBorder1Header7.Header = EasyLib.Localization.Get("Totalsizes");
-                
+                buttonsetting.Content = EasyLib.Localization.Get("setting");
+                settingtext1.Text = EasyLib.Localization.Get("language");
+                settingtext2.Text = EasyLib.Localization.Get("logfile");
+                settingtext3.Text = EasyLib.Localization.Get("encryption");
+                settingtext4.Text = EasyLib.Localization.Get("priorities");
+
+
+
                 buttoncreateaction.Content = EasyLib.Localization.Get("create");
                 buttonrunaction.Content = EasyLib.Localization.Get("run");
                 buttondelaction.Content = EasyLib.Localization.Get("delete");
@@ -110,6 +117,24 @@ namespace EasyWPF
         _viewModel.LogFormat = format == "XML" ? LogFormat.XML : LogFormat.JSON;
     }
 }
+
+         public bool _IsSetting { get; set; } = false;
+         private void buttonsettingclick(object sender, RoutedEventArgs e)
+{
+    if (!_IsSetting)
+    {
+        Stacksetting.Visibility = Visibility.Visible; // Rendre visible
+        _IsSetting = true;
+    }
+    else
+    {
+        Stacksetting.Visibility = Visibility.Collapsed; // Masquer complètement
+        _IsSetting = false;
+    }
+}
+
+
+
 
         private void Buttoncreateclick(object sender, RoutedEventArgs e)
         {

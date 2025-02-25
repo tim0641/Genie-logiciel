@@ -390,7 +390,7 @@ foreach (var file in filesToCopy)
     OnProgressUpdated(progression);
     _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
 
-=
+
 }
 
 // Si la sauvegarde a été annulée et que le dossier existe, le supprimer pour éviter les fichiers partiellement copiés

@@ -68,11 +68,16 @@ namespace EasyLib
                     { "notlauch", "Not launched" },
                     { "finish", "Finished" },
                     { "del", "Delete" },
-
                     { "isdirectory", "Directory" },
-        
                     { "Totalfiles", "Number of files" },
                     { "Totalsizes", "Sizes" },
+
+{ "setting", "Settings" },
+{ "language", "Language: " },
+{ "logfile", "Log file:" },
+{ "encryption", "Encryption: " },
+{ "priorities", "Priorities:" },
+
 
 
                     { "fill_all_fields", "Please fill in all fields." },
@@ -152,6 +157,12 @@ namespace EasyLib
                     { "finish", "Finis" },
                     { "del", "Supprimer" },
 
+                    
+                    { "setting", "Paramètres" },
+                    { "language", "Langue : " },
+                    { "logfile", "Fichier log :" },
+                    { "encryption", "Cryptage : " },
+                    { "priorities", "Priorisations :" },
 
                { "isdirectory", "Dossier" },
                     { "Totalfiles", "Nombres de fichiers" },
