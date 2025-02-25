@@ -432,7 +432,6 @@ _stateService.StopTimer();
                 string encryptionKey = "MaCleSecrete64Bits";
                 string cryptoSoftPath=@"C:\Genie-logiciel\CryptoSoft\CryptoSoft.csproj";
                 string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : "";
-        EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
         encryptionTimeMs += cryptoTime;
     }
