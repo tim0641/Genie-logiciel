@@ -16,7 +16,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Microsoft.Win32;
-
+using EasySaveLog.Models;
 namespace EasyWPF
 {
     public partial class MainWindow : Window
@@ -33,10 +33,12 @@ namespace EasyWPF
         {
             InitializeComponent();
 
-            _viewModel = new BackupViewModel(
-                new DailyLogService(@"C:\Logs\Daily"),
-                new BackupService(),
-                new StateService(@"C:\Logs\States\Daily"));
+            var dailyLogService = new DailyLogService(@"C:\Logs\Daily"); 
+            var stateService = new StateService(@"C:\Logs\States\Daily");
+            var backupService = new BackupService(dailyLogService, stateService); 
+
+            _viewModel = new BackupViewModel(dailyLogService, backupService, stateService); 
+
             DataContext = _viewModel;
                     LanguageComboBox.SelectedIndex = 0;
             EasyLib.Localization.SetLanguage("en");
@@ -94,8 +96,19 @@ namespace EasyWPF
                 Dif.Content = EasyLib.Localization.Get("dif");
                 EncryptionCheckBox.Content = EasyLib.Localization.Get("Encryption");
                 DecryptionCheckBox.Content = EasyLib.Localization.Get("Decryption");
-           }
+            }
         }
+
+    private void LogFormatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+    if (_viewModel == null) return;
+
+    if (LogFormatComboBox.SelectedItem is ComboBoxItem selectedItem)
+    {
+        string format = selectedItem.Content.ToString();
+        _viewModel.LogFormat = format == "XML" ? LogFormat.XML : LogFormat.JSON;
+    }
+}
 
         private void Buttoncreateclick(object sender, RoutedEventArgs e)
         {

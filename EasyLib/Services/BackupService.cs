@@ -33,10 +33,10 @@ namespace EasyLib.Services
 
         private bool _isRunning;
 
-        public BackupService()
+        public BackupService(DailyLogService dailyLogService, StateService stateService)
         {
-            _dailyLogService = new DailyLogService(@"C:\Logs\Daily");
-            _stateService = new StateService(@"C:\Logs\States\Daily");
+            _dailyLogService = dailyLogService;
+            _stateService = stateService;
             LoadBackups();
         }
 
@@ -390,7 +390,7 @@ foreach (var file in filesToCopy)
     OnProgressUpdated(progression);
     _stateService.TakeAndUpdateStates(name, sourceDir, destDirWithSource, "Run en cours", type, totalFiles, filesize, filesLeftToDo, progression);
 
-    Thread.Sleep(500);
+=
 }
 
 // Si la sauvegarde a été annulée et que le dossier existe, le supprimer pour éviter les fichiers partiellement copiés
@@ -407,7 +407,6 @@ _stateService.StopTimer();
 
         private void CopyFile(string sourceFile, string destFile, string backupType, bool isEncrypted , bool isDecrypted, ref long encryptionTimeMs)
         {
-
 
 
             if (backupType.ToLower() == "full"|| backupType.ToLower() == "complète" || !File.Exists(destFile))

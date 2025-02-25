@@ -11,6 +11,7 @@ using EasySaveLog.Services;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
+using EasySaveLog.Models;
 
 namespace EasyLib.ViewModels
 {
@@ -129,6 +130,16 @@ namespace EasyLib.ViewModels
     set
     {
         _isDecrypted = value;
+        OnPropertyChanged();
+    }
+}
+
+    public LogFormat LogFormat
+{
+    get => _dailyLogService.Format;
+    set
+    {
+        _dailyLogService.Format = value; // Met à jour le format du service de logs
         OnPropertyChanged();
     }
 }
@@ -307,7 +318,6 @@ private async void RunSelectedBackups()
 {
     try
     {
-
         var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();   
 
         bool isEncrypted = IsEncrypted; 
@@ -343,25 +353,7 @@ private async void RunSelectedBackups()
                     _backupService.RunBackup(backup, encours,Priority, isEncrypted, isDecrypted);
                 }));
             }
-        }
-
-        // List<Thread> threads = new List<Thread>();
-        // foreach (var backupId in selectedBackups)
-        // {
-        //     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
-
-        //     if (backup != null)
-        //     {
-        //         Thread thread = new Thread(() => ExecuteSingleBackup(backup, isEncrypted, isDecrypted));
-        //         threads.Add(thread);
-        //         thread.Start();
-                
-        //     }
-        // }
-        // foreach (var thread in threads)
-        // {
-        //     thread.Join();
-        //     }        
+        }       
 
 
 
