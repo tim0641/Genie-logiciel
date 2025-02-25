@@ -4,7 +4,8 @@ obj/
 
 # Visual Studio cache/options directory
 .vs/
-
+.vscode/
 EasyCLI/backups.json
 EasySave.sln
 EasyWPF/backups.json
+.gitignore
