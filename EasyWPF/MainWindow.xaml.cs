@@ -40,6 +40,7 @@ namespace EasyWPF
             _viewModel = new BackupViewModel(dailyLogService, backupService, stateService); 
 
             DataContext = _viewModel;
+            _viewModel.StartProcessMonitoring();
                     LanguageComboBox.SelectedIndex = 0;
             EasyLib.Localization.SetLanguage("en");
             EncryptionCheckBox.Checked += (s, e) => DecryptionCheckBox.IsEnabled = false;
@@ -583,5 +584,12 @@ private void BrowseSourceFile(object sender, RoutedEventArgs e)
                 destinatiopath.Text = dialog.SelectedPath;
             }
         }
+
+
+protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+{
+    _viewModel.StopProcessMonitoring(); // Arrête la surveillance de la calculatrice
+    base.OnClosing(e); // Appelle la version originale pour continuer la fermeture
+}
     }
     }
