@@ -177,8 +177,9 @@ private CancellationTokenSource _monitoringCancellationToken; // Annuler le jeto
             StopCommand = new RelayCommand<int>(StopBackup);
             CancelCommand = new RelayCommand<int>(CancelBackup);
             DeleteProgressCommand = new RelayCommand<int>(DeleteProgress); 
-
-        File.WriteAllText("C:\\Logs\\States\\Daily\\state.json", string.Empty);
+            
+        string stateFilePath = Path.Combine(PathHelper.GetStatesDirectory(), "state.json");
+        File.WriteAllText(stateFilePath, string.Empty);
 
         }
 

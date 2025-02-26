@@ -33,8 +33,8 @@ namespace EasyWPF
         {
             InitializeComponent();
 
-            var dailyLogService = new DailyLogService(@"C:\Logs\Daily"); 
-            var stateService = new StateService(@"C:\Logs\States\Daily");
+            var dailyLogService = new DailyLogService(PathHelper.GetLogsDirectory()); 
+            var stateService = new StateService(PathHelper.GetStatesDirectory());
             var backupService = new BackupService(dailyLogService, stateService); 
 
             _viewModel = new BackupViewModel(dailyLogService, backupService, stateService); 
