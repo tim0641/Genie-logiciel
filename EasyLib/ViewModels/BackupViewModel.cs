@@ -182,9 +182,10 @@ namespace EasyLib.ViewModels
             StopCommand = new RelayCommand<int>(StopBackup);
             CancelCommand = new RelayCommand<int>(CancelBackup);
             DeleteProgressCommand = new RelayCommand<int>(DeleteProgress);
-
+            
+        string stateFilePath = Path.Combine(PathHelper.GetStatesDirectory(), "state.json");
             // Clearing state file at initialization
-            File.WriteAllText("C:\\Logs\\States\\Daily\\state.json", string.Empty);
+            File.WriteAllText(stateFilePath, string.Empty);
         }
     
 

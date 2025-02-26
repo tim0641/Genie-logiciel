@@ -388,7 +388,7 @@ private void CopyFile(string sourceFile, string destFile, string backupType, boo
     if (isEncrypted || isDecrypted)
     {
         string encryptionKey = "MaCleSecrete64Bits"; // Secret encryption key
-        string cryptoSoftPath = @"C:\Genie-logiciel\CryptoSoft\CryptoSoft.csproj"; // Path to encryption software
+        string cryptoSoftPath =  PathHelper.GetCryptoSoftProjectPath(); // Path to encryption software
         string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : ""; // Determine encryption or decryption mode
         
         // Measure encryption or decryption time and add it to the total encryption time.
