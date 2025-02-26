@@ -18,6 +18,7 @@ using EasyLib;
 using EasyLib.ViewModels;
 using EasyLib.Services;
 using System.Windows.Input;
+using CryptoSoft;
 
 
 namespace EasyLib.Services
@@ -388,11 +389,10 @@ private void CopyFile(string sourceFile, string destFile, string backupType, boo
     if (isEncrypted || isDecrypted)
     {
         string encryptionKey = "MaCleSecrete64Bits"; // Secret encryption key
-        string cryptoSoftPath =  PathHelper.GetCryptoSoftProjectPath(); // Path to encryption software
         string mode = isEncrypted ? "--encrypt" : isDecrypted ? "--decrypt" : ""; // Determine encryption or decryption mode
         
         // Measure encryption or decryption time and add it to the total encryption time.
-        long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey, cryptoSoftPath, mode);
+        long cryptoTime = EncryptOrDecryptFile(destFile, encryptionKey);
         encryptionTimeMs += cryptoTime;
     }
 }
@@ -584,29 +584,25 @@ private List<long> ProcessFilesInDirectory(DirectoryInfo currentDir, string dest
 
     return result;
 }
-private long EncryptOrDecryptFile(string filePath, string encryptionKey, string cryptoSoftPath, string mode)
+private long EncryptOrDecryptFile(string filePath, string encryptionKey)
 {
     Stopwatch stopwatch = new Stopwatch();
-    stopwatch.Start(); // Start timing the encryption/decryption process.
+    stopwatch.Start(); // Démarrer le chronométrage
 
-    ProcessStartInfo psi = new ProcessStartInfo
+    try
     {
-        FileName = "dotnet",
-        Arguments = $"run --project \"{cryptoSoftPath}\" \"{filePath}\" \"{encryptionKey}\" {mode}",
-        RedirectStandardOutput = true,
-        RedirectStandardError = true,
-        UseShellExecute = false,
-        CreateNoWindow = true
-    };
-
-    using (Process process = new Process { StartInfo = psi })
-    {
-        process.Start();
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
+        FileManager fileManager = new FileManager(filePath, encryptionKey);
+        int timeTaken = fileManager.TransformFile(); // Appel direct de la méthode
+        stopwatch.Stop();
+        
+        return timeTaken; // Retourne le temps d'exécution
     }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Erreur lors du chiffrement/déchiffrement : {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+        return -1; // Retourne -1 en cas d'erreur
+    }
+}
 
-    stopwatch.Stop();
-    return stopwatch.ElapsedMilliseconds; // Return the total time taken for encryption or decryption.
-}}}
+}
+}

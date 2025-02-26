@@ -5,12 +5,33 @@
     <TargetFramework>net8.0-windows</TargetFramework> 
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <PublishSingleFile>true</PublishSingleFile>
+  <SelfContained>true</SelfContained>
+  <PublishTrimmed>false</PublishTrimmed>
+  <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+  <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PublishSingleFile>false</PublishSingleFile>  
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EasyLib\EasyLib.csproj" />
     <ProjectReference Include="..\EasySaveLog\EasySaveLog.csproj" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
+        <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="..\CryptoSoft\bin\Release\net8.0-windows\CryptoSoft.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+
+      
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CryptoSoft\CryptoSoft.csproj" />
   </ItemGroup>
   
 </Project>
