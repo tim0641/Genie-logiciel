@@ -13,6 +13,6 @@ namespace EasySaveLog.Models
         public long? NbFilesLeftToDo { get; set; }
         public long? Progression { get; set; }
 
-
+ 
     }
 }

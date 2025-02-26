@@ -4,209 +4,233 @@ namespace EasyLib
 {
     public static class Localization
     {
-        private static string currentLanguage = "en"; 
+
+        // Current language selected, defaults to English.
+        private static string currentLanguage = "en";
         public static string CurrentLanguage => currentLanguage;
-        private static readonly string defaultLanguage = "fr"; 
 
-        private static readonly Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>
-        {
-            { "en", new Dictionary<string, string>
+        // Default language used as a fallback (French).
+        private static readonly string defaultLanguage = "fr";
+
+        // Nested dictionary storing translations for each language.
+        private static readonly Dictionary<string, Dictionary<string, string>> translations =
+            new Dictionary<string, Dictionary<string, string>>
+            {
                 {
-                    { "menu_title", "Main Menu" },
-                    { "create_backup", "Create Backup" },
-                    { "list_backups", "List Backups" },
-                    { "run_backup", "Run Backup" },
-                    { "delete_backup", "Delete Backup" },
-                    { "exit", "Exit" },
-                    { "choose_language", "Choose a language: (EN/FR)" },
-                    { "invalid_option", "Invalid option. Please try again." },
-                    { "press_backspace", "Press Backspace to return to the main menu..." },
-                    { "enter_backup_name", "Enter backup name:" },
-                    { "enter_source_path", "Enter source path:" },
-                    { "enter_destination_path", "Enter destination path:" },
-                    { "enter_backup_type", "Enter backup type (Full/Differential):" },
-                    { "backup_success", "Backup job created successfully." },
-                    { "backup_run_success", "Backup job execution successfull." },
-                    { "backup_exists", "Backup job already exists." },
-                    { "no_backups", "No backups available." },
-                    { "backup_deleted", "Backup job deleted successfully." },
-                    { "wrong_path", "Path does not exist" },
-                    { "use_space", "Use space to select multiple, enter to confirm" },
-                    { "select_backup", "Select one or severals backups" },
-                    { "directory_sucessfully_deleted", "Directory successfully Deleted" },
-                    { "directory_delete_not_found", "Directory not found and job deleted succesfully" },
-                    { "file_sucessfully_deleted", "File Sucessfully deleted" },
-                    { "file_delete_not_found", "Cannot Delete file because not found" },
-                    { "delete_progress", "Delete in progress" },
-                    { "run_progress", "Run in progress" },
-                    { "error_delete", "Delete Failing" },
-
-
-
-                    { "create", "Create" },
-                    { "list", "List" },
-                    { "run", "Run" },
-                    { "delete", "Delete" },
-                    { "createbackup", "Create Backup :" },
-                    { "createname", "Backup Name:" },
-                    { "createsource", "Source Path:" },
-                    { "createdestination", "Destination Path:" },
-                    { "createtype", "Backup Type :" },
-                    { "name", "Name" },
-                    { "source", "Source" },
-                    { "destination", "Destination" },
-                    { "type", "Type" },
-                    { "choice", "Choice" },
-
-                    { "progression", "Progress" },
-                    { "etats", "States" },
-                    { "start", "Play" },
-                    { "stop", "Stop" },
-                    { "cancel", "Cancel" },
-                    { "progress", "In progress" },
-                    { "pause", "Paused" },
-                    { "notlauch", "Not launched" },
-                    { "finish", "Finished" },
-                    { "del", "Delete" },
-                    { "isdirectory", "Directory" },
-                    { "Totalfiles", "Number of files" },
-                    { "Totalsizes", "Sizes" },
-
-{ "setting", "Settings" },
-{ "language", "Language: " },
-{ "logfile", "Log file:" },
-{ "encryption", "Encryption: " },
-{ "priorities", "Priorities:" },
-
-
-
-                    { "fill_all_fields", "Please fill in all fields." },
-                    { "no_backups_found", "No backups found." },
-                    { "backups_loaded", "Backups loaded." },
-                    { "no_backups_selected_for_execution", "No backups selected for execution." },
-                    { "backups_execution_in_progress", "Backups execution in progress..." },
-                    { "execution_error", "Error during execution:" },
-                    { "no_backups_selected_for_deletion", "No backups selected for deletion." },
-                    { "backups_deletion_in_progress", "Backups deletion in progress..." },
-                    { "deletion_error", "Error during deletion:" },
-                    { "full", "Full" },
-                    { "dif", "Differential" },
-{"Encryption","Encrypt after execution"},
-{"Decryption","Decrypt after execution"}
-
-                }
-            },
-            { "fr", new Dictionary<string, string>
+                    "en",
+                    new Dictionary<string, string>
+                    {
+                         // English translations for UI texts.
+                        { "menu_title", "Main Menu" },
+                        { "create_backup", "Create Backup" },
+                        { "list_backups", "List Backups" },
+                        { "run_backup", "Run Backup" },
+                        { "delete_backup", "Delete Backup" },
+                        { "exit", "Exit" },
+                        { "choose_language", "Choose a language: (EN/FR)" },
+                        { "invalid_option", "Invalid option. Please try again." },
+                        { "press_backspace", "Press Backspace to return to the main menu..." },
+                        { "enter_backup_name", "Enter backup name:" },
+                        { "enter_source_path", "Enter source path:" },
+                        { "enter_destination_path", "Enter destination path:" },
+                        { "enter_backup_type", "Enter backup type (Full/Differential):" },
+                        { "backup_success", "Backup job created successfully." },
+                        { "backup_run_success", "Backup job execution successfull." },
+                        { "backup_exists", "Backup job already exists." },
+                        { "no_backups", "No backups available." },
+                        { "backup_deleted", "Backup job deleted successfully." },
+                        { "wrong_path", "Path does not exist" },
+                        { "use_space", "Use space to select multiple, enter to confirm" },
+                        { "select_backup", "Select one or severals backups" },
+                        { "directory_sucessfully_deleted", "Directory successfully Deleted" },
+                        {
+                            "directory_delete_not_found",
+                            "Directory not found and job deleted succesfully"
+                        },
+                        { "file_sucessfully_deleted", "File Sucessfully deleted" },
+                        { "file_delete_not_found", "Cannot Delete file because not found" },
+                        { "delete_progress", "Delete in progress" },
+                        { "run_progress", "Run in progress" },
+                        { "error_delete", "Delete Failing" },
+                        { "create", "Create" },
+                        { "list", "List" },
+                        { "run", "Run" },
+                        { "delete", "Delete" },
+                        { "createbackup", "Create Backup :" },
+                        { "createname", "Backup Name:" },
+                        { "createsource", "Source Path:" },
+                        { "createdestination", "Destination Path:" },
+                        { "createtype", "Backup Type :" },
+                        { "name", "Name" },
+                        { "source", "Source" },
+                        { "destination", "Destination" },
+                        { "type", "Type" },
+                        { "choice", "Choice" },
+                        { "progression", "Progress" },
+                        { "etats", "States" },
+                        { "start", "Play" },
+                        { "stop", "Stop" },
+                        { "cancel", "Cancel" },
+                        { "progress", "In progress" },
+                        { "pause", "Paused" },
+                        { "notlauch", "Not launched" },
+                        { "finish", "Finished" },
+                        { "del", "Delete" },
+                        { "isdirectory", "Directory" },
+                        { "Totalfiles", "Number of files" },
+                        { "Totalsizes", "Sizes" },
+                        { "setting", "Settings" },
+                        { "language", "Language: " },
+                        { "logfile", "Log file:" },
+                        { "encryption", "Encryption: " },
+                        { "priorities", "Priorities:" },
+                        { "fill_all_fields", "Please fill in all fields." },
+                        { "no_backups_found", "No backups found." },
+                        { "backups_loaded", "Backups loaded." },
+                        {
+                            "no_backups_selected_for_execution",
+                            "No backups selected for execution."
+                        },
+                        { "backups_execution_in_progress", "Backups execution in progress..." },
+                        { "execution_error", "Error during execution:" },
+                        { "no_backups_selected_for_deletion", "No backups selected for deletion." },
+                        { "backups_deletion_in_progress", "Backups deletion in progress..." },
+                        { "deletion_error", "Error during deletion:" },
+                        { "full", "Full" },
+                        { "dif", "Differential" },
+                        { "Encryption", "Encrypt after execution" },
+                        { "Decryption", "Decrypt after execution" },
+                    }
+                },
                 {
-                    { "menu_title", "Menu Principal" },
-                    { "create_backup", "Créer une sauvegarde" },
-                    { "list_backups", "Lister les sauvegardes" },
-                    { "run_backup", "Exécuter les sauvegarde" },
-                    { "delete_backup", "Supprimer les sauvegarde" },
-                    { "exit", "Quitter" },
-                    { "choose_language", "Choisissez une langue : (EN/FR)" },
-                    { "invalid_option", "Option invalide. Veuillez réessayer." },
-                    { "press_backspace", "Appuyez sur Retour pour revenir au menu principal..." },
-                    { "enter_backup_name", "Entrez le nom de la sauvegarde :" },
-                    { "enter_source_path", "Entrez le chemin source :" },
-                    { "enter_destination_path", "Entrez le chemin de destination :" },
-                    { "enter_backup_type", "Entrez le type de sauvegarde (Complete/Différentielle) :" },
-                    { "backup_success", "Tâche de sauvegarde créée avec succès." },
-                    { "backup_run_success", "Sauvegarde exécutée avec succès" },
-                    { "backup_exists", "La tâche de sauvegarde existe déjà." },
-                    { "no_backups", "Aucune sauvegarde disponible." },
-                    { "backup_deleted", "Tâche de sauvegarde supprimée avec succès." },
-                    { "wrong_path", "Le chemin n'est pas le bon" },
-                    { "use_space", "Utilisez espace pour en selectioner plusieurs" },
-                    { "select_backup", "Selectionnez une ou plusieurs sauvegardes" },
-                    { "directory_sucessfully_deleted", "Repertoire Supprimé avec succès" },
-                    { "directory_delete_not_found", "Repertoire introuvable tache supprimée avec succès" },
-                    { "file_sucessfully_deleted", "Fichier supprimé avec succès" },
-                    { "file_delete_not_found", "Fichier introuvable échec de supression" },
-                    { "run_progress", "Execution en cours" },
-                    { "delete_progress", "Suppresion en cours" },
-                    { "error_delete", "Erreur de supression" },
+                    "fr",
+                    new Dictionary<string, string>
+                    {
+                        // French translations for UI texts.
+                        { "menu_title", "Menu Principal" },
+                        { "create_backup", "Créer une sauvegarde" },
+                        { "list_backups", "Lister les sauvegardes" },
+                        { "run_backup", "Exécuter les sauvegarde" },
+                        { "delete_backup", "Supprimer les sauvegarde" },
+                        { "exit", "Quitter" },
+                        { "choose_language", "Choisissez une langue : (EN/FR)" },
+                        { "invalid_option", "Option invalide. Veuillez réessayer." },
+                        {
+                            "press_backspace",
+                            "Appuyez sur Retour pour revenir au menu principal..."
+                        },
+                        { "enter_backup_name", "Entrez le nom de la sauvegarde :" },
+                        { "enter_source_path", "Entrez le chemin source :" },
+                        { "enter_destination_path", "Entrez le chemin de destination :" },
+                        {
+                            "enter_backup_type",
+                            "Entrez le type de sauvegarde (Complete/Différentielle) :"
+                        },
+                        { "backup_success", "Tâche de sauvegarde créée avec succès." },
+                        { "backup_run_success", "Sauvegarde exécutée avec succès" },
+                        { "backup_exists", "La tâche de sauvegarde existe déjà." },
+                        { "no_backups", "Aucune sauvegarde disponible." },
+                        { "backup_deleted", "Tâche de sauvegarde supprimée avec succès." },
+                        { "wrong_path", "Le chemin n'est pas le bon" },
+                        { "use_space", "Utilisez espace pour en selectioner plusieurs" },
+                        { "select_backup", "Selectionnez une ou plusieurs sauvegardes" },
+                        { "directory_sucessfully_deleted", "Repertoire Supprimé avec succès" },
+                        {
+                            "directory_delete_not_found",
+                            "Repertoire introuvable tache supprimée avec succès"
+                        },
+                        { "file_sucessfully_deleted", "Fichier supprimé avec succès" },
+                        { "file_delete_not_found", "Fichier introuvable échec de supression" },
+                        { "run_progress", "Execution en cours" },
+                        { "delete_progress", "Suppresion en cours" },
+                        { "error_delete", "Erreur de supression" },
+                        { "create", "Créer" },
+                        { "list", "Afficher" },
+                        { "run", "Exécuter" },
+                        { "delete", "Supprimer" },
+                        { "createbackup", "Créer une Sauvegarde :" },
+                        { "createname", "Nom de la sauvegarde :" },
+                        { "createsource", "Chemin source :" },
+                        { "createdestination", "Chemin de destination :" },
+                        { "createtype", "Type de sauvegarde :" },
+                        { "name", "Nom" },
+                        { "source", "Source" },
+                        { "destination", "Destination" },
+                        { "type", "Type" },
+                        { "choice", "Choix" },
+                        { "full", "Complète" },
+                        { "dif", "Différentiel" },
+                        { "progression", "Progression" },
+                        { "etats", "États" },
+                        { "start", "Lancer" },
+                        { "stop", "Arréter" },
+                        { "cancel", "Annuler" },
+                        { "progress", "En cours" },
+                        { "pause", "En pause" },
+                        { "notlauch", "Pas lancé" },
+                        { "finish", "Finis" },
+                        { "del", "Supprimer" },
+                        { "setting", "Paramètres" },
+                        { "language", "Langue : " },
+                        { "logfile", "Fichier log :" },
+                        { "encryption", "Cryptage : " },
+                        { "priorities", "Priorisations :" },
+                        { "isdirectory", "Dossier" },
+                        { "Totalfiles", "Nombres de fichiers" },
+                        { "Totalsizes", "Tailles" },
+                        { "Encryption ", "Chiffrer après exécution" },
+                        { "Decryption", "Déchiffrer après exécution" },
+                        { "fill_all_fields", "Veuillez remplir tous les champs." },
+                        { "no_backups_found", "Aucune sauvegarde trouvée." },
+                        { "backups_loaded", "Sauvegardes chargées." },
+                        {
+                            "no_backups_selected_for_execution",
+                            "Aucune sauvegarde sélectionnée pour l'exécution."
+                        },
+                        {
+                            "backups_execution_in_progress",
+                            "Exécution des sauvegardes en cours..."
+                        },
+                        { "execution_error", "Erreur lors de l'exécution :" },
+                        {
+                            "no_backups_selected_for_deletion",
+                            "Aucune sauvegarde sélectionnée pour la suppression."
+                        },
+                        {
+                            "backups_deletion_in_progress",
+                            "Suppression des sauvegardes en cours..."
+                        },
+                        { "deletion_error", "Erreur lors de la suppression :" },
+                    }
+                },
+            };
 
-
-
-                    { "create", "Créer" },
-                    { "list", "Afficher" },
-                    { "run", "Exécuter" },
-                    { "delete", "Supprimer" },
-                    { "createbackup", "Créer une Sauvegarde :" },
-                    { "createname", "Nom de la sauvegarde :" },
-                    { "createsource", "Chemin source :" },
-                    { "createdestination", "Chemin de destination :" },
-                    { "createtype", "Type de sauvegarde :" },
-                    { "name", "Nom" },
-                    { "source", "Source" },
-                    { "destination", "Destination" },
-                    { "type", "Type" },
-                    { "choice", "Choix" },
-                    { "full", "Complète" },
-                    { "dif", "Différentiel" },
-
-                    { "progression", "Progression" },
-                    { "etats", "États" },
-                    { "start", "Lancer" },
-                    { "stop", "Arréter" },
-                    { "cancel", "Annuler" },
-                    { "progress", "En cours" },
-                    { "pause", "En pause" },
-                    { "notlauch", "Pas lancé" },
-                    { "finish", "Finis" },
-                    { "del", "Supprimer" },
-
-                    
-                    { "setting", "Paramètres" },
-                    { "language", "Langue : " },
-                    { "logfile", "Fichier log :" },
-                    { "encryption", "Cryptage : " },
-                    { "priorities", "Priorisations :" },
-
-               { "isdirectory", "Dossier" },
-                    { "Totalfiles", "Nombres de fichiers" },
-                    { "Totalsizes", "Tailles" },
-
-                    {"Encryption ","Chiffrer après exécution"},
-                    {"Decryption","Déchiffrer après exécution"},
-
-
-                    { "fill_all_fields", "Veuillez remplir tous les champs." },
-                    { "no_backups_found", "Aucune sauvegarde trouvée." },
-                    { "backups_loaded", "Sauvegardes chargées." },
-                    { "no_backups_selected_for_execution", "Aucune sauvegarde sélectionnée pour l'exécution." },
-                    { "backups_execution_in_progress", "Exécution des sauvegardes en cours..." },
-                    { "execution_error", "Erreur lors de l'exécution :" },
-                    { "no_backups_selected_for_deletion", "Aucune sauvegarde sélectionnée pour la suppression." },
-                    { "backups_deletion_in_progress", "Suppression des sauvegardes en cours..." },
-                    { "deletion_error", "Erreur lors de la suppression :" }
-                    
-
-                }
-            }
-        };
-
+        // Method to set the current language of the application
         public static void SetLanguage(string lang)
         {
-            lang = lang.ToLower();
-            if (translations.ContainsKey(lang))
+            lang = lang.ToLower(); // Convert input language to lowercase
+            if (translations.ContainsKey(lang)) // Check if language exists in dictionary
             {
-                currentLanguage = lang;
+                currentLanguage = lang; // Set the current language
             }
             else
             {
-                currentLanguage = defaultLanguage;
+                currentLanguage = defaultLanguage; // Set to default if language is unavailable
             }
         }
 
+        // Method to get the translation based on key and current language
         public static string Get(string key)
         {
-            if (translations[currentLanguage].ContainsKey(key))
+            if (translations[currentLanguage].ContainsKey(key)) // Check current language for translation
             {
-                return translations[currentLanguage][key];
+                return translations[currentLanguage][key]; // Return translation if exists
             }
-            return translations[defaultLanguage].ContainsKey(key) ? translations[defaultLanguage][key] : key;
+            // Fallback to default language if translation is missing in current language
+            return translations[defaultLanguage].ContainsKey(key)
+                ? translations[defaultLanguage][key]
+                : key; // Return key itself if no translation found
         }
     }
 }
+

@@ -17,22 +17,22 @@ namespace EasyLib.ViewModels
 {
     public class BackupViewModel : INotifyPropertyChanged
     {
-        private readonly BackupService _backupService;
-        private readonly DailyLogService _dailyLogService;
-        private readonly StateService _stateService;
+        private readonly BackupService _backupService; // Service handling backup operations
+        private readonly DailyLogService _dailyLogService; // Service managing daily logs
+        private readonly StateService _stateService; // Service handling state tracking
 
-        public ObservableCollection<BackupModel> Backups { get; private set; }
-    public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>();
+        public ObservableCollection<BackupModel> Backups { get; private set; } // Collection of backups
+        public ObservableCollection<EncoursModel> EncoursBackups { get; private set; } = new ObservableCollection<EncoursModel>(); // Collection of ongoing backups
 
-    public PriorityModel Priority { get; set; } = new PriorityModel
-    {
-        IsDocx = false,
-        IsPdf = false,
-        IsTxt = false,
-        IsJpg = false
-    };
-
-        private string _status;
+        // Priority model configuration for specific file types
+        public PriorityModel Priority { get; set; } = new PriorityModel
+        {
+            IsDocx = false,
+            IsPdf = false,
+            IsTxt = false,
+            IsJpg = false
+        };
+        private string _status; // Stores the current status message
         public string Status
         {
             get => _status;
@@ -43,8 +43,7 @@ namespace EasyLib.ViewModels
             }
         }
         
-
-        private string _backupName;
+        private string _backupName; // Stores the backup name
         public string BackupName
         {
             get => _backupName;
@@ -55,7 +54,7 @@ namespace EasyLib.ViewModels
             }
         }
 
-        private string _sourcePath;
+        private string _sourcePath; // Stores the source path of the backup
         public string SourcePath
         {
             get => _sourcePath;
@@ -66,7 +65,7 @@ namespace EasyLib.ViewModels
             }
         }
 
-        private string _destinationPath;
+        private string _destinationPath; // Stores the destination path of the backup
         public string DestinationPath
         {
             get => _destinationPath;
@@ -77,77 +76,81 @@ namespace EasyLib.ViewModels
             }
         }
 
-        private string _backupType;
+        private string _backupType; // Stores the type of backup (Full/Differential)
         public string BackupType
         {
             get => _backupType;
             set
             {
-            if (_backupType != value)
-            {
-                _backupType = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsFullBackup)); // Met à jour les CheckBox
-                OnPropertyChanged(nameof(IsDifferentialBackup));
-            }
+                if (_backupType != value)
+                {
+                    _backupType = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsFullBackup)); // Updates CheckBox status
+                    OnPropertyChanged(nameof(IsDifferentialBackup));
+                }
             }
         }
+
+        // Property to check if Full Backup is selected
         public bool IsFullBackup
         {
             get => BackupType == "Full";
             set
             {
                 if (value)
-                    BackupType = "Full"; // Si on coche Full, on met à jour BackupType
+                    BackupType = "Full"; // If checked, update BackupType
             }
         }
 
+        // Property to check if Differential Backup is selected
         public bool IsDifferentialBackup
         {
             get => BackupType == "Differential";
             set
             {
                 if (value)
-                    BackupType = "Differential"; // Si on coche Differential, on met à jour BackupType
+                    BackupType = "Differential"; // If checked, update BackupType
             }
         }
 
-     private bool _isEncrypted;
+        private bool _isEncrypted; // Stores encryption status
         public bool IsEncrypted
         {
             get => _isEncrypted;
             set
-        {
-        _isEncrypted = value;
-        OnPropertyChanged();
-        }
+            {
+                _isEncrypted = value;
+                OnPropertyChanged();
+            }
         }   
 
-    private bool _isDecrypted;
-    public bool IsDecrypted
-{
-    get => _isDecrypted;
-    set
-    {
-        _isDecrypted = value;
-        OnPropertyChanged();
-    }
-}
+        private bool _isDecrypted; // Stores decryption status
+        public bool IsDecrypted
+        {
+            get => _isDecrypted;
+            set
+            {
+                _isDecrypted = value;
+                OnPropertyChanged();
+            }
+        }
 
-    public LogFormat LogFormat
-{
-    get => _dailyLogService.Format;
-    set
-    {
-        _dailyLogService.Format = value; // Met à jour le format du service de logs
-        OnPropertyChanged();
-    }
-}
+        public LogFormat LogFormat
+        {
+            get => _dailyLogService.Format;
+            set
+            {
+                _dailyLogService.Format = value; // Updates log format
+                OnPropertyChanged();
+            }
+        }
 
-private readonly string _processToMonitor = "CalculatorApp"; // Processus à surveiller
-private bool _isProcessRunning = false;
-private CancellationTokenSource _monitoringCancellationToken; // Annuler le jeton pour arrêter la surveillance
+        private readonly string _processToMonitor = "CalculatorApp"; // The process to monitor
+        private bool _isProcessRunning = false; // Tracks if the monitored process is running
+        private CancellationTokenSource _monitoringCancellationToken; // Token to cancel monitoring
 
+        // Commands for UI interactions
         public ICommand CreateBackupCommand { get; }
         public ICommand ListBackupsCommand { get; }
         public ICommand RunSelectedBackupCommand { get; }
@@ -157,6 +160,8 @@ private CancellationTokenSource _monitoringCancellationToken; // Annuler le jeto
         public ICommand PlayCommand { get; }
         public ICommand StopCommand { get; }
         public ICommand DeleteProgressCommand { get; }  
+
+        // Constructor initializing services and commands
         public BackupViewModel(DailyLogService dailyLogService, BackupService backupService, StateService stateService)
         {
             _dailyLogService = dailyLogService;
@@ -165,117 +170,119 @@ private CancellationTokenSource _monitoringCancellationToken; // Annuler le jeto
 
             Backups = new ObservableCollection<BackupModel>();
             Application.Current.Dispatcher.InvokeAsync(() => ListBackups());
-            
+
+            // Initializing commands
             CreateBackupCommand = new RelayCommand(CreateBackupFromUserInput);
             ListBackupsCommand = new RelayCommand(ListBackups);
             RunSelectedBackupCommand = new RelayCommand(RunSelectedBackups);
             DeleteSelectedBackupCommand = new RelayCommand(DeleteSelectedBackups);
 
-
             EncoursBackups = new ObservableCollection<EncoursModel>();
             PlayCommand = new RelayCommand<int>(PlayBackup);
             StopCommand = new RelayCommand<int>(StopBackup);
             CancelCommand = new RelayCommand<int>(CancelBackup);
-            DeleteProgressCommand = new RelayCommand<int>(DeleteProgress); 
+            DeleteProgressCommand = new RelayCommand<int>(DeleteProgress);
 
-        File.WriteAllText("C:\\Logs\\States\\Daily\\state.json", string.Empty);
-
+            // Clearing state file at initialization
+            File.WriteAllText("C:\\Logs\\States\\Daily\\state.json", string.Empty);
         }
+    
 
-public string PlayText => Localization.Get("start");
-public string StopText => Localization.Get("stop");
-public string CancelText => Localization.Get("cancel");
-public string DelText => Localization.Get("del");
+// Text properties for UI localization
+public string PlayText => Localization.Get("start"); // Gets the localized text for "start"
+public string StopText => Localization.Get("stop"); // Gets the localized text for "stop"
+public string CancelText => Localization.Get("cancel"); // Gets the localized text for "cancel"
+public string DelText => Localization.Get("del"); // Gets the localized text for "delete"
 
+// Refreshes the localized text for UI elements
 public void RefreshLocalization()
 {
     OnPropertyChanged(nameof(PlayText));
     OnPropertyChanged(nameof(StopText));
     OnPropertyChanged(nameof(CancelText));
     OnPropertyChanged(nameof(DelText));
-        foreach (var item in EncoursBackups)
+    
+    // Refresh the state of all ongoing backups
+    foreach (var item in EncoursBackups)
     {
         item.RefreshEtat();
-        
     }
 }
 
-
-
-
-
+// Starts or resumes a backup process
 private void PlayBackup(int backupId)
 {
-    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
-    var backup = Backups.FirstOrDefault(b => b.ID == backupId);
-    
+    var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId); // Finds the ongoing backup
+    var backup = Backups.FirstOrDefault(b => b.ID == backupId); // Finds the corresponding backup
+
     if (encours != null && backup != null)
     {
         if (encours.Cancelled)
         {
+            // If the backup was canceled, reset and restart it
             encours.Cancelled = false;
             encours.Progress = 0;
             Task.Run(() =>
             {
-                _backupService.RunBackup(backup, encours,Priority, IsEncrypted, IsDecrypted);
+                _backupService.RunBackup(backup, encours, Priority, IsEncrypted, IsDecrypted);
             });
         }
         else
         {
+            // If it's not canceled, resume the backup process
             encours.EnCoursbool = true;
         }
     }
 }
 
+// Stops a running backup process
 private void StopBackup(int backupId)
 {
-
     var backup = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
     if (backup != null)
     {
-        backup.EnCoursbool = false; // Mettre à jour l'attribut "EnCours" de la backup à "false"
+        backup.EnCoursbool = false; // Updates the "In Progress" status to false
     }
 }
+
+// Deletes progress tracking of a backup process
 private void DeleteProgress(int backupId)
 {
-    // Retrouver l'élément de progression dans la collection d'états en cours
     var progressItem = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
     if (progressItem != null)
     {
-        // Réinitialise la progression et l'état de l'élément
+        // Reset the progress and remove it from the ongoing backups list
         progressItem.Progress = 0;
         progressItem.EnCoursbool = false;
-        // Supprime l'élément de la collection pour qu'il disparaisse du DataGrid
         EncoursBackups.Remove(progressItem);
     }
 
-    // Retrouver le backup dans la collection principale et décocher sa sélection
+    // Find the corresponding backup and unselect it
     var backupItem = Backups.FirstOrDefault(b => b.ID == backupId);
     if (backupItem != null)
     {
         backupItem.IsSelected = false;
-        // Appeler le StateService pour supprimer l'état correspondant dans le fichier d'états
-        _stateService.StopStateForBackup(backupItem.Name);
+        _stateService.StopStateForBackup(backupItem.Name); // Remove state tracking
     }
 }
 
-
+// Cancels an ongoing backup process
 private void CancelBackup(int backupId)
 {
     var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
     var backup = Backups.FirstOrDefault(b => b.ID == backupId);
+
     if (encours != null && backup != null)
     {
-        encours.Cancelled = true;
+        encours.Cancelled = true; // Marks the backup as canceled
         encours.EnCoursbool = false;
         encours.Progress = 0;
         backup.IsSelected = false;
-        _backupService.CancelBackup(backup);
+        _backupService.CancelBackup(backup); // Calls the service to cancel the backup
     }
 }
 
-
-
+// Starts monitoring for a specific process (e.g., "CalculatorApp") and pauses backups if detected
 public void StartProcessMonitoring()
 {
     _monitoringCancellationToken = new CancellationTokenSource();
@@ -284,216 +291,203 @@ public void StartProcessMonitoring()
     {
         while (!_monitoringCancellationToken.Token.IsCancellationRequested)
         {
+            // Checks if the process (CalculatorApp or "calc") is running
             bool processDetected = Process.GetProcessesByName(_processToMonitor).Length > 0 ||
-                                   Process.GetProcessesByName("calc").Length > 0; // Vérifie les 2 versions
+                                   Process.GetProcessesByName("calc").Length > 0;
 
             if (processDetected && !_isProcessRunning)
             {
                 _isProcessRunning = true;
-                PauseAllBackups();
+                PauseAllBackups(); // Pauses all backups when the process is detected
             }
             else if (!processDetected && _isProcessRunning)
             {
                 _isProcessRunning = false;
-                ResumeAllBackups();
+                ResumeAllBackups(); // Resumes backups when the process is no longer running
             }
 
-            Thread.Sleep(5000); // Vérifie toutes les 5 secondes
+            Thread.Sleep(5000); // Checks the process status every 5 seconds
         }
     }, _monitoringCancellationToken.Token);
 }
 
-
-
-
+// Pauses all active backups
 private void PauseAllBackups()
 {
     foreach (var encours in EncoursBackups)
     {
-        encours.EnCoursbool = false; // Met en pause tous les backups en cours
+        encours.EnCoursbool = false; // Updates all backups to paused state
     }
-    Status = "Backups mis en pause (Logiciel métier en cours d'utilisation)";
+    Status = "Backups paused (Business software in use)";
 }
 
-
-
-
+// Resumes all paused backups
 private void ResumeAllBackups()
 {
     foreach (var encours in EncoursBackups)
     {
-        encours.EnCoursbool = true; // Reprend tous les backups
+        encours.EnCoursbool = true; // Updates all backups to running state
     }
-    Status = "Backups repris (Calculatrice fermée)";
+    Status = "Backups resumed (Calculator closed)";
 }
 
-
+// Stops the process monitoring
 public void StopProcessMonitoring()
 {
-    _monitoringCancellationToken?.Cancel(); // Annuler la surveillance
+    _monitoringCancellationToken?.Cancel(); // Cancels the monitoring task
+}
+// Creates a backup from user input
+private void CreateBackupFromUserInput()
+{
+    // Check if all required fields are filled
+    if (string.IsNullOrWhiteSpace(BackupName) || string.IsNullOrWhiteSpace(SourcePath) ||
+        string.IsNullOrWhiteSpace(DestinationPath) || string.IsNullOrWhiteSpace(BackupType))
+    {
+        Status = Localization.Get("fill_all_fields"); // Notify user to fill all fields
+        return;
+    }
+
+    // Call the backup service to create the backup
+    Status = _backupService.CreateBackup(BackupName, SourcePath, DestinationPath, BackupType);
 }
 
+// Retrieves and lists all existing backups
+private void ListBackups()
+{
+    Backups.Clear(); // Clear the current backup list before refreshing
 
-
-
-        private void CreateBackupFromUserInput()
-        {
-
-
-            if (string.IsNullOrWhiteSpace(BackupName) || string.IsNullOrWhiteSpace(SourcePath) ||
-                string.IsNullOrWhiteSpace(DestinationPath) || string.IsNullOrWhiteSpace(BackupType))
-            {
-                Status = Localization.Get("fill_all_fields");
-                return;
-            }
-
-            Status = _backupService.CreateBackup(BackupName, SourcePath, DestinationPath, BackupType);
-                    
-
-        }
-
-
-
-        private void ListBackups()
-        {
-
-
-            Backups.Clear();
-            foreach (var backup in _backupService.GetAllBackups())
-            {
-
-                        backup.FileCount = backup.IsDirectory 
+    foreach (var backup in _backupService.GetAllBackups())
+    {
+        // If it's a directory, count the number of files, otherwise set to 1
+        backup.FileCount = backup.IsDirectory 
             ? _backupService.CountFilesInDirectory(backup.SourcePath) 
             : 1;
+
+        // Calculate the total size of the backup
         backup.TotalSize = _backupService.GetSize(backup.SourcePath, backup.DestinationPath, backup.BackupType);
-       
-                Backups.Add(backup);
-            }
-            Status = Backups.Count == 0 ? Localization.Get("no_backups_found"): "";
-        }
 
+        // Add the backup to the collection
+        Backups.Add(backup);
+    }
 
+    // Update the status message
+    Status = Backups.Count == 0 ? Localization.Get("no_backups_found") : "";
+}
 
-
+// Runs the selected backups asynchronously
 private async void RunSelectedBackups()
 {
     try
     {
-        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();   
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.ID).ToList();
 
-        bool isEncrypted = IsEncrypted; 
-        bool isDecrypted = IsDecrypted; 
+        bool isEncrypted = IsEncrypted;
+        bool isDecrypted = IsDecrypted;
 
-        Status = Localization.Get("backups_execution_in_progress");
-        StateService.StopTimer();
+        Status = Localization.Get("backups_execution_in_progress"); // Update UI status
+        StateService.StopTimer(); // Stop any active timers
 
+        var selectedBackupsList = Backups.Where(b => b.IsSelected).ToList();
 
-        var selectedBackupsd = Backups.Where(b => b.IsSelected).ToList();
-        foreach (var backup in selectedBackupsd)
+        // Add selected backups to the ongoing backup list
+        foreach (var backup in selectedBackupsList)
         {
             if (!EncoursBackups.Any(e => e.ID == backup.ID))
             {
-                var encours = new EncoursModel(backup.ID,  backup.Name, backup.BackupType);
+                var encours = new EncoursModel(backup.ID, backup.Name, backup.BackupType);
                 EncoursBackups.Add(encours);
-                
             }
-        
         }
+
         List<Task> tasks = new List<Task>();
 
+        // Start each selected backup asynchronously
         foreach (var backupId in selectedBackups)
         {
             var backup = Backups.FirstOrDefault(b => b.ID == backupId);
-            var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId); 
-
+            var encours = EncoursBackups.FirstOrDefault(e => e.ID == backupId);
 
             if (backup != null && encours != null)
             {
                 tasks.Add(Task.Run(() =>
                 {
-                    _backupService.RunBackup(backup, encours,Priority, isEncrypted, isDecrypted);
+                    _backupService.RunBackup(backup, encours, Priority, isEncrypted, isDecrypted);
                 }));
             }
-        }       
+        }
 
-
-
-
-
-        Status = Localization.Get("execution_completed");
+        // Wait for all backups to complete
+        await Task.WhenAll(tasks);
+        Status = Localization.Get("execution_completed"); // Update UI status
     }
     catch (Exception ex)
     {
-        Status = Localization.Get("execution_error") + ": " + ex.Message;
+        Status = Localization.Get("execution_error") + ": " + ex.Message; // Handle errors
     }
 }
 
-        private void DeleteSelectedBackups()
-        {
-
-
-            try
-            {
-                var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
-
-                if (selectedBackups.Count == 0)
-                {
-                    Status = Localization.Get("no_backups_selected_for_deletion");
-                    return;
-                }
-
-                Status = Localization.Get("backups_deletion_in_progress");
-                Status = _backupService.DeleteBackup(selectedBackups);
-            }
-            catch (Exception ex)
-            {
-            Status = Localization.Get("deletion_error") + ": " + ex.Message;                  
-            }
-        }
-
-
-
-
-
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class RelayCommand : ICommand
+// Deletes the selected backups
+private void DeleteSelectedBackups()
+{
+    try
     {
-        private readonly Action _execute;
-        private readonly Func<bool> _canExecute;
-        public event EventHandler? CanExecuteChanged;
+        var selectedBackups = Backups.Where(b => b.IsSelected).Select(b => b.Name).ToList();
 
-        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        // If no backups are selected, notify the user
+        if (selectedBackups.Count == 0)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
+            Status = Localization.Get("no_backups_selected_for_deletion");
+            return;
         }
- 
-        public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
-        public void Execute(object parameter) => _execute();
+
+        Status = Localization.Get("backups_deletion_in_progress"); // Update UI status
+
+        // Call the backup service to delete the backups
+        Status = _backupService.DeleteBackup(selectedBackups);
     }
-       public class RelayCommand<T> : ICommand
+    catch (Exception ex)
     {
-        private readonly Action<T> _execute;
-        private readonly Func<T, bool> _canExecute;
-        public event EventHandler? CanExecuteChanged;
-
-        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
-
-        public bool CanExecute(object parameter) => _canExecute == null || _canExecute((T)parameter);
-        public void Execute(object parameter) => _execute((T)parameter);
+        Status = Localization.Get("deletion_error") + ": " + ex.Message; // Handle errors
     }
-
-
-    
 }
+
+// Event handler for property change notifications
+public event PropertyChangedEventHandler? PropertyChanged;
+protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+{
+    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+}
+
+// Relay command implementation for UI command binding
+public class RelayCommand : ICommand
+{
+    private readonly Action _execute;
+    private readonly Func<bool> _canExecute;
+    public event EventHandler? CanExecuteChanged;
+
+    public RelayCommand(Action execute, Func<bool> canExecute = null)
+    {
+        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        _canExecute = canExecute;
+    }
+
+    public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
+    public void Execute(object parameter) => _execute();
+}
+
+// Generic relay command to handle commands with parameters
+public class RelayCommand<T> : ICommand
+{
+    private readonly Action<T> _execute;
+    private readonly Func<T, bool> _canExecute;
+    public event EventHandler? CanExecuteChanged;
+
+    public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
+    {
+        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        _canExecute = canExecute;
+    }
+
+    public bool CanExecute(object parameter) => _canExecute == null || _canExecute((T)parameter);
+    public void Execute(object parameter) => _execute((T)parameter);
+}}}
